@@ -20,7 +20,7 @@ class UtilsTest {
     }
 
     @Test
-    void extractDomainFromUrlTest3() throws URISyntaxException {
+    void extractDomainFromUrlTest3() {
         String url = "teskljgfklj/test";
         Assertions.assertThrows(URISyntaxException.class, () -> Utils.extractDomainFromUrl(url));
     }
@@ -63,11 +63,6 @@ class UtilsTest {
 
     @Test
     void extractDOItestAvecPresenceDOIdanstitleIdetTitleurl_priorisationTitleUrl() {
-        /*
-        TODO pierre attention si un objet kbart ne contient pas de valeur sur
-        publication_title, publication_type, online_identifier, print_identifier
-        NPE au lancement du test passage dans bestPpnService.extractDOI
-        */
         LigneKbartDto kbart = new LigneKbartDto();
         kbart.setPublication_title("testtitle");
         kbart.setPublication_type("testtype");

@@ -85,14 +85,15 @@ public class LigneKbartDto {
     @CsvBindByName(column = "access_type")
     @CsvBindByPosition(position = 24)
     private String access_type;
-
+    @CsvBindByName(column = "access_type")
+    @CsvBindByPosition(position = 25)
+    private String bestPpn;
 
     @JsonIgnore
     @CsvBindByName(column = "errorType")
     @CsvBindByPosition(position = 26)
     private String errorType;
 
-    private String bestPpn;
 
     @Override
     public int hashCode() {
@@ -104,6 +105,11 @@ public class LigneKbartDto {
         return "publication title : " + this.publication_title + " / publication_type : " + this.publication_type +
                 (this.online_identifier.isEmpty() ? "" : " / online_identifier : " + this.online_identifier) +
                 (this.print_identifier.isEmpty() ? "" : " / print_identifier : " + this.print_identifier);
+    }
+
+    @JsonIgnore
+    public boolean isBestPpnEmpty() {
+        return this.bestPpn == null || this.bestPpn.isEmpty();
     }
 
     @JsonIgnore
