@@ -10,6 +10,8 @@ import fr.abes.bestppn.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,12 @@ public class TopicConsumer {
             String provider = Utils.extractProvider(filename);
             LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
             if (!ligneFromKafka.isBestPpnEmpty()) {
-                ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider));
+                Headers consumedHeaders = lignesKbart.headers();
+                boolean forceSetBestPpn = false;
+                for (Header header : consumedHeaders) {
+                    if (header.key().contains("_FORCE")) {forceSetBestPpn |= true;}
+                }
+                ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, forceSetBestPpn));
             }
             producer.sendKbart(ligneFromKafka, filename);
         } catch (IllegalProviderException e) {

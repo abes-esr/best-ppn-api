@@ -58,7 +58,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public String getBestPpn(LigneKbartDto kbart, String provider) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
+    public String getBestPpn(LigneKbartDto kbart, String provider, boolean forceSetBestPpn) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -83,7 +83,7 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
-        return getBestPpnByScore(kbart, provider, ppnElecScoredList, ppnPrintResultList);
+        return getBestPpnByScore(kbart, provider, ppnElecScoredList, ppnPrintResultList, forceSetBestPpn);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException {
@@ -165,7 +165,7 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public String getBestPpnByScore(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws BestPpnException, JsonProcessingException {
+    public String getBestPpnByScore(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean forceSetBestPpn) throws BestPpnException, JsonProcessingException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         switch (ppnElecScore.size()) {
             case 0 -> {
@@ -181,7 +181,11 @@ public class BestPpnService {
                     }
                     default -> {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
-                        throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        if (forceSetBestPpn) {
+                            topicProducer.sendPrintNotice(String.join(", ", ppnPrintResultList), kbart, provider);
+                        } else {
+                            throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        }
                     }
                 }
             }
@@ -193,7 +197,11 @@ public class BestPpnService {
                 String errorString = "Les ppn électroniques " + listPpn + " ont le même score";
                 kbart.setErrorType(errorString);
                 log.error(errorString);
-                throw new BestPpnException(errorString);
+                if (forceSetBestPpn) {
+                    topicProducer.sendPrintNotice(listPpn, kbart, provider);
+                } else {
+                    throw new BestPpnException(errorString);
+                }
             }
         }
         return "";
