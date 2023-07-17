@@ -1,6 +1,7 @@
 package fr.abes.bestppn.configuration;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,14 +21,16 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapAddress;
 
+    @Value("${spring.kafka.producer.transaction-id-prefix}")
+    private String transactionIdPrefix;
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "lignesKbart");
         props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,("SchedulerCoordinator"+ UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

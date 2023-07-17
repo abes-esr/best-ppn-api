@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,8 +32,10 @@ public class TopicConsumer {
     private TopicProducer producer;
 
     @KafkaListener(topics = {"bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
+    @Transactional
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         try {
+            log.debug("test");
             String filename = lignesKbart.key();
             String provider = Utils.extractProvider(filename);
             LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
