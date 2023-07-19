@@ -389,6 +389,7 @@ class BestPpnServiceTest {
         Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticePrint);
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
+        Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
 
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
@@ -433,6 +434,7 @@ class BestPpnServiceTest {
         Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticeElec);
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
+        Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
 
         //  Appel de la méthode
         String result = bestPpnService.getBestPpn(kbart, provider, false);
