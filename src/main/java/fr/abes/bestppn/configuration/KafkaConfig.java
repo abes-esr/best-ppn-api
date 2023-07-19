@@ -1,8 +1,8 @@
 package fr.abes.bestppn.configuration;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +10,8 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,9 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.producer.transaction-id-prefix}")
     private String transactionIdPrefix;
+
+    @Autowired
+    private ProducerFactory<String, String> producerFactory;
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -30,7 +35,6 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,("SchedulerCoordinator"+ UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -41,5 +45,12 @@ public class KafkaConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerKbartFactory());
         return factory;
+    }
+
+    @Bean
+    public KafkaTransactionManager<String, String> kafkaTransactionManager(){
+        KafkaTransactionManager<String, String> kafkaTransactionManager = new KafkaTransactionManager<>(producerFactory);
+        kafkaTransactionManager.setTransactionIdPrefix(transactionIdPrefix);
+        return kafkaTransactionManager;
     }
 }
