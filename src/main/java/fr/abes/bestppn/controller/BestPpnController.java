@@ -57,45 +57,9 @@ public class BestPpnController {
             ligneKbartDto.setFirst_author((firstAuthor != null) ? firstAuthor : "");
             return service.getBestPpn(ligneKbartDto, provider, false);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Une url dans un champ title_url du kbart n'est pas correcte");
-        } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("La ligne Kbart ne contient pas le bon nombre de champs");
+            throw new IllegalArgumentException("Une url dans le champ doi du kbart n'est pas correcte");
+        } catch (BestPpnException e) {
+            return e.getMessage();
         }
-    }
-
-    /**
-     * Construction de la dto
-     *
-     * @param line ligne en entrée
-     * @return Un objet DTO initialisé avec les informations de la ligne
-     */
-    private LigneKbartDto constructDto(String[] line) throws IndexOutOfBoundsException {
-        LigneKbartDto kbartLineInDtoObject = new LigneKbartDto();
-        kbartLineInDtoObject.setPublication_title(line[0]);
-        kbartLineInDtoObject.setPrint_identifier(line[1]);
-        kbartLineInDtoObject.setOnline_identifier(line[2]);
-        kbartLineInDtoObject.setDate_first_issue_online(line[3]);
-        kbartLineInDtoObject.setNum_first_vol_online(Integer.getInteger(line[4]));
-        kbartLineInDtoObject.setNum_first_issue_online(Integer.getInteger(line[5]));
-        kbartLineInDtoObject.setDate_last_issue_online(line[6]);
-        kbartLineInDtoObject.setNum_last_vol_online(Integer.getInteger(line[7]));
-        kbartLineInDtoObject.setNum_last_issue_online(Integer.getInteger(line[8]));
-        kbartLineInDtoObject.setTitle_url(line[9]);
-        kbartLineInDtoObject.setFirst_author(line[10]);
-        kbartLineInDtoObject.setTitle_id(line[11]);
-        kbartLineInDtoObject.setEmbargo_info(line[12]);
-        kbartLineInDtoObject.setCoverage_depth(line[13]);
-        kbartLineInDtoObject.setNotes(line[14]);
-        kbartLineInDtoObject.setPublisher_name(line[15]);
-        kbartLineInDtoObject.setPublication_type(line[16]);
-        kbartLineInDtoObject.setDate_monograph_published_print(line[17]);
-        kbartLineInDtoObject.setDate_monograph_published_online(line[18]);
-        kbartLineInDtoObject.setMonograph_volume(Integer.getInteger(line[19]));
-        kbartLineInDtoObject.setMonograph_edition(line[20]);
-        kbartLineInDtoObject.setFirst_editor(line[21]);
-        kbartLineInDtoObject.setParent_publication_title_id(line[22]);
-        kbartLineInDtoObject.setPreceding_publication_title_id(line[23]);
-        kbartLineInDtoObject.setAccess_type(line[24]);
-        return kbartLineInDtoObject;
     }
 }

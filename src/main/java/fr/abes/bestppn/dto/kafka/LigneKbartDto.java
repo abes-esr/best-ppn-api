@@ -3,7 +3,6 @@ package fr.abes.bestppn.dto.kafka;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
-import fr.abes.bestppn.utils.CheckFiles;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -117,36 +116,9 @@ public class LigneKbartDto {
         return (!this.first_author.isEmpty()) ? this.first_author : this.first_editor;
     }
 
-
-    public String getDate_first_issue_online() {
-        return CheckFiles.getDateFromFile(date_first_issue_online);
-    }
-
-    @JsonIgnore
-    public String getAnneeFromDate_first_issue_online() {
-        return this.date_first_issue_online;
-    }
-
-    public String getDate_last_issue_online() {
-        return CheckFiles.getDateFromFile(date_last_issue_online);
-    }
-
-    @JsonIgnore
-    public String getAnneeFromDate_last_issue_online() {
-        return this.date_last_issue_online;
-    }
-
-    public String getDate_monograph_published_print() {
-        return CheckFiles.getDateFromFile(date_monograph_published_print);
-    }
-
     @JsonIgnore
     public String getAnneeFromDate_monograph_published_print() {
         return this.date_monograph_published_print;
-    }
-
-    public String getDate_monograph_published_online() {
-        return CheckFiles.getDateFromFile(date_monograph_published_online);
     }
 
     @JsonIgnore
