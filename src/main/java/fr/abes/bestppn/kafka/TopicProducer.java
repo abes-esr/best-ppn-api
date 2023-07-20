@@ -6,7 +6,7 @@ import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -22,13 +22,14 @@ public class TopicProducer {
     @Value("${topic.name.target.noticeimprime}")
     private String topicNoticeImprimee;
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     private final ObjectMapper mapper;
 
-    public void sendKbart(LigneKbartDto kbart, String fileName) throws JsonProcessingException {
+    public void sendKbart(LigneKbartDto kbart) throws JsonProcessingException {
         log.debug("Message envoyé : {}", mapper.writeValueAsString(kbart));
-        kafkaTemplate.send(topicKbart, fileName, mapper.writeValueAsString(kbart));
+        kafkaTemplate.send(topicKbart, mapper.writeValueAsString(kbart));
     }
 
     public void sendPrintNotice(String ppn, LigneKbartDto kbart, String provider) throws JsonProcessingException {
