@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @Slf4j
 @Service
@@ -35,18 +37,22 @@ public class TopicConsumer {
     @KafkaListener(topics = {"bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         try {
-            String filename = lignesKbart.key();
-            String provider = Utils.extractProvider(filename);
-            LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
-            if (!ligneFromKafka.isBestPpnEmpty()) {
-                Headers consumedHeaders = lignesKbart.headers();
-                boolean forceSetBestPpn = false;
-                for (Header header : consumedHeaders) {
-                    if (header.key().contains("_FORCE")) {forceSetBestPpn |= true;}
+
+            String fileName = new String(lignesKbart.headers().lastHeader("FileName").value(), StandardCharsets.UTF_8);
+            String currentLine = new String(lignesKbart.headers().lastHeader("CurrentLine").value(), StandardCharsets.UTF_8);
+
+            if (!lignesKbart.value().contains("OK")){
+                String provider = Utils.extractProvider(fileName);
+                LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
+                if (!ligneFromKafka.isBestPpnEmpty()) {
+                    boolean forceSetBestPpn = fileName.contains("_FORCE");
+                    ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, forceSetBestPpn));
                 }
-                ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, forceSetBestPpn));
+                producer.sendKbart(ligneFromKafka, fileName);
+                log.debug("La ligne " + currentLine + " du kbart " + fileName + " a été correctemnt traitée.");
+            } else {
+                log.debug("Le kbart " + fileName + " a été correctement traité");
             }
-            producer.sendKbart(ligneFromKafka, filename);
         } catch (IllegalProviderException e) {
             log.error("Erreur dans les données en entrée, provider incorrect");
         } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException e) {

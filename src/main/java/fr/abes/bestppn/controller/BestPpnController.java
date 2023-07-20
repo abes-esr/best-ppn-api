@@ -43,7 +43,6 @@ public class BestPpnController {
     public String bestPpn(@Parameter(description = "a kbart ligne (separated with tabulations)", required = true) @RequestBody KbartProviderDto kbart) throws IOException, BestPpnException, IllegalPpnException {
         try {
             String[] tsvElementsOnOneLine = kbart.getKbart().split("\t");
-            System.out.println(String.join("<-TAB-> ", tsvElementsOnOneLine));
             LigneKbartDto ligneKbartDto = constructDto(tsvElementsOnOneLine);
             return service.getBestPpn(ligneKbartDto, kbart.getProvider(), kbart.isForceSetBestPpn());
         } catch (URISyntaxException e) {
