@@ -25,12 +25,16 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,9 +53,6 @@ public class BestPpnControllerTest {
     @MockBean
     BestPpnService service;
 
-    @MockBean
-    EmailServiceImpl emailServiceImpl;
-
     @Autowired
     ObjectMapper objectMapper;
 
@@ -66,53 +67,46 @@ public class BestPpnControllerTest {
                 .build();
     }
 
-//    @Test
-//    @DisplayName("test controller with wrong file extension")
-//    void testKafkaControllerWrongFileExtension() throws Exception {
-//        MockMultipartFile fileWithWrongExtension = new MockMultipartFile("file", "FileWithWrongExtension.csv", MediaType.TEXT_PLAIN_VALUE, InputStream.nullInputStream());
-//        this.mockMvc.perform(multipart("/v1/kbart2Kafka").file(fileWithWrongExtension).characterEncoding(StandardCharsets.UTF_8))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof IllegalArgumentException)))
-//                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("le fichier n'est pas au format tsv")));
-//    }
-//
-//    @Test
-//    @DisplayName("test controller with wrong file format")
-//    void testKafkaControllerWrongFileFormat() throws Exception {
-//        MockMultipartFile fileWithWrongFormat = new MockMultipartFile("file", "FileWithWrongFormat.tsv", MediaType.TEXT_PLAIN_VALUE, "test;test;test".getBytes(StandardCharsets.UTF_8));
-//        this.mockMvc.perform(multipart("/v1/kbart2Kafka").file(fileWithWrongFormat).characterEncoding(StandardCharsets.UTF_8))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof IllegalArgumentException)))
-//                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Le fichier ne contient pas de tabulation")));
-//    }
-//
-//    @Test
-//    @DisplayName("test controller with no header")
-//    void testKafkaControllerWrongFileNoHeader() throws Exception {
-//        MockMultipartFile fileWithNoHeader = new MockMultipartFile("file", "FileWithWrongFormat.tsv", MediaType.TEXT_PLAIN_VALUE, "test\ttest\ttest".getBytes(StandardCharsets.UTF_8));
-//        this.mockMvc.perform(multipart("/v1/kbart2Kafka").file(fileWithNoHeader).characterEncoding(StandardCharsets.UTF_8))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof IllegalArgumentException)))
-//                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Le champ publication_title est absent de l'en tête du fichier")));
-//    }
-//
-//    @Test
-//    @DisplayName("test controller all ok without bestPpn")
-//    void testKafkaControllerAllOkWithoutBestPpn() throws Exception, IllegalPpnException, BestPpnException {
-//        MockMultipartFile file = new MockMultipartFile("file", "cairn_global.tsv", MediaType.TEXT_PLAIN_VALUE, ("publication_title\tprint_identifier\tonline_identifier\tdate_first_issue_online\tnum_first_vol_online\tnum_first_issue_online\tdate_last_issue_online\tnum_last_vol_online\tnum_last_issue_online\ttitle_url\tfirst_author\ttitle_id\tembargo_info\tcoverage_depth\tnotes\tpublisher_name\tpublication_type\tdate_monograph_published_print\tdate_monograph_published_online\tmonograph_volume\tmonograph_edition\tfirst_editor\tparent_publication_title_id\tpreceding_publication_title_id\taccess_type\n" + "Villes et politiques urbaines au Canada et aux États-Unis\t9782878541496\t9782878548808\t\t\t\t\t\t\thttp://books.openedition.org/psn/4795\tLacroix\tpsn/4795\t\tfulltext\t\tPresses Sorbonne Nouvelle\tmonograph\t1997\t2018\t\t\tLacroix\t\t\tF\t225228076\tMonographie.").getBytes(StandardCharsets.UTF_8));
-//        Mockito.when(service.getBestPpn(Mockito.any(), eq("cairn"))).thenReturn("123456789");
-//        Mockito.doNothing().when(producer).sendKbart(Mockito.any(), Mockito.anyString());
-//        this.mockMvc.perform(multipart("/v1/kbart2Kafka").file(file).characterEncoding(StandardCharsets.UTF_8))
-//            .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    @DisplayName("test controller all ok with bestPpn")
-//    void testKafkaControllerAllOkWithBestPpn() throws Exception, IllegalPpnException, BestPpnException {
-//        MockMultipartFile file = new MockMultipartFile("file", "cairn_global.tsv", MediaType.TEXT_PLAIN_VALUE, ("publication_title\tprint_identifier\tonline_identifier\tdate_first_issue_online\tnum_first_vol_online\tnum_first_issue_online\tdate_last_issue_online\tnum_last_vol_online\tnum_last_issue_online\ttitle_url\tfirst_author\ttitle_id\tembargo_info\tcoverage_depth\tnotes\tpublisher_name\tpublication_type\tdate_monograph_published_print\tdate_monograph_published_online\tmonograph_volume\tmonograph_edition\tfirst_editor\tparent_publication_title_id\tpreceding_publication_title_id\taccess_type\n" + "Villes et politiques urbaines au Canada et aux États-Unis\t9782878541496\t9782878548808\t\t\t\t\t\t\thttp://books.openedition.org/psn/4795\tLacroix\tpsn/4795\t\tfulltext\t\tPresses Sorbonne Nouvelle\tmonograph\t1997\t2018\t\t\tLacroix\t\t\tF\t225228076\tMonographie.\t123456789").getBytes(StandardCharsets.UTF_8));
-//        Mockito.when(service.getBestPpn(Mockito.any(), eq("cairn"))).thenReturn("123456789");
-//        Mockito.doNothing().when(producer).sendKbart(Mockito.any(), Mockito.anyString());
-//        this.mockMvc.perform(multipart("/v1/kbart2Kafka").file(file).characterEncoding(StandardCharsets.UTF_8))
-//                .andExpect(status().isOk());
-//    }
+    @Test
+    @DisplayName("test controller with wrong number of parameters")
+    void testBestPpnControllerWrongNumberOfParameters() throws Exception, IllegalPpnException, BestPpnException {
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn("1111111111");
+        this.mockMvc.perform(get("/api/v1/bestPpn").characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof MissingServletRequestParameterException)))
+                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Required parameter 'provider' is not present.")));
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn").characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof MissingServletRequestParameterException)))
+                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Required parameter 'publication_type' is not present.")));
+
+    }
+
+    @Test
+    @DisplayName("test controller with wrong URL format")
+    void testBestPpnControllerBadUrlFormat() throws IllegalPpnException, BestPpnException, Exception {
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new URISyntaxException("test", "Format d'URL incorrect"));
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&doi=test").characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof IllegalArgumentException)))
+                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Une url dans le champ doi du kbart n'est pas correcte")));
+    }
+
+    @Test
+    @DisplayName("test controller with BestPpnException")
+    void testBestPpnControllerBestPpnException() throws Exception {
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new BestPpnException("Plusieurs ppn imprimés"));
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&doi=test").characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk())
+                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Plusieurs ppn imprimés")));
+    }
+
+    @Test
+    @DisplayName("test controller Ok")
+    void testBestPpnControllerOk() throws Exception {
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn("111111111");
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&doi=test").characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk())
+                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("111111111")));
+    }
 }

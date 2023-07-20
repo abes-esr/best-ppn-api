@@ -35,8 +35,6 @@ public class TopicConsumer {
     @Autowired
     private TopicProducer producer;
 
-
-
     @KafkaListener(topics = {"bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         try {
@@ -54,9 +52,9 @@ public class TopicConsumer {
                 String provider = Utils.extractProvider(filename);
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (!ligneFromKafka.isBestPpnEmpty()) {
-                    ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider));
+                    ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, true));
                 }
-                producer.sendKbart(ligneFromKafka, filename);
+                producer.sendKbart(ligneFromKafka);
             }
         } catch (IllegalProviderException e) {
             log.error("Erreur dans les données en entrée, provider incorrect");
