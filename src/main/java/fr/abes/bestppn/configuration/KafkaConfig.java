@@ -24,6 +24,10 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.producer.transaction-id-prefix}")
     private String transactionIdPrefix;
+
+    @Value("${spring.kafka.consumer.properties.isolation.level}")
+    private String isolationLevel;
+
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -31,6 +35,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,("SchedulerCoordinator"+ UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

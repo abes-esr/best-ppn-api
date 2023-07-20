@@ -6,13 +6,16 @@ import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.service.BestPpnService;
+import fr.abes.bestppn.utils.StatusKafka;
 import fr.abes.bestppn.utils.Utils;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +35,15 @@ public class TopicConsumer {
     @Autowired
     private TopicProducer producer;
 
+    @Resource(name="kafkaTransactionManager")
+    private KafkaTransactionManager kafkaTransactionManager;
+
     @KafkaListener(topics = {"TEST.TRANSACTION.bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     @Transactional(transactionManager = "kafkaTransactionManager")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         try {
             if(lignesKbart.value().equals("OK")){
-//                kafkaTransactionManager.commit(new StatusKafka());
-
+                kafkaTransactionManager.commit(new StatusKafka());
                 log.info("commit");
             } else {
                 String filename = "";
@@ -57,8 +62,10 @@ public class TopicConsumer {
             }
         } catch (IllegalProviderException e) {
             log.error("Erreur dans les données en entrée, provider incorrect");
+            kafkaTransactionManager.rollback(new StatusKafka());
         } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException e) {
             log.error(e.getMessage());
+            kafkaTransactionManager.rollback(new StatusKafka());
         }
     }
 }
