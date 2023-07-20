@@ -58,7 +58,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public String getBestPpn(LigneKbartDto kbart, String provider) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
+    public String getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -83,7 +83,7 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
-        return getBestPpnByScore(kbart, provider, ppnElecScoredList, ppnPrintResultList);
+        return getBestPpnByScore(kbart, provider, ppnElecScoredList, ppnPrintResultList, injectKafka);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException {
@@ -165,7 +165,7 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public String getBestPpnByScore(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws BestPpnException, JsonProcessingException {
+    public String getBestPpnByScore(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean injectKafka) throws BestPpnException, JsonProcessingException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         switch (ppnElecScore.size()) {
             case 0 -> {
@@ -173,11 +173,11 @@ public class BestPpnService {
                 switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         log.debug("Envoi kbart et provider vers kafka");
-                        topicProducer.sendPrintNotice(null, kbart, provider);
+                         if (injectKafka) topicProducer.sendPrintNotice(null, kbart, provider);
                     }
                     case 1 -> {
                         log.debug("envoi ppn imprimé " + ppnPrintResultList.stream().toList().get(0) + ", kbart et provider");
-                        topicProducer.sendPrintNotice(ppnPrintResultList.stream().toList().get(0), kbart, provider);
+                        if (injectKafka) topicProducer.sendPrintNotice(ppnPrintResultList.stream().toList().get(0), kbart, provider);
                     }
                     default -> {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
