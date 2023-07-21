@@ -10,8 +10,6 @@ import fr.abes.bestppn.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 @Slf4j
 @Service
@@ -34,20 +31,27 @@ public class TopicConsumer {
     @Autowired
     private TopicProducer producer;
 
+    /**
+     * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
+     * @param lignesKbart message kafka récupéré par le Consumer Kafka
+     */
     @KafkaListener(topics = {"bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         try {
 
+
             String fileName = new String(lignesKbart.headers().lastHeader("FileName").value(), StandardCharsets.UTF_8);
             String currentLine = new String(lignesKbart.headers().lastHeader("CurrentLine").value(), StandardCharsets.UTF_8);
+            String totalLine = new String(lignesKbart.headers().lastHeader("TotalLine").value(), StandardCharsets.UTF_8);
 
             if (!lignesKbart.value().contains("OK")){
                 String provider = Utils.extractProvider(fileName);
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
+                boolean injectKafka = fileName.contains("_FORCE");
                 if (!ligneFromKafka.isBestPpnEmpty()) {
-                    boolean forceSetBestPpn = fileName.contains("_FORCE");
-                    ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, forceSetBestPpn));
+                    ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, injectKafka));
                 }
+                fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
                 producer.sendKbart(ligneFromKafka, fileName);
                 log.debug("La ligne " + currentLine + " du kbart " + fileName + " a été correctemnt traitée.");
             } else {
