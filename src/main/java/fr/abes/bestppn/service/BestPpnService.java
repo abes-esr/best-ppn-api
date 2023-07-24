@@ -2,6 +2,7 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
 import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Getter
@@ -51,11 +49,14 @@ public class BestPpnService {
 
     private final CheckUrlService checkUrlService;
 
+    private final List<PpnKbartProviderDto> ppnToCreate;
+
     public BestPpnService(WsService service, NoticeService noticeService, TopicProducer topicProducer, CheckUrlService checkUrlService) {
         this.service = service;
         this.noticeService = noticeService;
         this.topicProducer = topicProducer;
         this.checkUrlService = checkUrlService;
+        this.ppnToCreate = new ArrayList<>();
     }
 
     public String getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
@@ -173,11 +174,11 @@ public class BestPpnService {
                 switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         log.debug("Envoi kbart et provider vers kafka");
-                         if (injectKafka) topicProducer.sendPrintNotice(null, kbart, provider);
+//                         if (injectKafka) topicProducer.sendPrintNotice(null, kbart, provider); //todo
                     }
                     case 1 -> {
                         log.debug("envoi ppn imprimé " + ppnPrintResultList.stream().toList().get(0) + ", kbart et provider");
-                        if (injectKafka) topicProducer.sendPrintNotice(ppnPrintResultList.stream().toList().get(0), kbart, provider);
+//                        if (injectKafka) topicProducer.sendPrintNotice(ppnPrintResultList.stream().toList().get(0), kbart, provider); //todo
                     }
                     default -> {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");

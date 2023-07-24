@@ -2,6 +2,7 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.exception.IllegalProviderException;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -38,13 +41,23 @@ public class TopicConsumer {
     @Resource(name="kafkaTransactionManager")
     private KafkaTransactionManager kafkaTransactionManager;
 
+    private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
+
+    boolean isOnError = false;
+
     @KafkaListener(topics = {"TEST.TRANSACTION.bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
-    @Transactional(transactionManager = "kafkaTransactionManager")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
+
         try {
-            if(lignesKbart.value().equals("OK")){
-                kafkaTransactionManager.commit(new StatusKafka());
-                log.info("commit");
+            if(lignesKbart.value().equals("OK") ){
+                if( !isOnError ) {
+                    producer.sendKbart(kbartToSend);
+
+                } else {
+                    isOnError = false;
+                }
+                kbartToSend.clear();
+
             } else {
                 String filename = "";
                 for (Header header : lignesKbart.headers().toArray()) {
@@ -55,17 +68,17 @@ public class TopicConsumer {
                 }
                 String provider = Utils.extractProvider(filename);
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
-                if (!ligneFromKafka.isBestPpnEmpty()) {
+                if (ligneFromKafka.isBestPpnEmpty()) {
                     ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, true));
                 }
-                producer.sendKbart(ligneFromKafka);
+                kbartToSend.add(ligneFromKafka);
             }
         } catch (IllegalProviderException e) {
+            isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
-            kafkaTransactionManager.rollback(new StatusKafka());
         } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException e) {
+            isOnError = true;
             log.error(e.getMessage());
-            kafkaTransactionManager.rollback(new StatusKafka());
         }
     }
 }

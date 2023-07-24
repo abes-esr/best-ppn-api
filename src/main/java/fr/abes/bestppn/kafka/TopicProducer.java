@@ -4,12 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
+import fr.abes.bestppn.exception.BestPpnException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,14 +31,20 @@ public class TopicProducer {
 
     private final ObjectMapper mapper;
 
-    public void sendKbart(LigneKbartDto kbart) throws JsonProcessingException {
-        log.debug("Message envoyé : {}", mapper.writeValueAsString(kbart));
-        kafkaTemplate.send(topicKbart, mapper.writeValueAsString(kbart));
+    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
+    public void sendKbart(List<LigneKbartDto> kbart) throws JsonProcessingException, BestPpnException {
+        for (LigneKbartDto ligne : kbart) {
+            if( ligne.isBestPpnEmpty()){
+                throw new BestPpnException("La ligne " + ligne +" n'a pas de BestPpn.");
+            }
+            kafkaTemplate.send(topicKbart, mapper.writeValueAsString(ligne));
+        }
     }
 
-    public void sendPrintNotice(String ppn, LigneKbartDto kbart, String provider) throws JsonProcessingException {
-        PpnKbartProviderDto dto = new PpnKbartProviderDto(ppn, kbart, provider);
-        log.debug("Message envoyé : {}", dto);
-        kafkaTemplate.send(topicNoticeImprimee, Integer.valueOf(dto.hashCode()).toString(), mapper.writeValueAsString(dto));
+    @Transactional(transactionManager = "kafkaTransactionManager")
+    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList) throws JsonProcessingException {
+        for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
+            kafkaTemplate.send(topicNoticeImprimee, mapper.writeValueAsString(ppnToCreate));
+        }
     }
 }
