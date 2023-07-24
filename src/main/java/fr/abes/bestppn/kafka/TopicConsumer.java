@@ -8,7 +8,6 @@ import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.service.BestPpnService;
-import fr.abes.bestppn.utils.StatusKafka;
 import fr.abes.bestppn.utils.Utils;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -91,7 +90,7 @@ public class TopicConsumer {
         } catch (IllegalProviderException e) {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
-        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException e) {
+        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException | IllegalArgumentException e) {
             isOnError = true;
             log.error(e.getMessage());
         }

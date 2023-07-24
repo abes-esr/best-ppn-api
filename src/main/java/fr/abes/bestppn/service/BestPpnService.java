@@ -2,7 +2,6 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
 import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
@@ -16,10 +15,14 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @Getter
@@ -55,7 +58,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
+    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -83,12 +86,12 @@ public class BestPpnService {
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList);
     }
 
-    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException {
+    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
         log.debug("Entrée dans onlineId2Ppn");
         setScoreToEveryPpnFromResultWS(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider), kbart.getTitle_url(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList);
     }
 
-    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException {
+    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
         log.debug("Entrée dans printId2Ppn");
         ResultWsSudocDto resultCallWs = service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider);
         ResultWsSudocDto resultWithTypeElectronique = resultCallWs.getPpnWithTypeElectronique();

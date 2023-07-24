@@ -1,20 +1,17 @@
 package fr.abes.bestppn.controller;
 
-import fr.abes.bestppn.dto.kafka.KbartProviderDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.service.BestPpnService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -58,7 +55,7 @@ public class BestPpnController {
             return service.getBestPpn(ligneKbartDto, provider).getPpn();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ doi du kbart n'est pas correcte");
-        } catch (BestPpnException e) {
+        } catch (BestPpnException | RestClientException | IllegalArgumentException e) {
             return e.getMessage();
         }
     }
