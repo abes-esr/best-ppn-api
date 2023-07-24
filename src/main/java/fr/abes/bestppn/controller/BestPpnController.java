@@ -55,7 +55,7 @@ public class BestPpnController {
             ligneKbartDto.setDate_monograph_published_print((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
             ligneKbartDto.setDate_monograph_published_online((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirst_author((firstAuthor != null) ? firstAuthor : "");
-            return service.getBestPpn(ligneKbartDto, provider, false);
+            return service.getBestPpn(ligneKbartDto, provider).getPpn();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ doi du kbart n'est pas correcte");
         } catch (BestPpnException e) {

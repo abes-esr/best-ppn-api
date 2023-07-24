@@ -3,6 +3,7 @@ package fr.abes.bestppn.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
+import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.exception.IllegalProviderException;
@@ -43,6 +44,8 @@ public class TopicConsumer {
 
     private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
 
+    private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();
+
     boolean isOnError = false;
 
     @KafkaListener(topics = {"TEST.TRANSACTION.bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
@@ -52,12 +55,12 @@ public class TopicConsumer {
             if(lignesKbart.value().equals("OK") ){
                 if( !isOnError ) {
                     producer.sendKbart(kbartToSend);
-
+                    producer.sendPrintNotice(ppnToCreate);
                 } else {
                     isOnError = false;
                 }
                 kbartToSend.clear();
-
+                ppnToCreate.clear();
             } else {
                 String filename = "";
                 for (Header header : lignesKbart.headers().toArray()) {
@@ -69,9 +72,21 @@ public class TopicConsumer {
                 String provider = Utils.extractProvider(filename);
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
-                    ligneFromKafka.setBestPpn(service.getBestPpn(ligneFromKafka, provider, true));
+                    PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, provider);
+                    switch (ppnWithDestinationDto.getDestination()){
+                        case BEST_PPN_BACON -> {
+                            ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
+                            kbartToSend.add(ligneFromKafka);
+                        }
+                        case PRINT_PPN_SUDOC -> {
+                            ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,provider));
+                        }
+                    }
+
+                } else {
+                    kbartToSend.add(ligneFromKafka);
                 }
-                kbartToSend.add(ligneFromKafka);
+
             }
         } catch (IllegalProviderException e) {
             isOnError = true;
