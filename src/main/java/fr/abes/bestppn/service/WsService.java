@@ -115,10 +115,10 @@ public class WsService {
     @ExecutionTime
     public ResultDat2PpnWebDto callDat2Ppn(String date, String author, String title) throws JsonProcessingException {
         SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title);
-        if (!author.isEmpty()) {
+        if (author != null && !author.isEmpty()) {
             searchDatWebDto.setAuteur(author);
         }
-        if (!date.isEmpty()) {
+        if (date != null && !date.isEmpty()) {
             searchDatWebDto.setDate(Integer.valueOf(date));
         }
         return mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);

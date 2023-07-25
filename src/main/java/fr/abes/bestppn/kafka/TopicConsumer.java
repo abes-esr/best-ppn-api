@@ -49,19 +49,18 @@ public class TopicConsumer {
 
     @KafkaListener(topics = {"TEST.TRANSACTION.bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
-
+        String filename = "";
         try {
             if(lignesKbart.value().equals("OK") ){
                 if( !isOnError ) {
-                    producer.sendKbart(kbartToSend);
-                    producer.sendPrintNotice(ppnToCreate);
+                    producer.sendKbart(kbartToSend, lignesKbart.headers());
+                    producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
                 } else {
                     isOnError = false;
                 }
                 kbartToSend.clear();
                 ppnToCreate.clear();
             } else {
-                String filename = "";
                 for (Header header : lignesKbart.headers().toArray()) {
                     if(header.key().equals("FileName")){
                         filename = new String(header.value());

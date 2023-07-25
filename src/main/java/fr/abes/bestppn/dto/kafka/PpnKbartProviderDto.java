@@ -7,7 +7,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PpnKbartProviderDto {
+public class PpnKbartProviderDto extends Dto {
     private String ppn;
     private LigneKbartDto kbart;
     private String provider;

@@ -39,9 +39,9 @@ public class BestPpnController {
     @GetMapping(value = "/bestPpn")
     public String bestPpn(@RequestParam(name = "provider") String provider, @RequestParam(name = "publication_title", required = false) String publicationTitle,
                           @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
-                          @RequestParam(name = "print_identifier") String printIdentifier, @RequestParam(name = "doi", required = false) String doi,
+                          @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "doi", required = false) String doi,
                           @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
-                          @RequestParam(name = "first_author", required = false) String firstAuthor) throws IOException, BestPpnException, IllegalPpnException {
+                          @RequestParam(name = "first_author", required = false) String firstAuthor) throws IOException, IllegalPpnException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublication_type(publicationType);

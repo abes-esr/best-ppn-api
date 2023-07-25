@@ -7,9 +7,14 @@ import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,19 +37,32 @@ public class TopicProducer {
     private final ObjectMapper mapper;
 
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
-    public void sendKbart(List<LigneKbartDto> kbart) throws JsonProcessingException, BestPpnException {
+    public void sendKbart(List<LigneKbartDto> kbart, Headers headers) throws JsonProcessingException, BestPpnException {
         for (LigneKbartDto ligne : kbart) {
             if( ligne.isBestPpnEmpty()){
                 throw new BestPpnException("La ligne " + ligne +" n'a pas de BestPpn.");
             }
-            kafkaTemplate.send(topicKbart, mapper.writeValueAsString(ligne));
+            setHeadersAndSend(headers, mapper.writeValueAsString(ligne), topicKbart);
         }
     }
 
+
+
     @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList) throws JsonProcessingException {
+    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, Headers headers) throws JsonProcessingException {
         for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
-            kafkaTemplate.send(topicNoticeImprimee, mapper.writeValueAsString(ppnToCreate));
+            setHeadersAndSend(headers, mapper.writeValueAsString(ppnToCreate), topicNoticeImprimee);
         }
+    }
+
+    private void setHeadersAndSend(Headers headers, String value, String topic) {
+        MessageBuilder<String> messageBuilder = MessageBuilder
+                .withPayload(value)
+                .setHeader(KafkaHeaders.TOPIC, topic);
+        for (Header header : headers.toArray()) {
+            messageBuilder.setHeader(header.key(), header.value());
+        }
+        Message<String> message = messageBuilder.build();
+        kafkaTemplate.send(message);
     }
 }
