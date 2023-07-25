@@ -38,9 +38,6 @@ public class TopicConsumer {
     @Autowired
     private TopicProducer producer;
 
-    @Resource(name="kafkaTransactionManager")
-    private KafkaTransactionManager kafkaTransactionManager;
-
     private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
 
     private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();

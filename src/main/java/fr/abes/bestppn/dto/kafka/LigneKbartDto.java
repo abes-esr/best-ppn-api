@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class LigneKbartDto extends Dto {
+public class LigneKbartDto {
     @CsvBindByName(column = "publication_title")
     @CsvBindByPosition(position = 0)
     private String publication_title;
