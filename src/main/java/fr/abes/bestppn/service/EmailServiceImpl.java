@@ -44,7 +44,7 @@ public class EmailServiceImpl implements EmailService {
             createAttachment(dataLines, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON(this.recipient, "Rapport de traitement BestPPN " + packageName + ".csv");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
@@ -120,20 +120,20 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    protected String mailToJSON(String to, String subject, String text) {
+    protected String mailToJSON(String to, String subject) {
         String json = "";
         ObjectMapper mapper = new ObjectMapper();
         MailDto mail = new MailDto();
-        mail.setApp("kbart2kafka");
+        mail.setApp("bestppnapi");
         mail.setTo(to.split(";"));
         mail.setCc(new String[]{});
         mail.setCci(new String[]{});
         mail.setSubject(subject);
-        mail.setText(text);
+        mail.setText("");
         try {
             json = mapper.writeValueAsString(mail);
         } catch (JsonProcessingException e) {
-            log.error("Erreur lors du la création du mail. " + e.toString());
+            log.error("Erreur lors du la création du mail. " + e);
         }
         return json;
     }
