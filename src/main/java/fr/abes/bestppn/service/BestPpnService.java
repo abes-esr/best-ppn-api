@@ -165,8 +165,11 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws BestPpnException, JsonProcessingException {
+    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
+        if( ppnElecScore.isEmpty() && ppnPrintResultList.isEmpty()){
+            kbart.setErrorType("Aucun ppn trouvée");
+        }
         return switch (ppnElecScore.size()) {
             case 0 -> {
                 log.info("Aucun ppn électronique trouvé." + kbart);
