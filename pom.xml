@@ -9,14 +9,14 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>fr.abes</groupId>
-    <artifactId>kafka-convergence</artifactId>
+    <artifactId>best-ppn-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>kafka-convergence</name>
-    <description>Poc dans le cadre du projet convergence</description>
+    <name>best-ppn-api</name>
+    <description>Api de calcul du best ppn pour bacon</description>
     <properties>
-        <finalName>kbart2kafka-api-${project.artifactId}-${project.version}</finalName>
-        <warName>kbart2kafka-api</warName>
+        <finalName>best-ppn-api-${project.artifactId}-${project.version}</finalName>
+        <warName>best-ppn-api</warName>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>

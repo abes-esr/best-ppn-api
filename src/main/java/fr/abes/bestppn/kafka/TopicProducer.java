@@ -4,12 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
+import fr.abes.bestppn.exception.BestPpnException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.ThreadContext;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,18 +31,38 @@ public class TopicProducer {
     @Value("${topic.name.target.noticeimprime}")
     private String topicNoticeImprimee;
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     private final ObjectMapper mapper;
 
-    public void sendKbart(LigneKbartDto kbart, String fileName) throws JsonProcessingException {
-        log.debug("Message envoyé : {}", mapper.writeValueAsString(kbart));
-        kafkaTemplate.send(topicKbart, fileName, mapper.writeValueAsString(kbart));
+    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
+    public void sendKbart(List<LigneKbartDto> kbart, Headers headers) throws JsonProcessingException, BestPpnException {
+        for (LigneKbartDto ligne : kbart) {
+            if( ligne.isBestPpnEmpty()){
+                throw new BestPpnException("La ligne " + ligne +" n'a pas de BestPpn.");
+            }
+            setHeadersAndSend(headers, mapper.writeValueAsString(ligne), topicKbart);
+        }
     }
 
-    public void sendPrintNotice(String ppn, LigneKbartDto kbart, String provider) throws JsonProcessingException {
-        PpnKbartProviderDto dto = new PpnKbartProviderDto(ppn, kbart, provider);
-        log.debug("Message envoyé : {}", dto);
-        kafkaTemplate.send(topicNoticeImprimee, Integer.valueOf(dto.hashCode()).toString(), mapper.writeValueAsString(dto));
+
+
+    @Transactional(transactionManager = "kafkaTransactionManager")
+    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, Headers headers) throws JsonProcessingException {
+        for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
+            setHeadersAndSend(headers, mapper.writeValueAsString(ppnToCreate), topicNoticeImprimee);
+        }
+    }
+
+    private void setHeadersAndSend(Headers headers, String value, String topic) {
+        MessageBuilder<String> messageBuilder = MessageBuilder
+                .withPayload(value)
+                .setHeader(KafkaHeaders.TOPIC, topic);
+        for (Header header : headers.toArray()) {
+            messageBuilder.setHeader(header.key(), header.value());
+        }
+        Message<String> message = messageBuilder.build();
+        kafkaTemplate.send(message);
     }
 }
