@@ -51,7 +51,7 @@ public class TopicConsumer {
 
     boolean isOnError = false;
 
-    @KafkaListener(topics = {"bacon.kbart.toload"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
+    @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         String filename = "";
         try {
