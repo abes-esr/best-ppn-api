@@ -11,15 +11,14 @@ import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.service.BestPpnService;
 import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.utils.Utils;
-import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.transaction.KafkaTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -58,6 +57,7 @@ public class TopicConsumer {
             for (Header header : lignesKbart.headers().toArray()) {
                 if(header.key().equals("FileName")){
                     filename = new String(header.value());
+                    ThreadContext.put("package",filename);
                     break;
                 }
             }
@@ -96,11 +96,22 @@ public class TopicConsumer {
         } catch (IllegalProviderException e) {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
         } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException | IllegalArgumentException e) {
             isOnError = true;
             log.error(e.getMessage());
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
         } catch (MessagingException e) {
+            isOnError = true;
+            log.error(e.getMessage());
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    private void addLineToMailAttachementWithErrorMessage(String messageError) {
+        LigneKbartDto ligneVide = new LigneKbartDto();
+        ligneVide.setErrorType(messageError);
+        mailAttachment.addKbartDto(ligneVide);
     }
 }
