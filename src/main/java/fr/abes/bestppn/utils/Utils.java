@@ -1,11 +1,15 @@
 package fr.abes.bestppn.utils;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.exception.IllegalProviderException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -66,4 +70,22 @@ public class Utils {
             throw new IllegalProviderException(e);
         }
     }
+
+    public static String extractPackageName(String filename) throws IllegalPackageException {
+        try {
+            return filename.substring(filename.indexOf('_') + 1, filename.lastIndexOf('_'));
+        } catch (Exception e) {
+            throw new IllegalPackageException(e);
+        }
+    }
+
+    public static Date extractDate(String filename) throws IllegalDateException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            return format.parse(filename.substring(filename.lastIndexOf('_') + 1, filename.lastIndexOf(".tsv")));
+        } catch (Exception e) {
+            throw new IllegalDateException(e);
+        }
+    }
+
 }

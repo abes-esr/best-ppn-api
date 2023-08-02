@@ -9,7 +9,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.mail.MailDto;
-import fr.abes.bestppn.dto.mail.PackageKbartDto;
+import fr.abes.bestppn.dto.PackageKbartDto;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
