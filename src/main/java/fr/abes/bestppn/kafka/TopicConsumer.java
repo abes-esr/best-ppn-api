@@ -52,15 +52,21 @@ public class TopicConsumer {
 
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
-        String filename = "";
         try {
+            String filename = "";
+            String currentLine = "";
+            String totalLine = "";
             for (Header header : lignesKbart.headers().toArray()) {
                 if(header.key().equals("FileName")){
                     filename = new String(header.value());
                     ThreadContext.put("package",filename);
-                    break;
+                } else if(header.key().equals("CurrentLine")){
+                    currentLine = new String(header.value());
+                } else if(header.key().equals("TotalLine")){
+                    totalLine = new String(header.value());
                 }
             }
+            String nbLine = currentLine + "/" + totalLine;
             String provider = Utils.extractProvider(filename);
 
             if(lignesKbart.value().equals("OK") ){
@@ -79,6 +85,7 @@ public class TopicConsumer {
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
+                    log.info("Debut du calcul du bestppn sur la ligne : " + nbLine);
                     PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, provider);
                     switch (ppnWithDestinationDto.getDestination()){
                         case BEST_PPN_BACON -> {
@@ -89,6 +96,7 @@ public class TopicConsumer {
                     }
 
                 } else {
+                    log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());
                     kbartToSend.add(ligneFromKafka);
                 }
                 mailAttachment.addKbartDto(ligneFromKafka);
