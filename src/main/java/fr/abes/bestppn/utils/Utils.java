@@ -80,9 +80,13 @@ public class Utils {
     }
 
     public static Date extractDate(String filename) throws IllegalDateException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
         try {
-            return format.parse(filename.substring(filename.lastIndexOf('_') + 1, filename.lastIndexOf(".tsv")));
+            Matcher matcher = Pattern.compile("(\\d{4}-\\d{2}-\\d{2})", Pattern.CASE_INSENSITIVE).matcher(filename);
+            if(matcher.find()){
+                date = new SimpleDateFormat("yyyy-MM-dd").parse(matcher.group(1));
+            }
+            return date;
         } catch (Exception e) {
             throw new IllegalDateException(e);
         }
