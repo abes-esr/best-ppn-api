@@ -1,10 +1,14 @@
 package fr.abes.bestppn.utils;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.exception.IllegalDateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 class UtilsTest {
     @Test
@@ -73,5 +77,13 @@ class UtilsTest {
         kbart.setTitle_url("https://doi.org/10.1038/issn.1476-4687");
 
         Assertions.assertEquals("10.1038/issn.1476-4687", Utils.extractDOI(kbart));
+    }
+
+    @Test
+    void extractDate() throws IllegalDateException, ParseException {
+        String string = "2023-08-21";
+        Date date = new SimpleDateFormat("yyyy-MM-dd").parse(string);
+
+        Assertions.assertEquals(date, Utils.extractDate("SPRINGER_GLOBAL_ALLEBOOKS_2023-08-21.tsv"));
     }
 }
