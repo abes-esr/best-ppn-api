@@ -84,27 +84,30 @@ public class WsService {
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws JsonProcessingException {
+    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws  RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlOnlineId2Ppn);
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws JsonProcessingException {
+    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws  RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
 
-    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws JsonProcessingException {
+    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException{
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
             result = mapper.readValue((provider != null && !provider.equals("")) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
         } catch (RestClientException ex) {
-            log.info("URL : {} / id : {} / provider : {} : Aucun PPN ne correspond à la recherche.", url, id, provider);
+            log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
+            throw ex;
         } catch (IllegalArgumentException ex) {
             if( ex.getMessage().equals("argument \"content\" is null")) {
                 log.error("Aucuns ppn correspondant à l'"+ id);
             } else {
                 throw ex;
             }
+        } catch (JsonProcessingException ex) {
+            throw new RestClientException(ex.getMessage());
         }
         return result;
     }
@@ -112,10 +115,10 @@ public class WsService {
     @ExecutionTime
     public ResultDat2PpnWebDto callDat2Ppn(String date, String author, String title) throws JsonProcessingException {
         SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title);
-        if (!author.isEmpty()) {
+        if (author != null && !author.isEmpty()) {
             searchDatWebDto.setAuteur(author);
         }
-        if (!date.isEmpty()) {
+        if (date != null && !date.isEmpty()) {
             searchDatWebDto.setDate(Integer.valueOf(date));
         }
         return mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);
