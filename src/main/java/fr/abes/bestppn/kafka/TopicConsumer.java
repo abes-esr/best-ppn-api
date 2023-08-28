@@ -94,8 +94,10 @@ public class TopicConsumer {
                         ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
                         providerPackageRepository.save(providerPackage);
                     }
-                    // TODO vérifier que le filename envoyé dans kafka ne contienne pas "_FORCE"
-                    // fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
+
+                    // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
+                    //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
+
                     producer.sendKbart(kbartToSend, lignesKbart.headers());
                     producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
                 } else {

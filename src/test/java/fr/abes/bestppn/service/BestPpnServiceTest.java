@@ -123,7 +123,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("100000001", result.getPpn());
@@ -174,7 +174,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("100000001", result.getPpn());
@@ -232,7 +232,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("100000001", result.getPpn());
@@ -290,7 +290,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("100000001", result.getPpn());
@@ -342,7 +342,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Vérification
-        BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider));
+        BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
         Assertions.assertEquals("Les ppn électroniques 100000001, 100000002 ont le même score" , result.getLocalizedMessage());
     }
 
@@ -398,7 +398,7 @@ class BestPpnServiceTest {
         Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
 
         //  Vérification
-        BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider));
+        BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
         Assertions.assertEquals("Plusieurs ppn imprimés (100000001, 200000001, 300000002, 300000001) ont été trouvés." , result.getLocalizedMessage());
     }
 
@@ -443,7 +443,7 @@ class BestPpnServiceTest {
         Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
 
         //  Appel de la méthode
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("300000001", result.getPpn());
@@ -488,7 +488,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
 
         //  Appel de la méthode
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertNull(result.getPpn());
@@ -540,7 +540,7 @@ class BestPpnServiceTest {
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("100000001", result.getPpn());
@@ -591,7 +591,7 @@ class BestPpnServiceTest {
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.any())).thenReturn(true);
 
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("200000001", result.getPpn());
@@ -673,7 +673,7 @@ class BestPpnServiceTest {
         ThreadContext.put("package","truc_truc_2000-12-31.tsv");
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         //  Appel du service
-        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider);
+        PpnWithDestinationDto result = bestPpnService.getBestPpn(kbart, provider, false);
 
         //  Vérification
         Assertions.assertEquals("123456789", result.getPpn());
@@ -682,21 +682,21 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("test best ppn with score : 1 seule notice électronique")
-    void bestPpnWithScoreTest1() throws BestPpnException, JsonProcessingException {
+    void bestPpnWithScoreTest1() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
         String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
         ppnElecResultList.put("100000001", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList);
+        PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
         Assertions.assertEquals("100000001", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
 
     @Test
     @DisplayName("test best ppn with score : 2 notices électroniques avec score différent")
-    void bestPpnWithScoreTest2() throws BestPpnException, JsonProcessingException {
+    void bestPpnWithScoreTest2() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
         String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
@@ -704,14 +704,14 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList);
+        PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
         Assertions.assertEquals("100000002", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
 
     @Test
     @DisplayName("test best ppn with score : 2 notices électroniques avec score identique et forçage de l'envoie au producer")
-    void bestPpnWithScoreTest3() throws BestPpnException, JsonProcessingException {
+    void bestPpnWithScoreTest3() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
         String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
@@ -719,13 +719,13 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        String result = bestPpnService.getBestPpnByScore(kbart, provider, ppnElecResultList, ppnPrintResultList, true);
-        Assertions.assertEquals("", result);
+        PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        Assertions.assertEquals("100000001, 100000002", result.getPpn());
     }
 
     @Test
     @DisplayName("test best ppn with score : 2 notices imprimées et forçage de l'envoie au producer")
-    void bestPpnWithScoreTest4() throws BestPpnException, JsonProcessingException {
+    void bestPpnWithScoreTest4() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
         kbart.setOnline_identifier("");
         kbart.setPrint_identifier("");
@@ -735,8 +735,8 @@ class BestPpnServiceTest {
         ppnPrintResultList.add("100000001");
         ppnPrintResultList.add("100000002");
 
-        String result = bestPpnService.getBestPpnByScore(kbart, provider, ppnElecResultList, ppnPrintResultList, true);
-        Assertions.assertEquals("", result);
+        PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        Assertions.assertEquals("100000001, 100000002", result.getPpn());
     }
 
     @Test
