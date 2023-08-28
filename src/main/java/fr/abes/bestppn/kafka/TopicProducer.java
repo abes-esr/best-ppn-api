@@ -31,6 +31,9 @@ public class TopicProducer {
     @Value("${topic.name.target.noticeimprime}")
     private String topicNoticeImprimee;
 
+    @Value("${topic.name.target.endoftraitment}")
+    private String topicEndOfTraitment;
+
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -46,13 +49,20 @@ public class TopicProducer {
         }
     }
 
-
-
     @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, Headers headers) throws JsonProcessingException {
         for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
             setHeadersAndSend(headers, mapper.writeValueAsString(ppnToCreate), topicNoticeImprimee);
         }
+    }
+
+    /**
+     * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
+     * @param headers le header du message (contient le nom du package et la date)
+     */
+    @Transactional(transactionManager = "kafkaTransactionManager")
+    public void sendEndOfTraitmentReport(Headers headers) {
+        setHeadersAndSend(headers, "OK", topicEndOfTraitment);
     }
 
     private void setHeadersAndSend(Headers headers, String value, String topic) {
