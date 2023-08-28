@@ -94,7 +94,8 @@ public class TopicConsumer {
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 mailAttachment.clearKbartDto();
-                producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
+                // TODO résoudre l'erreur de l'envoi au producer
+//                producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
