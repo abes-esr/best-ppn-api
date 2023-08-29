@@ -2,6 +2,9 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.exception.BestPpnException;
+import fr.abes.bestppn.exception.IllegalPpnException;
+import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.dto.PackageKbartDto;
@@ -57,13 +60,19 @@ public class TopicConsumer {
 
     boolean isOnError = false;
 
+    /**
+     * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
+     * @param lignesKbart message kafka récupéré par le Consumer Kafka
+     */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         String filename = "";
+        boolean injectKafka = false;
         try {
             for (Header header : lignesKbart.headers().toArray()) {
                 if(header.key().equals("FileName")){
                     filename = new String(header.value());
+                    if (filename.contains("_FORCE")) {injectKafka = true;}
                     break;
                 }
             }
@@ -85,6 +94,10 @@ public class TopicConsumer {
                         ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
                         providerPackageRepository.save(providerPackage);
                     }
+
+                    // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
+                    //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
+
                     producer.sendKbart(kbartToSend, lignesKbart.headers());
                     producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
                 } else {
@@ -97,7 +110,7 @@ public class TopicConsumer {
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
-                    PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName);
+                    PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, injectKafka);
                     switch (ppnWithDestinationDto.getDestination()){
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());

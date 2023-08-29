@@ -13,4 +13,6 @@ public class KbartProviderDto {
     private String kbart;
     @JsonProperty("provider")
     private String provider;
+    @JsonProperty("forceSetBestPpn")
+    private boolean forceSetBestPpn;
 }
