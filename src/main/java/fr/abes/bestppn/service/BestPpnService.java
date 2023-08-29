@@ -184,7 +184,7 @@ public class BestPpnService {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
                         // vérification du forçage
                         if (injectKafka) {
-                            yield new PpnWithDestinationDto(String.join(", ", ppnPrintResultList),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                            yield new PpnWithDestinationDto("",DESTINATION_TOPIC.PRINT_PPN_SUDOC);
                         } else {
                             throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
                         }
@@ -199,7 +199,7 @@ public class BestPpnService {
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (injectKafka) {
-                    yield new PpnWithDestinationDto(listPpn, DESTINATION_TOPIC.BEST_PPN_BACON);
+                    yield new PpnWithDestinationDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
                 } else {
                     log.error(errorString);
                     throw new BestPpnException(errorString);
