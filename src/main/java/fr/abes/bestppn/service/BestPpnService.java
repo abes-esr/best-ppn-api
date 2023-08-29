@@ -1,6 +1,5 @@
 package fr.abes.bestppn.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
@@ -167,16 +166,19 @@ public class BestPpnService {
 
     public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean injectKafka) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
-        if( ppnElecScore.isEmpty() && ppnPrintResultList.isEmpty()){
-            kbart.setErrorType("Aucun ppn trouvée");
-        }
         return switch (ppnElecScore.size()) {
             case 0 -> {
                 log.info("Aucun ppn électronique trouvé." + kbart);
                 yield switch (ppnPrintResultList.size()) {
-                    case 0 -> new PpnWithDestinationDto(null,DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    case 0 -> {
+                        kbart.setErrorType("Aucun ppn trouvé");
+                        yield new PpnWithDestinationDto(null, DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    }
 
-                    case 1 -> new PpnWithDestinationDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    case 1 -> {
+                        kbart.setErrorType("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
+                        yield new PpnWithDestinationDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    }
 
                     default -> {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");

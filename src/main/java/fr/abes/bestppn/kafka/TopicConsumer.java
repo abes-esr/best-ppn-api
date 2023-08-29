@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -66,16 +67,23 @@ public class TopicConsumer {
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
-        String filename = "";
-        boolean injectKafka = false;
         try {
+            String filename = "";
+            String currentLine = "";
+            String totalLine = "";
+            boolean injectKafka = false;
             for (Header header : lignesKbart.headers().toArray()) {
                 if(header.key().equals("FileName")){
                     filename = new String(header.value());
                     if (filename.contains("_FORCE")) {injectKafka = true;}
-                    break;
+                    ThreadContext.put("package",filename);
+                } else if(header.key().equals("CurrentLine")){
+                    currentLine = new String(header.value());
+                } else if(header.key().equals("TotalLine")){
+                    totalLine = new String(header.value());
                 }
             }
+            String nbLine = currentLine + "/" + totalLine;
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
 
@@ -110,6 +118,7 @@ public class TopicConsumer {
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
+                    log.info("Debut du calcul du bestppn sur la ligne : " + nbLine);
                     PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, injectKafka);
                     switch (ppnWithDestinationDto.getDestination()){
                         case BEST_PPN_BACON -> {
@@ -119,6 +128,7 @@ public class TopicConsumer {
                         case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
                     }
                 } else {
+                    log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());
                     kbartToSend.add(ligneFromKafka);
                 }
                 mailAttachment.addKbartDto(ligneFromKafka);
@@ -126,11 +136,22 @@ public class TopicConsumer {
         } catch (IllegalProviderException e) {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
         } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException | IllegalArgumentException e) {
             isOnError = true;
             log.error(e.getMessage());
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
         } catch (MessagingException | IllegalPackageException | IllegalDateException e) {
+            isOnError = true;
+            log.error(e.getMessage());
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    private void addLineToMailAttachementWithErrorMessage(String messageError) {
+        LigneKbartDto ligneVide = new LigneKbartDto();
+        ligneVide.setErrorType(messageError);
+        mailAttachment.addKbartDto(ligneVide);
     }
 }
