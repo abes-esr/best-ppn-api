@@ -184,7 +184,7 @@ public class BestPpnService {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
                         // vérification du forçage
                         if (injectKafka) {
-                            yield new PpnWithDestinationDto("",DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                            yield new PpnWithDestinationDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
                         } else {
                             throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
                         }
