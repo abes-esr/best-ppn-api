@@ -57,7 +57,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
+    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -82,7 +82,7 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
-        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList);
+        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
@@ -164,7 +164,7 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws BestPpnException {
+    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean injectKafka) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         return switch (ppnElecScore.size()) {
             case 0 -> {
@@ -182,7 +182,12 @@ public class BestPpnService {
 
                     default -> {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
-                        throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        // vérification du forçage
+                        if (injectKafka) {
+                            yield new PpnWithDestinationDto(String.join(", ", ppnPrintResultList),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                        } else {
+                            throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        }
                     }
                 };
             }
@@ -192,8 +197,13 @@ public class BestPpnService {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
                 String errorString = "Les ppn électroniques " + listPpn + " ont le même score";
                 kbart.setErrorType(errorString);
-                log.error(errorString);
-                throw new BestPpnException(errorString);
+                // vérification du forçage
+                if (injectKafka) {
+                    yield new PpnWithDestinationDto(listPpn, DESTINATION_TOPIC.BEST_PPN_BACON);
+                } else {
+                    log.error(errorString);
+                    throw new BestPpnException(errorString);
+                }
             }
         };
     }

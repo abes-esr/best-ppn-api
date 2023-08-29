@@ -41,7 +41,7 @@ public class BestPpnController {
                           @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
                           @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "doi", required = false) String doi,
                           @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
-                          @RequestParam(name = "first_author", required = false) String firstAuthor) throws IOException, IllegalPpnException {
+                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException, IllegalPpnException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublication_type(publicationType);
@@ -52,7 +52,8 @@ public class BestPpnController {
             ligneKbartDto.setDate_monograph_published_print((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
             ligneKbartDto.setDate_monograph_published_online((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirst_author((firstAuthor != null) ? firstAuthor : "");
-            return service.getBestPpn(ligneKbartDto, provider).getPpn();
+            boolean injectKafka = (force != null) ? force : false;
+            return service.getBestPpn(ligneKbartDto, provider, injectKafka).getPpn();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ doi du kbart n'est pas correcte");
         } catch (BestPpnException | RestClientException | IllegalArgumentException e) {
