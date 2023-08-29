@@ -125,7 +125,7 @@ public class EmailService {
         String json = "";
         ObjectMapper mapper = new ObjectMapper();
         MailDto mail = new MailDto();
-        mail.setApp("kbart2kafka");
+        mail.setApp("convergence");
         mail.setTo(to.split(";"));
         mail.setCc(new String[]{});
         mail.setCci(new String[]{});
