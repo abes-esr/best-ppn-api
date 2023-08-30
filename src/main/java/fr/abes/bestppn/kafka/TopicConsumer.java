@@ -1,13 +1,10 @@
 package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalPpnException;
-import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
-import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.entity.bacon.ProviderPackageId;
@@ -119,6 +116,7 @@ public class TopicConsumer {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
                     log.info("Debut du calcul du bestppn sur la ligne : " + nbLine);
+                    log.info(ligneFromKafka.toString());
                     PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, injectKafka);
                     switch (ppnWithDestinationDto.getDestination()){
                         case BEST_PPN_BACON -> {
