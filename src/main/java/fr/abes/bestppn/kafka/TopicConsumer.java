@@ -56,8 +56,9 @@ public class TopicConsumer {
 
     private final ProviderRepository providerRepository;
 
-    boolean isOnError = false;
+    private boolean isOnError = false;
 
+    private int nbBestPpnFind = 0;
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
@@ -108,6 +109,8 @@ public class TopicConsumer {
                 } else {
                     isOnError = false;
                 }
+                log.info("Nombre de best ppn trouvé : "+ this.nbBestPpnFind +"/"+ nbLine);
+                this.nbBestPpnFind = 0;
                 serviceMail.sendMailWithAttachment(filename,mailAttachment);
                 kbartToSend.clear();
                 ppnToCreate.clear();
@@ -121,6 +124,7 @@ public class TopicConsumer {
                     switch (ppnWithDestinationDto.getDestination()){
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
+                            this.nbBestPpnFind++;
                             kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
