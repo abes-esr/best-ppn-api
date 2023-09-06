@@ -91,11 +91,11 @@ public class TopicConsumer {
                     isOnError = false;
                 }
                 serviceMail.sendMailWithAttachment(filename,mailAttachment);
+                producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
+                // TODO récupérer les infos et créer le premier FICHIER de log dans un répertoire temporaire à la racine du projet
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 mailAttachment.clearKbartDto();
-                // TODO résoudre l'erreur de l'envoi au producer
-//                producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
