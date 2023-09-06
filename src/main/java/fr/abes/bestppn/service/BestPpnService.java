@@ -1,6 +1,5 @@
 package fr.abes.bestppn.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
@@ -58,7 +57,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
+    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -83,7 +82,7 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
-        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList);
+        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
@@ -165,22 +164,30 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws BestPpnException {
+    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean injectKafka) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
-        if( ppnElecScore.isEmpty() && ppnPrintResultList.isEmpty()){
-            kbart.setErrorType("Aucun ppn trouvée");
-        }
         return switch (ppnElecScore.size()) {
             case 0 -> {
                 log.info("Aucun ppn électronique trouvé." + kbart);
                 yield switch (ppnPrintResultList.size()) {
-                    case 0 -> new PpnWithDestinationDto(null,DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    case 0 -> {
+                        kbart.setErrorType("Aucun ppn trouvé");
+                        yield new PpnWithDestinationDto(null, DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    }
 
-                    case 1 -> new PpnWithDestinationDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    case 1 -> {
+                        kbart.setErrorType("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
+                        yield new PpnWithDestinationDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                    }
 
                     default -> {
                         kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
-                        throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        // vérification du forçage
+                        if (injectKafka) {
+                            yield new PpnWithDestinationDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
+                        } else {
+                            throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        }
                     }
                 };
             }
@@ -190,8 +197,13 @@ public class BestPpnService {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
                 String errorString = "Les ppn électroniques " + listPpn + " ont le même score";
                 kbart.setErrorType(errorString);
-                log.error(errorString);
-                throw new BestPpnException(errorString);
+                // vérification du forçage
+                if (injectKafka) {
+                    yield new PpnWithDestinationDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
+                } else {
+                    log.error(errorString);
+                    throw new BestPpnException(errorString);
+                }
             }
         };
     }
