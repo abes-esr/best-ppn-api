@@ -1,6 +1,8 @@
 package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
@@ -13,6 +15,7 @@ import fr.abes.bestppn.repository.bacon.ProviderPackageRepository;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.BestPpnService;
 import fr.abes.bestppn.service.EmailService;
+import fr.abes.bestppn.service.LogFileService;
 import fr.abes.bestppn.utils.Utils;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +30,10 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +52,10 @@ public class TopicConsumer {
 
     @Autowired
     private EmailService serviceMail;
+
+    @Autowired
+    private LogFileService logFileService;
+
     private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
 
     private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();
@@ -59,25 +69,33 @@ public class TopicConsumer {
     private boolean isOnError = false;
 
     private int nbBestPpnFind = 0;
+
+    private int linesWithInputDataErrors = 0;
+
+    private int linesWithErrorsInBestPPNSearch = 0;
+
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
+
         try {
             String filename = "";
             String currentLine = "";
             String totalLine = "";
             boolean injectKafka = false;
             for (Header header : lignesKbart.headers().toArray()) {
-                if(header.key().equals("FileName")){
+                if (header.key().equals("FileName")) {
                     filename = new String(header.value());
-                    if (filename.contains("_FORCE")) {injectKafka = true;}
-                    ThreadContext.put("package",filename);
-                } else if(header.key().equals("CurrentLine")){
+                    if (filename.contains("_FORCE")) {
+                        injectKafka = true;
+                    }
+                    ThreadContext.put("package", filename);
+                } else if (header.key().equals("CurrentLine")) {
                     currentLine = new String(header.value());
-                } else if(header.key().equals("TotalLine")){
+                } else if (header.key().equals("TotalLine")) {
                     totalLine = new String(header.value());
                 }
             }
@@ -85,8 +103,8 @@ public class TopicConsumer {
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
 
-            if(lignesKbart.value().equals("OK") ){
-                if( !isOnError ) {
+            if (lignesKbart.value().equals("OK")) {
+                if (!isOnError) {
                     if (providerOpt.isPresent()) {
                         Provider provider = providerOpt.get();
                         ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
@@ -100,36 +118,35 @@ public class TopicConsumer {
                         ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
                         providerPackageRepository.save(providerPackage);
                     }
-
-                    // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
-                    //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
-
                     producer.sendKbart(kbartToSend, lignesKbart.headers());
                     producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
                 } else {
                     isOnError = false;
                 }
-                log.info("Nombre de best ppn trouvé : "+ this.nbBestPpnFind +"/"+ nbLine);
+                log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + "/" + nbLine);
                 this.nbBestPpnFind = 0;
-                serviceMail.sendMailWithAttachment(filename,mailAttachment);
+//                serviceMail.sendMailWithAttachment(filename, mailAttachment); // TODO réactiver l'envoi du mail !!
                 producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
-                // TODO récupérer les infos et créer le premier FICHIER de log dans un répertoire temporaire à la racine du projet
+                logFileService.createFileLog(new SimpleDateFormat("yyyy-MM-dd:hh:mm").format(new Date(lignesKbart.timestamp())), filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 mailAttachment.clearKbartDto();
+                this.linesWithInputDataErrors = 0;
+                this.linesWithErrorsInBestPPNSearch = 0;
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
                     log.info("Debut du calcul du bestppn sur la ligne : " + nbLine);
                     log.info(ligneFromKafka.toString());
                     PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, injectKafka);
-                    switch (ppnWithDestinationDto.getDestination()){
+                    switch (ppnWithDestinationDto.getDestination()) {
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
                             this.nbBestPpnFind++;
                             kbartToSend.add(ligneFromKafka);
                         }
-                        case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
+                        case PRINT_PPN_SUDOC ->
+                                ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(), ligneFromKafka, providerName));
                     }
                 } else {
                     log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());
@@ -141,11 +158,14 @@ public class TopicConsumer {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException | IllegalArgumentException e) {
+            linesWithInputDataErrors++;
+        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException |
+                 IllegalArgumentException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-        } catch (MessagingException | IllegalPackageException | IllegalDateException e) {
+            linesWithErrorsInBestPPNSearch++;
+        } catch (IllegalPackageException | IllegalDateException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());

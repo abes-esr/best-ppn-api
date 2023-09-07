@@ -60,7 +60,7 @@ public class TopicProducer {
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
      * @param headers le header du message (contient le nom du package et la date)
      */
-    @Transactional(transactionManager = "kafkaTransactionManager") // TODO vérifier la possibilité de retirer le transactional (attention à kafkaTransactionManager() dans KafkaConfig.java)
+    @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendEndOfTraitmentReport(Headers headers) {
         setHeadersAndSend(headers, "OK", topicEndOfTraitment);
     }
