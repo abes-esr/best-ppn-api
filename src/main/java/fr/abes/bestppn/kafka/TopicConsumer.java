@@ -125,9 +125,9 @@ public class TopicConsumer {
                 }
                 log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + "/" + nbLine);
                 this.nbBestPpnFind = 0;
-//                serviceMail.sendMailWithAttachment(filename, mailAttachment); // TODO réactiver l'envoi du mail !!
+                serviceMail.sendMailWithAttachment(filename, mailAttachment);
                 producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
-                logFileService.createFileLog(new SimpleDateFormat("yyyy-MM-dd:hh:mm").format(new Date(lignesKbart.timestamp())), filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
+                logFileService.createFileLog(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 mailAttachment.clearKbartDto();
@@ -169,6 +169,8 @@ public class TopicConsumer {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
+            throw new RuntimeException(e);
+        } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
     }

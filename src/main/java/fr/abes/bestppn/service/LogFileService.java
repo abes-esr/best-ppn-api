@@ -7,39 +7,35 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 @Slf4j
 @Service
 public class LogFileService {
 
-    public void createFileLog(String timestamp, String fileName, int totalLines, int linesOk, int linesWithInputDataErrors, int linesWithErrorsInBestPPNSearch) throws IOException {
+    public void createFileLog(String fileName, int totalLines, int linesOk, int linesWithInputDataErrors, int linesWithErrorsInBestPPNSearch) throws IOException {
 
-        File fichier = new File(fileName.replaceAll(".tsv", ".log"));
-        Writer writer = null;
+        Logger logger = Logger.getLogger("ExecutionReport");
+        FileHandler fh;
 
         try {
-            writer = new FileWriter(fichier);
-            writer.write(timestamp + " INFO - Total lines : " + totalLines);
-            writer.write("\n" + timestamp + " INFO - Lines OK : " + linesOk);
-            writer.write("\n" + timestamp + " INFO - Lines with input data errors : " + linesWithInputDataErrors);
-            writer.write("\n" + timestamp + " INFO - Lines with errors in bestPpn search : " + linesWithErrorsInBestPPNSearch);
-        } catch (IOException e) {
-            throw new IOException(e);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    throw new IOException(e);
-                }
-            }
+            fh = new FileHandler(fileName.replaceAll(".tsv", ".log"), 1000, 1);
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+            logger.setUseParentHandlers(false); // désactive l'affiche du log dans le terminal
+            logger.info("TOTAL LINES : " + totalLines + " / LINES OK : " + linesOk + " / LINES WITH INPUT DATA ERRORS : " + linesWithInputDataErrors + " / LINES WITH ERRORS IN BESTPPN SEARCH : " + linesWithErrorsInBestPPNSearch);
+            fh.close();
+
+            // TODO placer le fichier de log au bon emplacement (begonia)
+        } catch (SecurityException | IOException e) {
+            e.printStackTrace();
         }
-
-        // TODO placer le fichier de log au bon emplacement
-
-        //  Suppression du log temporaire
-//        Files.deleteIfExists(logPath);
     }
 
 }
