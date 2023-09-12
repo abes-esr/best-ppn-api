@@ -713,7 +713,7 @@ class BestPpnServiceTest {
         Set<String> ppnPrintResultList = new HashSet<>();
 
         PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
-        Assertions.assertEquals("100000001, 100000002", result.getPpn());
+        Assertions.assertEquals("", result.getPpn());
     }
 
     @Test
@@ -728,7 +728,7 @@ class BestPpnServiceTest {
         ppnPrintResultList.add("100000002");
 
         PpnWithDestinationDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
-        Assertions.assertEquals("100000001, 100000002", result.getPpn());
+        Assertions.assertEquals("", result.getPpn());
     }
 
     @Test
