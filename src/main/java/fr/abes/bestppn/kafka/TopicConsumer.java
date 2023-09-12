@@ -50,6 +50,8 @@ public class TopicConsumer {
 
     private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();
 
+    private final List<LigneKbartDto> ppnFromKbartToCreate = new ArrayList<>();
+
     private final PackageKbartDto mailAttachment = new PackageKbartDto();
 
     private final ProviderPackageRepository providerPackageRepository;
@@ -106,6 +108,7 @@ public class TopicConsumer {
 
                     producer.sendKbart(kbartToSend, lignesKbart.headers());
                     producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
+                    producer.sendPpnExNihilo(ppnFromKbartToCreate, lignesKbart.headers());
                 } else {
                     isOnError = false;
                 }
@@ -114,6 +117,7 @@ public class TopicConsumer {
                 serviceMail.sendMailWithAttachment(filename,mailAttachment);
                 kbartToSend.clear();
                 ppnToCreate.clear();
+                ppnFromKbartToCreate.clear();
                 mailAttachment.clearKbartDto();
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
@@ -128,6 +132,7 @@ public class TopicConsumer {
                             kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
+                        case NO_PPN_FOUND -> ppnFromKbartToCreate.add(ligneFromKafka);
                     }
                 } else {
                     log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());

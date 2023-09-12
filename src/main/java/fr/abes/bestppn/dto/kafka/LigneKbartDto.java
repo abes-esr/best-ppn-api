@@ -101,9 +101,11 @@ public class LigneKbartDto {
 
     @Override
     public String toString() {
-        return "publication title : " + this.publication_title + " / publication_type : " + this.publication_type +
+        if (this.publication_title != null)
+            return "publication title : " + this.publication_title + " / publication_type : " + this.publication_type +
                 (this.online_identifier.isEmpty() ? "" : " / online_identifier : " + this.online_identifier) +
                 (this.print_identifier.isEmpty() ? "" : " / print_identifier : " + this.print_identifier);
+        return "";
     }
 
     @JsonIgnore

@@ -31,6 +31,9 @@ public class TopicProducer {
     @Value("${topic.name.target.noticeimprime}")
     private String topicNoticeImprimee;
 
+    @Value("${topic.name.target.ppnFromKbart}")
+    private String topicKbartPpnToCreate;
+
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -47,11 +50,17 @@ public class TopicProducer {
     }
 
 
-
     @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, Headers headers) throws JsonProcessingException {
         for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
             setHeadersAndSend(headers, mapper.writeValueAsString(ppnToCreate), topicNoticeImprimee);
+        }
+    }
+
+    @Transactional(transactionManager = "kafkaTransactionManager")
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, Headers headers) throws JsonProcessingException {
+        for (LigneKbartDto ligne : ppnFromKbartToCreate) {
+            setHeadersAndSend(headers, mapper.writeValueAsString(ligne), topicKbartPpnToCreate);
         }
     }
 
@@ -65,4 +74,5 @@ public class TopicProducer {
         Message<String> message = messageBuilder.build();
         kafkaTemplate.send(message);
     }
+
 }

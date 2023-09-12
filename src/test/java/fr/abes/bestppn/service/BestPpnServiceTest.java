@@ -492,7 +492,7 @@ class BestPpnServiceTest {
 
         //  Vérification
         Assertions.assertNull(result.getPpn());
-        Assertions.assertEquals(DESTINATION_TOPIC.PRINT_PPN_SUDOC, result.getDestination());
+        Assertions.assertEquals(DESTINATION_TOPIC.NO_PPN_FOUND, result.getDestination());
     }
 
     @Test
@@ -713,7 +713,6 @@ class BestPpnServiceTest {
     @DisplayName("test best ppn with score : 2 notices électroniques avec score identique et forçage de l'envoie au producer")
     void bestPpnWithScoreTest3() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
-        String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
         ppnElecResultList.put("100000001", 10);
         ppnElecResultList.put("100000002", 10);
@@ -729,7 +728,6 @@ class BestPpnServiceTest {
         LigneKbartDto kbart = new LigneKbartDto();
         kbart.setOnline_identifier("");
         kbart.setPrint_identifier("");
-        String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
         ppnPrintResultList.add("100000001");
