@@ -1,6 +1,5 @@
 package fr.abes.bestppn.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
@@ -467,9 +466,6 @@ class BestPpnServiceTest {
         ResultWsSudocDto resultPrint = new ResultWsSudocDto();
         resultPrint.setPpns(ppnWithTypePrintDto);
 
-        //  Create a ResultDat2PpnWebDto
-        ResultDat2PpnWebDto resultDat2PpnWeb = new ResultDat2PpnWebDto();
-
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
         kbart.setOnline_identifier("1292-8399");
@@ -684,7 +680,6 @@ class BestPpnServiceTest {
     @DisplayName("test best ppn with score : 1 seule notice électronique")
     void bestPpnWithScoreTest1() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
-        String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
         ppnElecResultList.put("100000001", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -698,7 +693,6 @@ class BestPpnServiceTest {
     @DisplayName("test best ppn with score : 2 notices électroniques avec score différent")
     void bestPpnWithScoreTest2() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
-        String provider = "";
         Map<String, Integer> ppnElecResultList = new HashMap<>();
         ppnElecResultList.put("100000001", 5);
         ppnElecResultList.put("100000002", 10);
