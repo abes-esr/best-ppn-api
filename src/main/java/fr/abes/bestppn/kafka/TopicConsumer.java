@@ -132,7 +132,9 @@ public class TopicConsumer {
                             kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
-                        case NO_PPN_FOUND -> ppnFromKbartToCreate.add(ligneFromKafka);
+                        case NO_PPN_FOUND -> {
+                            if (ligneFromKafka.getPublication_type().equals("monograph")) ppnFromKbartToCreate.add(ligneFromKafka);
+                        }
                     }
                 } else {
                     log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());
