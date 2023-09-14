@@ -11,79 +11,79 @@ import lombok.NoArgsConstructor;
 public class LigneKbartDto {
     @CsvBindByName(column = "publication_title")
     @CsvBindByPosition(position = 0)
-    private String publication_title;
+    private String publicationTitle;
     @CsvBindByName(column = "print_identifier")
     @CsvBindByPosition(position = 1)
-    private String print_identifier;
+    private String printIdentifier;
     @CsvBindByName(column = "online_identifier")
     @CsvBindByPosition(position = 2)
-    private String online_identifier;
+    private String onlineIdentifier;
     @CsvBindByName(column = "date_first_issue_online")
     @CsvBindByPosition(position = 3)
-    private String date_first_issue_online;
+    private String dateFirstIssueOnline;
     @CsvBindByName(column = "num_first_vol_online")
     @CsvBindByPosition(position = 4)
-    private Integer num_first_vol_online;
+    private Integer numFirstVolOnline;
     @CsvBindByName(column = "num_first_issue_online")
     @CsvBindByPosition(position = 5)
-    private Integer num_first_issue_online;
+    private Integer numFirstIssueOnline;
     @CsvBindByName(column = "date_last_issue_online")
     @CsvBindByPosition(position = 6)
-    private String date_last_issue_online;
+    private String dateLastIssueOnline;
     @CsvBindByName(column = "num_last_vol_online")
     @CsvBindByPosition(position = 7)
-    private Integer num_last_vol_online;
+    private Integer numLastVolOnline;
     @CsvBindByName(column = "num_last_issue_online")
     @CsvBindByPosition(position = 8)
-    private Integer num_last_issue_online;
+    private Integer numLastIssueOnline;
     @CsvBindByName(column = "title_url")
     @CsvBindByPosition(position = 9)
-    private String title_url;
+    private String titleUrl;
     @CsvBindByName(column = "first_author")
     @CsvBindByPosition(position = 10)
-    private String first_author;
+    private String firstAuthor;
     @CsvBindByName(column = "title_id")
     @CsvBindByPosition(position = 11)
-    private String title_id;
+    private String titleId;
     @CsvBindByName(column = "embargo_info")
     @CsvBindByPosition(position = 12)
-    private String embargo_info;
+    private String embargoInfo;
     @CsvBindByName(column = "coverage_depth")
     @CsvBindByPosition(position = 13)
-    private String coverage_depth;
+    private String coverageDepth;
     @CsvBindByName(column = "notes")
     @CsvBindByPosition(position = 14)
     private String notes;
     @CsvBindByName(column = "publisher_name")
     @CsvBindByPosition(position = 15)
-    private String publisher_name;
+    private String publisherName;
     @CsvBindByName(column = "publication_type")
     @CsvBindByPosition(position = 16)
-    private String publication_type;
+    private String publicationType;
     @CsvBindByName(column = "date_monograph_published_print")
     @CsvBindByPosition(position = 17)
-    private String date_monograph_published_print;
+    private String dateMonographPublishedPrint;
     @CsvBindByName(column = "date_monograph_published_online")
     @CsvBindByPosition(position = 18)
-    private String date_monograph_published_online;
+    private String dateMonographPublishedOnline;
     @CsvBindByName(column = "monograph_volume")
     @CsvBindByPosition(position = 19)
-    private Integer monograph_volume;
+    private Integer monographVolume;
     @CsvBindByName(column = "monograph_edition")
     @CsvBindByPosition(position = 20)
-    private String monograph_edition;
+    private String monographEdition;
     @CsvBindByName(column = "first_editor")
     @CsvBindByPosition(position = 21)
-    private String first_editor;
+    private String firstEditor;
     @CsvBindByName(column = "parent_publication_title_id")
     @CsvBindByPosition(position = 22)
-    private String parent_publication_title_id;
+    private String parentPublicationTitleId;
     @CsvBindByName(column = "preceding_publication_title_id")
     @CsvBindByPosition(position = 23)
-    private String preceding_publication_title_id;
+    private String precedingPublicationTitleId;
     @CsvBindByName(column = "access_type")
     @CsvBindByPosition(position = 24)
-    private String access_type;
+    private String accessType;
     @CsvBindByName(column = "access_type")
     @CsvBindByPosition(position = 25)
     private String bestPpn;
@@ -96,15 +96,15 @@ public class LigneKbartDto {
 
     @Override
     public int hashCode() {
-        return this.publication_title.hashCode() * this.online_identifier.hashCode() * this.print_identifier.hashCode();
+        return this.publicationTitle.hashCode() * this.onlineIdentifier.hashCode() * this.printIdentifier.hashCode();
     }
 
     @Override
     public String toString() {
-        if (this.publication_title != null)
-            return "publication title : " + this.publication_title + " / publication_type : " + this.publication_type +
-                (this.online_identifier.isEmpty() ? "" : " / online_identifier : " + this.online_identifier) +
-                (this.print_identifier.isEmpty() ? "" : " / print_identifier : " + this.print_identifier);
+        if (this.publicationTitle != null)
+            return "publication title : " + this.publicationTitle + " / publication_type : " + this.publicationType +
+                (this.onlineIdentifier.isEmpty() ? "" : " / online_identifier : " + this.onlineIdentifier) +
+                (this.printIdentifier.isEmpty() ? "" : " / print_identifier : " + this.printIdentifier);
         return "";
     }
 
@@ -115,16 +115,16 @@ public class LigneKbartDto {
 
     @JsonIgnore
     public String getAuthor() {
-        return (!this.first_author.isEmpty()) ? this.first_author : this.first_editor;
+        return (!this.firstAuthor.isEmpty()) ? this.firstAuthor : this.firstEditor;
     }
 
     @JsonIgnore
     public String getAnneeFromDate_monograph_published_print() {
-        return this.date_monograph_published_print;
+        return this.dateMonographPublishedPrint;
     }
 
     @JsonIgnore
     public String getAnneeFromDate_monograph_published_online() {
-        return this.date_monograph_published_online;
+        return this.dateMonographPublishedOnline;
     }
 }

@@ -106,18 +106,18 @@ class BestPpnServiceTest {
 
        //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url("https://www.test.fr/test");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl("https://www.test.fr/test");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
@@ -158,18 +158,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url("https://www.test.fr/test");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl("https://www.test.fr/test");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
         //  Appel du service
@@ -215,18 +215,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url("https://www.test.fr/test");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl("https://www.test.fr/test");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
@@ -273,18 +273,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url("https://www.test.fr/test");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl("https://www.test.fr/test");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
@@ -325,18 +325,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url("https://www.test.fr/test");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl("https://www.test.fr/test");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
@@ -380,18 +380,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("monograph");
-        kbart.setDate_monograph_published_print("DateOnline");
-        kbart.setDate_monograph_published_online("");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("monograph");
+        kbart.setDateMonographPublishedPrint("DateOnline");
+        kbart.setDateMonographPublishedOnline("");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticePrint);
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
         Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
@@ -425,18 +425,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_print("");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedPrint("");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticeElec);
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
         Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
@@ -468,18 +468,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_print("");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedPrint("");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticeElec);
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
 
@@ -520,18 +520,18 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url(null);
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl(null);
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.any())).thenReturn(true);
         Mockito.when(noticeService.getNoticeByPpn(Mockito.anyString())).thenReturn(this.noticeElec);
 
@@ -571,19 +571,19 @@ class BestPpnServiceTest {
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("1292-8399");
-        kbart.setPrint_identifier("2-84358-095-1");
-        kbart.setPublication_type("serial");
-        kbart.setDate_monograph_published_print("");
-        kbart.setDate_monograph_published_online("DateOnline");
-        kbart.setPublication_title("Titre");
-        kbart.setFirst_author("Auteur");
-        kbart.setDate_monograph_published_print("DatePrint");
-        kbart.setTitle_url(null);
+        kbart.setOnlineIdentifier("1292-8399");
+        kbart.setPrintIdentifier("2-84358-095-1");
+        kbart.setPublicationType("serial");
+        kbart.setDateMonographPublishedPrint("");
+        kbart.setDateMonographPublishedOnline("DateOnline");
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setDateMonographPublishedPrint("DatePrint");
+        kbart.setTitleUrl(null);
 
         //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.any())).thenReturn(true);
 
         //  Appel du service
@@ -601,20 +601,20 @@ class BestPpnServiceTest {
 
         //Creation d'une ligne kbart
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("9780470059616");
-        kbart.setPrint_identifier("9780470032565");
-        kbart.setTitle_url("https://onlinelibrary.wiley.com/doi/book/10.1002/9780470059616");
-        kbart.setFirst_author("Akyildiz");
-        kbart.setTitle_id("10.1002/9780470059616");
-        kbart.setCoverage_depth("fulltext");
-        kbart.setPublisher_name("John Wiley & Sons, Inc.");
-        kbart.setPublication_type("monograph");
-        kbart.setDate_monograph_published_print("2009");
-        kbart.setDate_monograph_published_online("2009");
-        kbart.setMonograph_edition("1");
-        kbart.setFirst_editor("Chichester");
-        kbart.setParent_publication_title_id("7630");
-        kbart.setAccess_type("P");
+        kbart.setOnlineIdentifier("9780470059616");
+        kbart.setPrintIdentifier("9780470032565");
+        kbart.setTitleUrl("https://onlinelibrary.wiley.com/doi/book/10.1002/9780470059616");
+        kbart.setFirstAuthor("Akyildiz");
+        kbart.setTitleId("10.1002/9780470059616");
+        kbart.setCoverageDepth("fulltext");
+        kbart.setPublisherName("John Wiley & Sons, Inc.");
+        kbart.setPublicationType("monograph");
+        kbart.setDateMonographPublishedPrint("2009");
+        kbart.setDateMonographPublishedOnline("2009");
+        kbart.setMonographEdition("1");
+        kbart.setFirstEditor("Chichester");
+        kbart.setParentPublicationTitleId("7630");
+        kbart.setAccessType("P");
 
 
         //Mock du service Doi -> Les ppn auront un score de 15 (car un seul ppn electro)
@@ -647,7 +647,7 @@ class BestPpnServiceTest {
         ppnElectro.setProviderPresent(true);
         ppnWithTypeDto2.add(ppnElectro);
         resultElec.setPpns(ppnWithTypeDto2);
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublication_type(), kbart.getOnline_identifier(), provider)).thenReturn(resultElec);
+        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
 
 
         //Mock du service callPrintId2Ppn -> les ppn auront un score de 8
@@ -659,7 +659,7 @@ class BestPpnServiceTest {
         ppnPrint.setTypeSupport(TYPE_SUPPORT.IMPRIME);
         ppnWithTypeDto3.add(ppnPrint);
         resultPrint.setPpns(ppnWithTypeDto3);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublication_type(), kbart.getPrint_identifier(), provider)).thenReturn(resultPrint);
+        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
 
         //Mock du service callDat2Ppn -> les ppn auront un score de 20
         ResultDat2PpnWebDto resultDat2PpnWeb = new ResultDat2PpnWebDto();
@@ -720,8 +720,8 @@ class BestPpnServiceTest {
     @DisplayName("test best ppn with score : 2 notices imprimées et forçage de l'envoie au producer")
     void bestPpnWithScoreTest4() throws BestPpnException {
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnline_identifier("");
-        kbart.setPrint_identifier("");
+        kbart.setOnlineIdentifier("");
+        kbart.setPrintIdentifier("");
         Map<String, Integer> ppnElecResultList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
         ppnPrintResultList.add("100000001");

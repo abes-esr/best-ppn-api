@@ -133,7 +133,7 @@ public class TopicConsumer {
                         }
                         case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
                         case NO_PPN_FOUND -> {
-                            if (ligneFromKafka.getPublication_type().equals("monograph")) ppnFromKbartToCreate.add(ligneFromKafka);
+                            if (ligneFromKafka.getPublicationType().equals("monograph")) ppnFromKbartToCreate.add(ligneFromKafka);
                         }
                     }
                 } else {
