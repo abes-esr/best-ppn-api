@@ -47,6 +47,7 @@ public class TopicProducer {
             }
             setHeadersAndSend(headers, mapper.writeValueAsString(ligne), topicKbart);
         }
+        log.debug("message envoyé vers {}", topicKbart);
     }
 
 
@@ -55,6 +56,7 @@ public class TopicProducer {
         for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
             setHeadersAndSend(headers, mapper.writeValueAsString(ppnToCreate), topicNoticeImprimee);
         }
+        log.debug("message envoyé vers {}", topicNoticeImprimee);
     }
 
     @Transactional(transactionManager = "kafkaTransactionManager")
@@ -62,6 +64,7 @@ public class TopicProducer {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             setHeadersAndSend(headers, mapper.writeValueAsString(ligne), topicKbartPpnToCreate);
         }
+        log.debug("message envoyé vers {}", topicKbartPpnToCreate);
     }
 
     private void setHeadersAndSend(Headers headers, String value, String topic) {
