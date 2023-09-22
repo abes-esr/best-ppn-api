@@ -44,14 +44,14 @@ public class BestPpnController {
                           @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException, IllegalPpnException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
-            ligneKbartDto.setPublication_type(publicationType);
-            ligneKbartDto.setPublication_title((publicationTitle != null) ? publicationTitle : "");
-            ligneKbartDto.setOnline_identifier((onlineIdentifier != null) ? onlineIdentifier : "");
-            ligneKbartDto.setPrint_identifier((printIdentifier != null) ? printIdentifier : "");
-            ligneKbartDto.setTitle_url((doi != null) ? doi : "");
-            ligneKbartDto.setDate_monograph_published_print((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
-            ligneKbartDto.setDate_monograph_published_online((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
-            ligneKbartDto.setFirst_author((firstAuthor != null) ? firstAuthor : "");
+            ligneKbartDto.setPublicationType(publicationType);
+            ligneKbartDto.setPublicationTitle((publicationTitle != null) ? publicationTitle : "");
+            ligneKbartDto.setOnlineIdentifier((onlineIdentifier != null) ? onlineIdentifier : "");
+            ligneKbartDto.setPrintIdentifier((printIdentifier != null) ? printIdentifier : "");
+            ligneKbartDto.setTitleUrl((doi != null) ? doi : "");
+            ligneKbartDto.setDateMonographPublishedPrint((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
+            ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
+            ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
             boolean injectKafka = (force != null) ? force : false;
             return service.getBestPpn(ligneKbartDto, provider, injectKafka).getPpn();
         } catch (URISyntaxException e) {

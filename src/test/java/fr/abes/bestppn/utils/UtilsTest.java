@@ -33,34 +33,34 @@ class UtilsTest {
     void extractDOItestAvecPresenceDOIdanstitleUrl() {
         LigneKbartDto kbart = new LigneKbartDto();
 
-        kbart.setTitle_url("https://doi.org/10.1006/jmbi.1998.2354");
+        kbart.setTitleUrl("https://doi.org/10.1006/jmbi.1998.2354");
 
         Assertions.assertEquals("10.1006/jmbi.1998.2354", Utils.extractDOI(kbart));
 
-        kbart.setTitle_url(null);
+        kbart.setTitleUrl(null);
         Assertions.assertEquals("", Utils.extractDOI(kbart));
     }
 
     @Test
     void extractDOItestAvecPresenceDOIdanstitleId() {
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setTitle_id("https://doi.org/10.1006/jmbi.1998.2354");
+        kbart.setTitleId("https://doi.org/10.1006/jmbi.1998.2354");
 
         Assertions.assertEquals("10.1006/jmbi.1998.2354", Utils.extractDOI(kbart));
 
-        kbart.setTitle_id(null);
+        kbart.setTitleId(null);
         Assertions.assertEquals("", Utils.extractDOI(kbart));
     }
 
     @Test
     void extractDOItestAvecPresenceDOIdanstitleUrlMaisSansPrefixeDOI() {
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setPublication_title("testtitle");
-        kbart.setPublication_type("testtype");
-        kbart.setOnline_identifier("10.1006/jmbi.1998.2354");
-        kbart.setPrint_identifier("print");
+        kbart.setPublicationTitle("testtitle");
+        kbart.setPublicationType("testtype");
+        kbart.setOnlineIdentifier("10.1006/jmbi.1998.2354");
+        kbart.setPrintIdentifier("print");
 
-        kbart.setTitle_url("10.1006/jmbi.1998.2354");
+        kbart.setTitleUrl("10.1006/jmbi.1998.2354");
 
         Assertions.assertEquals("10.1006/jmbi.1998.2354", Utils.extractDOI(kbart));
     }
@@ -68,13 +68,13 @@ class UtilsTest {
     @Test
     void extractDOItestAvecPresenceDOIdanstitleIdetTitleurl_priorisationTitleUrl() {
         LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setPublication_title("testtitle");
-        kbart.setPublication_type("testtype");
-        kbart.setOnline_identifier("online");
-        kbart.setPrint_identifier("print");
+        kbart.setPublicationTitle("testtitle");
+        kbart.setPublicationType("testtype");
+        kbart.setOnlineIdentifier("online");
+        kbart.setPrintIdentifier("print");
 
-        kbart.setTitle_id("https://doi.org/10.51257/a-v2-r7420");
-        kbart.setTitle_url("https://doi.org/10.1038/issn.1476-4687");
+        kbart.setTitleId("https://doi.org/10.51257/a-v2-r7420");
+        kbart.setTitleUrl("https://doi.org/10.1038/issn.1476-4687");
 
         Assertions.assertEquals("10.1038/issn.1476-4687", Utils.extractDOI(kbart));
     }

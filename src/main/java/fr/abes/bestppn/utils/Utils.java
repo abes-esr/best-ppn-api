@@ -29,18 +29,18 @@ public class Utils {
     public static String extractDOI(LigneKbartDto kbart) {
         String doiPattern = "10.\\d{0,15}.\\d{0,15}.+";
 
-        if (kbart.getTitle_url() != null && !kbart.getTitle_url().isEmpty()){
+        if (kbart.getTitleUrl() != null && !kbart.getTitleUrl().isEmpty()){
             Pattern pattern = Pattern.compile(doiPattern);
-            Matcher matcher = pattern.matcher(kbart.getTitle_url());
+            Matcher matcher = pattern.matcher(kbart.getTitleUrl());
             if (matcher.find()) {
                 return matcher.group(0);
             } else {
                 return "";
             }
         }
-        if (kbart.getTitle_id() != null && !kbart.getTitle_id().isEmpty()){
+        if (kbart.getTitleId() != null && !kbart.getTitleId().isEmpty()){
             Pattern pattern = Pattern.compile(doiPattern);
-            Matcher matcher = pattern.matcher(kbart.getTitle_id());
+            Matcher matcher = pattern.matcher(kbart.getTitleId());
             if (matcher.find()) {
                 return matcher.group(0);
             } else {
