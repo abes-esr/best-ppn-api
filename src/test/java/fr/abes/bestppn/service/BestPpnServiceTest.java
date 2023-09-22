@@ -488,7 +488,7 @@ class BestPpnServiceTest {
 
         //  Vérification
         Assertions.assertNull(result.getPpn());
-        Assertions.assertEquals(DESTINATION_TOPIC.NO_PPN_FOUND, result.getDestination());
+        Assertions.assertEquals(DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, result.getDestination());
     }
 
     @Test

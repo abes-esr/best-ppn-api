@@ -172,7 +172,7 @@ public class BestPpnService {
                 yield switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         kbart.setErrorType("Aucun ppn trouvé");
-                        yield new PpnWithDestinationDto(null, DESTINATION_TOPIC.NO_PPN_FOUND);
+                        yield new PpnWithDestinationDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC);
                     }
 
                     case 1 -> {
