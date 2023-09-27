@@ -2,12 +2,15 @@ package fr.abes.bestppn.utils;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.IllegalDateException;
+import jdk.jshell.execution.Util;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 class UtilsTest {
@@ -85,5 +88,21 @@ class UtilsTest {
         Date date = new SimpleDateFormat("yyyy-MM-dd").parse(string);
 
         Assertions.assertEquals(date, Utils.extractDate("SPRINGER_GLOBAL_ALLEBOOKS_2023-08-21.tsv"));
+    }
+
+    @Test
+    @DisplayName("Test formatDate")
+    void testFormatDate() {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String date = "2019";
+
+        Assertions.assertEquals("2019-01-01", Utils.formatDate(date, true).format(format));
+        Assertions.assertEquals("2019-12-31", Utils.formatDate(date, false).format(format));
+
+        date = "2019-03-04";
+        Assertions.assertEquals("2019-03-04", Utils.formatDate(date, true).format(format));
+
+        date = null;
+        Assertions.assertNull(Utils.formatDate(date, true));
     }
 }
