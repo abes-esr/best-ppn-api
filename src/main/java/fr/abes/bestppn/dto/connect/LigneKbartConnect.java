@@ -12,10 +12,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 4496956170373091251L;
+  private static final long serialVersionUID = -4018489364311615299L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"LigneKbartConnect\",\"namespace\":\"fr.abes.bestppn\",\"fields\":[{\"name\":\"PUBLICATION_TITLE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRINT_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"ONLINE_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",{\"type\":\"int\",\"logicalType\":\"date\"}]},{\"name\":\"NUM_FIRST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_LAST_ISSUE_ONLINE\",\"type\":[\"null\",{\"type\":\"int\",\"logicalType\":\"date\"}]},{\"name\":\"NUM_LAST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_URL\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_AUTHOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"EMBARGO_INFO\",\"type\":[\"null\",\"string\"]},{\"name\":\"COVERAGE_DEPTH\",\"type\":[\"null\",\"string\"]},{\"name\":\"NOTES\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLISHER_NAME\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLICATION_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_PRINT\",\"type\":[\"null\",{\"type\":\"int\",\"logicalType\":\"date\"}]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_ONLIN\",\"type\":[\"null\",{\"type\":\"int\",\"logicalType\":\"date\"}]},{\"name\":\"MONOGRAPH_VOLUME\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_EDITION\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_EDITOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"PARENT_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRECEDING_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"ACCESS_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PROVIDER_PACKAGE_PACKAGE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PROVIDER_PACKAGE_DATE_P\",\"type\":{\"type\":\"int\",\"logicalType\":\"date\"}},{\"name\":\"PROVIDER_PACKAGE_IDT_PROVIDER\",\"type\":\"int\"},{\"name\":\"BEST_PPN\",\"type\":[\"null\",\"string\"]}],\"version\":\"7\"}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"LigneKbartConnect\",\"namespace\":\"fr.abes.bestppn\",\"fields\":[{\"name\":\"PUBLICATION_TITLE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRINT_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"ONLINE_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_URL\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_AUTHOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"EMBARGO_INFO\",\"type\":[\"null\",\"string\"]},{\"name\":\"COVERAGE_DEPTH\",\"type\":[\"null\",\"string\"]},{\"name\":\"NOTES\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLISHER_NAME\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLICATION_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_PRINT\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_ONLIN\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_VOLUME\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_EDITION\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_EDITOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"PARENT_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRECEDING_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"ACCESS_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PROVIDER_PACKAGE_PACKAGE\",\"type\":\"string\"},{\"name\":\"PROVIDER_PACKAGE_DATE_P\",\"type\":{\"type\":\"int\",\"logicalType\":\"date\"}},{\"name\":\"PROVIDER_PACKAGE_IDT_PROVIDER\",\"type\":\"int\"},{\"name\":\"BEST_PPN\",\"type\":[\"null\",\"string\"]}],\"version\":\"9\"}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -77,10 +77,10 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
   private java.lang.CharSequence PUBLICATION_TITLE;
   private java.lang.CharSequence PRINT_IDENTIFIER;
   private java.lang.CharSequence ONLINE_IDENTIFIER;
-  private java.time.LocalDate DATE_FIRST_ISSUE_ONLINE;
+  private java.lang.CharSequence DATE_FIRST_ISSUE_ONLINE;
   private java.lang.CharSequence NUM_FIRST_VOL_ONLINE;
   private java.lang.CharSequence NUM_FIRST_ISSUE_ONLINE;
-  private java.time.LocalDate DATE_LAST_ISSUE_ONLINE;
+  private java.lang.CharSequence DATE_LAST_ISSUE_ONLINE;
   private java.lang.CharSequence NUM_LAST_VOL_ONLINE;
   private java.lang.CharSequence NUM_LAST_ISSUE_ONLINE;
   private java.lang.CharSequence TITLE_URL;
@@ -91,8 +91,8 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
   private java.lang.CharSequence NOTES;
   private java.lang.CharSequence PUBLISHER_NAME;
   private java.lang.CharSequence PUBLICATION_TYPE;
-  private java.time.LocalDate DATE_MONOGRAPH_PUBLISHED_PRINT;
-  private java.time.LocalDate DATE_MONOGRAPH_PUBLISHED_ONLIN;
+  private java.lang.CharSequence DATE_MONOGRAPH_PUBLISHED_PRINT;
+  private java.lang.CharSequence DATE_MONOGRAPH_PUBLISHED_ONLIN;
   private java.lang.CharSequence MONOGRAPH_VOLUME;
   private java.lang.CharSequence MONOGRAPH_EDITION;
   private java.lang.CharSequence FIRST_EDITOR;
@@ -143,7 +143,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * @param PROVIDER_PACKAGE_IDT_PROVIDER The new value for PROVIDER_PACKAGE_IDT_PROVIDER
    * @param BEST_PPN The new value for BEST_PPN
    */
-  public LigneKbartConnect(java.lang.CharSequence PUBLICATION_TITLE, java.lang.CharSequence PRINT_IDENTIFIER, java.lang.CharSequence ONLINE_IDENTIFIER, java.time.LocalDate DATE_FIRST_ISSUE_ONLINE, java.lang.CharSequence NUM_FIRST_VOL_ONLINE, java.lang.CharSequence NUM_FIRST_ISSUE_ONLINE, java.time.LocalDate DATE_LAST_ISSUE_ONLINE, java.lang.CharSequence NUM_LAST_VOL_ONLINE, java.lang.CharSequence NUM_LAST_ISSUE_ONLINE, java.lang.CharSequence TITLE_URL, java.lang.CharSequence FIRST_AUTHOR, java.lang.CharSequence TITLE_ID, java.lang.CharSequence EMBARGO_INFO, java.lang.CharSequence COVERAGE_DEPTH, java.lang.CharSequence NOTES, java.lang.CharSequence PUBLISHER_NAME, java.lang.CharSequence PUBLICATION_TYPE, java.time.LocalDate DATE_MONOGRAPH_PUBLISHED_PRINT, java.time.LocalDate DATE_MONOGRAPH_PUBLISHED_ONLIN, java.lang.CharSequence MONOGRAPH_VOLUME, java.lang.CharSequence MONOGRAPH_EDITION, java.lang.CharSequence FIRST_EDITOR, java.lang.CharSequence PARENT_PUBLICATION_TITLE_ID, java.lang.CharSequence PRECEDING_PUBLICATION_TITLE_ID, java.lang.CharSequence ACCESS_TYPE, java.lang.CharSequence PROVIDER_PACKAGE_PACKAGE, java.time.LocalDate PROVIDER_PACKAGE_DATE_P, java.lang.Integer PROVIDER_PACKAGE_IDT_PROVIDER, java.lang.CharSequence BEST_PPN) {
+  public LigneKbartConnect(java.lang.CharSequence PUBLICATION_TITLE, java.lang.CharSequence PRINT_IDENTIFIER, java.lang.CharSequence ONLINE_IDENTIFIER, java.lang.CharSequence DATE_FIRST_ISSUE_ONLINE, java.lang.CharSequence NUM_FIRST_VOL_ONLINE, java.lang.CharSequence NUM_FIRST_ISSUE_ONLINE, java.lang.CharSequence DATE_LAST_ISSUE_ONLINE, java.lang.CharSequence NUM_LAST_VOL_ONLINE, java.lang.CharSequence NUM_LAST_ISSUE_ONLINE, java.lang.CharSequence TITLE_URL, java.lang.CharSequence FIRST_AUTHOR, java.lang.CharSequence TITLE_ID, java.lang.CharSequence EMBARGO_INFO, java.lang.CharSequence COVERAGE_DEPTH, java.lang.CharSequence NOTES, java.lang.CharSequence PUBLISHER_NAME, java.lang.CharSequence PUBLICATION_TYPE, java.lang.CharSequence DATE_MONOGRAPH_PUBLISHED_PRINT, java.lang.CharSequence DATE_MONOGRAPH_PUBLISHED_ONLIN, java.lang.CharSequence MONOGRAPH_VOLUME, java.lang.CharSequence MONOGRAPH_EDITION, java.lang.CharSequence FIRST_EDITOR, java.lang.CharSequence PARENT_PUBLICATION_TITLE_ID, java.lang.CharSequence PRECEDING_PUBLICATION_TITLE_ID, java.lang.CharSequence ACCESS_TYPE, java.lang.CharSequence PROVIDER_PACKAGE_PACKAGE, java.time.LocalDate PROVIDER_PACKAGE_DATE_P, java.lang.Integer PROVIDER_PACKAGE_IDT_PROVIDER, java.lang.CharSequence BEST_PPN) {
     this.PUBLICATION_TITLE = PUBLICATION_TITLE;
     this.PRINT_IDENTIFIER = PRINT_IDENTIFIER;
     this.ONLINE_IDENTIFIER = ONLINE_IDENTIFIER;
@@ -265,10 +265,10 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
     case 0: PUBLICATION_TITLE = (java.lang.CharSequence)value$; break;
     case 1: PRINT_IDENTIFIER = (java.lang.CharSequence)value$; break;
     case 2: ONLINE_IDENTIFIER = (java.lang.CharSequence)value$; break;
-    case 3: DATE_FIRST_ISSUE_ONLINE = (java.time.LocalDate)value$; break;
+    case 3: DATE_FIRST_ISSUE_ONLINE = (java.lang.CharSequence)value$; break;
     case 4: NUM_FIRST_VOL_ONLINE = (java.lang.CharSequence)value$; break;
     case 5: NUM_FIRST_ISSUE_ONLINE = (java.lang.CharSequence)value$; break;
-    case 6: DATE_LAST_ISSUE_ONLINE = (java.time.LocalDate)value$; break;
+    case 6: DATE_LAST_ISSUE_ONLINE = (java.lang.CharSequence)value$; break;
     case 7: NUM_LAST_VOL_ONLINE = (java.lang.CharSequence)value$; break;
     case 8: NUM_LAST_ISSUE_ONLINE = (java.lang.CharSequence)value$; break;
     case 9: TITLE_URL = (java.lang.CharSequence)value$; break;
@@ -279,8 +279,8 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
     case 14: NOTES = (java.lang.CharSequence)value$; break;
     case 15: PUBLISHER_NAME = (java.lang.CharSequence)value$; break;
     case 16: PUBLICATION_TYPE = (java.lang.CharSequence)value$; break;
-    case 17: DATE_MONOGRAPH_PUBLISHED_PRINT = (java.time.LocalDate)value$; break;
-    case 18: DATE_MONOGRAPH_PUBLISHED_ONLIN = (java.time.LocalDate)value$; break;
+    case 17: DATE_MONOGRAPH_PUBLISHED_PRINT = (java.lang.CharSequence)value$; break;
+    case 18: DATE_MONOGRAPH_PUBLISHED_ONLIN = (java.lang.CharSequence)value$; break;
     case 19: MONOGRAPH_VOLUME = (java.lang.CharSequence)value$; break;
     case 20: MONOGRAPH_EDITION = (java.lang.CharSequence)value$; break;
     case 21: FIRST_EDITOR = (java.lang.CharSequence)value$; break;
@@ -350,7 +350,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Gets the value of the 'DATE_FIRST_ISSUE_ONLINE' field.
    * @return The value of the 'DATE_FIRST_ISSUE_ONLINE' field.
    */
-  public java.time.LocalDate getDATEFIRSTISSUEONLINE() {
+  public java.lang.CharSequence getDATEFIRSTISSUEONLINE() {
     return DATE_FIRST_ISSUE_ONLINE;
   }
 
@@ -359,7 +359,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'DATE_FIRST_ISSUE_ONLINE' field.
    * @param value the value to set.
    */
-  public void setDATEFIRSTISSUEONLINE(java.time.LocalDate value) {
+  public void setDATEFIRSTISSUEONLINE(java.lang.CharSequence value) {
     this.DATE_FIRST_ISSUE_ONLINE = value;
   }
 
@@ -401,7 +401,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Gets the value of the 'DATE_LAST_ISSUE_ONLINE' field.
    * @return The value of the 'DATE_LAST_ISSUE_ONLINE' field.
    */
-  public java.time.LocalDate getDATELASTISSUEONLINE() {
+  public java.lang.CharSequence getDATELASTISSUEONLINE() {
     return DATE_LAST_ISSUE_ONLINE;
   }
 
@@ -410,7 +410,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'DATE_LAST_ISSUE_ONLINE' field.
    * @param value the value to set.
    */
-  public void setDATELASTISSUEONLINE(java.time.LocalDate value) {
+  public void setDATELASTISSUEONLINE(java.lang.CharSequence value) {
     this.DATE_LAST_ISSUE_ONLINE = value;
   }
 
@@ -588,7 +588,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Gets the value of the 'DATE_MONOGRAPH_PUBLISHED_PRINT' field.
    * @return The value of the 'DATE_MONOGRAPH_PUBLISHED_PRINT' field.
    */
-  public java.time.LocalDate getDATEMONOGRAPHPUBLISHEDPRINT() {
+  public java.lang.CharSequence getDATEMONOGRAPHPUBLISHEDPRINT() {
     return DATE_MONOGRAPH_PUBLISHED_PRINT;
   }
 
@@ -597,7 +597,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'DATE_MONOGRAPH_PUBLISHED_PRINT' field.
    * @param value the value to set.
    */
-  public void setDATEMONOGRAPHPUBLISHEDPRINT(java.time.LocalDate value) {
+  public void setDATEMONOGRAPHPUBLISHEDPRINT(java.lang.CharSequence value) {
     this.DATE_MONOGRAPH_PUBLISHED_PRINT = value;
   }
 
@@ -605,7 +605,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Gets the value of the 'DATE_MONOGRAPH_PUBLISHED_ONLIN' field.
    * @return The value of the 'DATE_MONOGRAPH_PUBLISHED_ONLIN' field.
    */
-  public java.time.LocalDate getDATEMONOGRAPHPUBLISHEDONLIN() {
+  public java.lang.CharSequence getDATEMONOGRAPHPUBLISHEDONLIN() {
     return DATE_MONOGRAPH_PUBLISHED_ONLIN;
   }
 
@@ -614,7 +614,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'DATE_MONOGRAPH_PUBLISHED_ONLIN' field.
    * @param value the value to set.
    */
-  public void setDATEMONOGRAPHPUBLISHEDONLIN(java.time.LocalDate value) {
+  public void setDATEMONOGRAPHPUBLISHEDONLIN(java.lang.CharSequence value) {
     this.DATE_MONOGRAPH_PUBLISHED_ONLIN = value;
   }
 
@@ -832,10 +832,10 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
     private java.lang.CharSequence PUBLICATION_TITLE;
     private java.lang.CharSequence PRINT_IDENTIFIER;
     private java.lang.CharSequence ONLINE_IDENTIFIER;
-    private java.time.LocalDate DATE_FIRST_ISSUE_ONLINE;
+    private java.lang.CharSequence DATE_FIRST_ISSUE_ONLINE;
     private java.lang.CharSequence NUM_FIRST_VOL_ONLINE;
     private java.lang.CharSequence NUM_FIRST_ISSUE_ONLINE;
-    private java.time.LocalDate DATE_LAST_ISSUE_ONLINE;
+    private java.lang.CharSequence DATE_LAST_ISSUE_ONLINE;
     private java.lang.CharSequence NUM_LAST_VOL_ONLINE;
     private java.lang.CharSequence NUM_LAST_ISSUE_ONLINE;
     private java.lang.CharSequence TITLE_URL;
@@ -846,8 +846,8 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
     private java.lang.CharSequence NOTES;
     private java.lang.CharSequence PUBLISHER_NAME;
     private java.lang.CharSequence PUBLICATION_TYPE;
-    private java.time.LocalDate DATE_MONOGRAPH_PUBLISHED_PRINT;
-    private java.time.LocalDate DATE_MONOGRAPH_PUBLISHED_ONLIN;
+    private java.lang.CharSequence DATE_MONOGRAPH_PUBLISHED_PRINT;
+    private java.lang.CharSequence DATE_MONOGRAPH_PUBLISHED_ONLIN;
     private java.lang.CharSequence MONOGRAPH_VOLUME;
     private java.lang.CharSequence MONOGRAPH_EDITION;
     private java.lang.CharSequence FIRST_EDITOR;
@@ -1236,7 +1236,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Gets the value of the 'DATE_FIRST_ISSUE_ONLINE' field.
       * @return The value.
       */
-    public java.time.LocalDate getDATEFIRSTISSUEONLINE() {
+    public java.lang.CharSequence getDATEFIRSTISSUEONLINE() {
       return DATE_FIRST_ISSUE_ONLINE;
     }
 
@@ -1246,7 +1246,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_FIRST_ISSUE_ONLINE'.
       * @return This builder.
       */
-    public LigneKbartConnect.Builder setDATEFIRSTISSUEONLINE(java.time.LocalDate value) {
+    public LigneKbartConnect.Builder setDATEFIRSTISSUEONLINE(java.lang.CharSequence value) {
       validate(fields()[3], value);
       this.DATE_FIRST_ISSUE_ONLINE = value;
       fieldSetFlags()[3] = true;
@@ -1356,7 +1356,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Gets the value of the 'DATE_LAST_ISSUE_ONLINE' field.
       * @return The value.
       */
-    public java.time.LocalDate getDATELASTISSUEONLINE() {
+    public java.lang.CharSequence getDATELASTISSUEONLINE() {
       return DATE_LAST_ISSUE_ONLINE;
     }
 
@@ -1366,7 +1366,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_LAST_ISSUE_ONLINE'.
       * @return This builder.
       */
-    public LigneKbartConnect.Builder setDATELASTISSUEONLINE(java.time.LocalDate value) {
+    public LigneKbartConnect.Builder setDATELASTISSUEONLINE(java.lang.CharSequence value) {
       validate(fields()[6], value);
       this.DATE_LAST_ISSUE_ONLINE = value;
       fieldSetFlags()[6] = true;
@@ -1796,7 +1796,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Gets the value of the 'DATE_MONOGRAPH_PUBLISHED_PRINT' field.
       * @return The value.
       */
-    public java.time.LocalDate getDATEMONOGRAPHPUBLISHEDPRINT() {
+    public java.lang.CharSequence getDATEMONOGRAPHPUBLISHEDPRINT() {
       return DATE_MONOGRAPH_PUBLISHED_PRINT;
     }
 
@@ -1806,7 +1806,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_MONOGRAPH_PUBLISHED_PRINT'.
       * @return This builder.
       */
-    public LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDPRINT(java.time.LocalDate value) {
+    public LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDPRINT(java.lang.CharSequence value) {
       validate(fields()[17], value);
       this.DATE_MONOGRAPH_PUBLISHED_PRINT = value;
       fieldSetFlags()[17] = true;
@@ -1836,7 +1836,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Gets the value of the 'DATE_MONOGRAPH_PUBLISHED_ONLIN' field.
       * @return The value.
       */
-    public java.time.LocalDate getDATEMONOGRAPHPUBLISHEDONLIN() {
+    public java.lang.CharSequence getDATEMONOGRAPHPUBLISHEDONLIN() {
       return DATE_MONOGRAPH_PUBLISHED_ONLIN;
     }
 
@@ -1846,7 +1846,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_MONOGRAPH_PUBLISHED_ONLIN'.
       * @return This builder.
       */
-    public LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDONLIN(java.time.LocalDate value) {
+    public LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDONLIN(java.lang.CharSequence value) {
       validate(fields()[18], value);
       this.DATE_MONOGRAPH_PUBLISHED_ONLIN = value;
       fieldSetFlags()[18] = true;
@@ -2278,10 +2278,10 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
         record.PUBLICATION_TITLE = fieldSetFlags()[0] ? this.PUBLICATION_TITLE : (java.lang.CharSequence) defaultValue(fields()[0]);
         record.PRINT_IDENTIFIER = fieldSetFlags()[1] ? this.PRINT_IDENTIFIER : (java.lang.CharSequence) defaultValue(fields()[1]);
         record.ONLINE_IDENTIFIER = fieldSetFlags()[2] ? this.ONLINE_IDENTIFIER : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.DATE_FIRST_ISSUE_ONLINE = fieldSetFlags()[3] ? this.DATE_FIRST_ISSUE_ONLINE : (java.time.LocalDate) defaultValue(fields()[3]);
+        record.DATE_FIRST_ISSUE_ONLINE = fieldSetFlags()[3] ? this.DATE_FIRST_ISSUE_ONLINE : (java.lang.CharSequence) defaultValue(fields()[3]);
         record.NUM_FIRST_VOL_ONLINE = fieldSetFlags()[4] ? this.NUM_FIRST_VOL_ONLINE : (java.lang.CharSequence) defaultValue(fields()[4]);
         record.NUM_FIRST_ISSUE_ONLINE = fieldSetFlags()[5] ? this.NUM_FIRST_ISSUE_ONLINE : (java.lang.CharSequence) defaultValue(fields()[5]);
-        record.DATE_LAST_ISSUE_ONLINE = fieldSetFlags()[6] ? this.DATE_LAST_ISSUE_ONLINE : (java.time.LocalDate) defaultValue(fields()[6]);
+        record.DATE_LAST_ISSUE_ONLINE = fieldSetFlags()[6] ? this.DATE_LAST_ISSUE_ONLINE : (java.lang.CharSequence) defaultValue(fields()[6]);
         record.NUM_LAST_VOL_ONLINE = fieldSetFlags()[7] ? this.NUM_LAST_VOL_ONLINE : (java.lang.CharSequence) defaultValue(fields()[7]);
         record.NUM_LAST_ISSUE_ONLINE = fieldSetFlags()[8] ? this.NUM_LAST_ISSUE_ONLINE : (java.lang.CharSequence) defaultValue(fields()[8]);
         record.TITLE_URL = fieldSetFlags()[9] ? this.TITLE_URL : (java.lang.CharSequence) defaultValue(fields()[9]);
@@ -2292,8 +2292,8 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
         record.NOTES = fieldSetFlags()[14] ? this.NOTES : (java.lang.CharSequence) defaultValue(fields()[14]);
         record.PUBLISHER_NAME = fieldSetFlags()[15] ? this.PUBLISHER_NAME : (java.lang.CharSequence) defaultValue(fields()[15]);
         record.PUBLICATION_TYPE = fieldSetFlags()[16] ? this.PUBLICATION_TYPE : (java.lang.CharSequence) defaultValue(fields()[16]);
-        record.DATE_MONOGRAPH_PUBLISHED_PRINT = fieldSetFlags()[17] ? this.DATE_MONOGRAPH_PUBLISHED_PRINT : (java.time.LocalDate) defaultValue(fields()[17]);
-        record.DATE_MONOGRAPH_PUBLISHED_ONLIN = fieldSetFlags()[18] ? this.DATE_MONOGRAPH_PUBLISHED_ONLIN : (java.time.LocalDate) defaultValue(fields()[18]);
+        record.DATE_MONOGRAPH_PUBLISHED_PRINT = fieldSetFlags()[17] ? this.DATE_MONOGRAPH_PUBLISHED_PRINT : (java.lang.CharSequence) defaultValue(fields()[17]);
+        record.DATE_MONOGRAPH_PUBLISHED_ONLIN = fieldSetFlags()[18] ? this.DATE_MONOGRAPH_PUBLISHED_ONLIN : (java.lang.CharSequence) defaultValue(fields()[18]);
         record.MONOGRAPH_VOLUME = fieldSetFlags()[19] ? this.MONOGRAPH_VOLUME : (java.lang.CharSequence) defaultValue(fields()[19]);
         record.MONOGRAPH_EDITION = fieldSetFlags()[20] ? this.MONOGRAPH_EDITION : (java.lang.CharSequence) defaultValue(fields()[20]);
         record.FIRST_EDITOR = fieldSetFlags()[21] ? this.FIRST_EDITOR : (java.lang.CharSequence) defaultValue(fields()[21]);

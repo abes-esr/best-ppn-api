@@ -101,17 +101,17 @@ public class Utils {
      * @param debut : indique s'il s'agit d'une date de début : true : date de début, false : date de fin
      * @return la date formattée
      */
-    public static LocalDate formatDate(String date, boolean debut) {
+    public static String formatDate(String date, boolean debut) {
         if (date == null) return null;
         String yearRegExp = "([\\d]{4})";
         String dateRegExp = "\\d{4}-\\d{2}-\\d{2}";
         int day = (debut) ? 1 : 31;
         int month = (debut) ? Calendar.JANUARY : Calendar.DECEMBER;
         if (date.matches(yearRegExp)) {
-            return new GregorianCalendar(Integer.parseInt(date), month, day).toZonedDateTime().toLocalDate();
+            return new GregorianCalendar(Integer.parseInt(date), month, day).toZonedDateTime().toLocalDate().toString();
         }
         if (date.matches(dateRegExp)) {
-            return LocalDate.parse(date);
+            return date;
         }
         return null;
     }

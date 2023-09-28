@@ -32,6 +32,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.properties.isolation.level}")
     private String isolationLevel;
 
+    @Value("${spring.kafka.registry.url}")
+    private String registryUrl;
+
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -58,7 +61,7 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-        props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://cafeier-dev.v212.abes.fr:8081/");
+        props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
         return props;
     }
 

@@ -2,7 +2,7 @@
   "type": "record",
   "name": "LigneKbartConnect",
   "namespace": "fr.abes.bestppn",
-  "version": "7",
+  "version": "9",
   "fields": [
     {
       "name": "PUBLICATION_TITLE",
@@ -18,12 +18,7 @@
     },
     {
       "name": "DATE_FIRST_ISSUE_ONLINE",
-      "type":
-        ["null", 
-        {
-          "type": "int",
-          "logicalType": "date"
-        }]
+      "type": ["null", "string"]
     },
     {
       "name": "NUM_FIRST_VOL_ONLINE",
@@ -35,12 +30,7 @@
     },
     {
       "name": "DATE_LAST_ISSUE_ONLINE",
-      "type":
-        ["null",
-        {
-          "type": "int",
-          "logicalType": "date"
-        }]
+      "type": ["null", "string"]
     },
     {
       "name": "NUM_LAST_VOL_ONLINE",
@@ -84,21 +74,11 @@
     },
     {
       "name": "DATE_MONOGRAPH_PUBLISHED_PRINT",
-      "type":
-        ["null",
-        {
-          "type": "int",
-          "logicalType": "date"
-        }]
+      "type": ["null", "string"]
     },
     {
       "name": "DATE_MONOGRAPH_PUBLISHED_ONLIN",
-      "type":
-        ["null",
-        {
-          "type": "int",
-          "logicalType": "date"
-        }]
+      "type": ["null", "string"]
     },
     {
       "name": "MONOGRAPH_VOLUME",
@@ -126,7 +106,7 @@
     },
     {
       "name": "PROVIDER_PACKAGE_PACKAGE",
-      "type": ["null", "string"]
+      "type": "string"
     },
     {
       "name": "PROVIDER_PACKAGE_DATE_P",
