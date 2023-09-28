@@ -93,14 +93,13 @@ class UtilsTest {
     @Test
     @DisplayName("Test formatDate")
     void testFormatDate() {
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String date = "2019";
 
-        Assertions.assertEquals("2019-01-01", Utils.formatDate(date, true).format(format));
-        Assertions.assertEquals("2019-12-31", Utils.formatDate(date, false).format(format));
+        Assertions.assertEquals("2019-01-01", Utils.formatDate(date, true));
+        Assertions.assertEquals("2019-12-31", Utils.formatDate(date, false));
 
         date = "2019-03-04";
-        Assertions.assertEquals("2019-03-04", Utils.formatDate(date, true).format(format));
+        Assertions.assertEquals("2019-03-04", Utils.formatDate(date, true));
 
         date = null;
         Assertions.assertNull(Utils.formatDate(date, true));
