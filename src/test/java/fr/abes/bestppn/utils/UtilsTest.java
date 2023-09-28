@@ -2,7 +2,6 @@ package fr.abes.bestppn.utils;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.IllegalDateException;
-import jdk.jshell.execution.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 class UtilsTest {
