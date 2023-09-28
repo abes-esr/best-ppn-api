@@ -89,26 +89,14 @@ public class TopicConsumer {
 
             if(lignesKbart.value().equals("OK") ){
                 if( !isOnError ) {
-                    if (providerOpt.isPresent()) {
-                        Provider provider = providerOpt.get();
-                        ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
-                        Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
-                        //pas d'info de package, on le crée
-                        providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
-                    } else {
-                        //pas de provider, ni de package, on les crée tous les deux
-                        Provider newProvider = new Provider(providerName);
-                        Provider savedProvider = providerRepository.save(newProvider);
-                        ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
-                        providerPackageRepository.save(providerPackage);
-                    }
+                    ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
 
                     // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
                     //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
-
-                    producer.sendKbart(kbartToSend, lignesKbart.headers());
-                    producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
-                    producer.sendPpnExNihilo(ppnFromKbartToCreate, lignesKbart.headers());
+                    producer.sendKbart(kbartToSend, provider);
+                    producer.sendPrintNotice(ppnToCreate, provider);
+                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider);
+                    //producer.sendOk(lignesKbart.headers());
                 } else {
                     isOnError = false;
                 }
@@ -155,6 +143,22 @@ public class TopicConsumer {
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    private ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename, String providerName) throws IllegalPackageException, IllegalDateException {
+        if (providerOpt.isPresent()) {
+            Provider provider = providerOpt.get();
+            ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
+            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
+            //pas d'info de package, on le crée
+            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+        } else {
+            //pas de provider, ni de package, on les crée tous les deux
+            Provider newProvider = new Provider(providerName);
+            Provider savedProvider = providerRepository.save(newProvider);
+            ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
+            return providerPackageRepository.save(providerPackage);
         }
     }
 

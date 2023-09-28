@@ -7,6 +7,8 @@ import com.opencsv.bean.CsvBindByPosition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 public class LigneKbartDto {
@@ -110,9 +112,18 @@ public class LigneKbartDto {
     @CsvBindByPosition(position = 24)
     @JsonProperty("access_type")
     private String accessType;
-    @CsvBindByName(column = "bestPpn")
+    @CsvBindByName(column = "best_ppn")
     @CsvBindByPosition(position = 25)
+    @JsonProperty("best_ppn")
     private String bestPpn;
+
+    @JsonProperty("provider_package_package")
+    private String providerPackagePackage;
+    @JsonProperty("provider_package_date_p")
+    private Date providerPackageDateP;
+    @JsonProperty("provider_package_idt_provider")
+    private Integer providerPackageIdtProvider;
+
 
     @JsonIgnore
     @CsvBindByName(column = "errorType")
