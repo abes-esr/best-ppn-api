@@ -1,8 +1,8 @@
 {
   "type": "record",
   "name": "LigneKbartConnect",
-  "namespace": "fr.abes.bestppn",
-  "version": "9",
+  "namespace": "fr.abes.bestppn.dto.connect",
+  "version": "10",
   "fields": [
     {
       "name": "PUBLICATION_TITLE",
