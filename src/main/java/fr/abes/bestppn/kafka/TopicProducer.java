@@ -21,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -115,8 +118,8 @@ public class TopicProducer {
             ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, "", ligne, header);
             final SendResult result = kafkaTemplate.send(record).get();
             final RecordMetadata metadata = result.getRecordMetadata();
-            log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d)",
-                    record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset()));
+            log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d, headers=%s)",
+                    record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset(), Stream.of(result.getProducerRecord().headers().toArray()).map(h -> new String(h.key() + ":" + h.value())).collect(Collectors.joining(";"))));
             return result;
         } catch (Exception e) {
             String message = "Error sending message to topic " + topic;
