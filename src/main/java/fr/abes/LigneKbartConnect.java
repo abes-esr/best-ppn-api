@@ -3,7 +3,7 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package fr.abes.bestppn.dto.connect;
+package fr.abes;
 
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.specific.SpecificData;
@@ -14,10 +14,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 5563585681156395165L;
+  private static final long serialVersionUID = -4747621436631233106L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"LigneKbartConnect\",\"namespace\":\"fr.abes.bestppn.dto.connect\",\"fields\":[{\"name\":\"PUBLICATION_TITLE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRINT_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"ONLINE_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_URL\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_AUTHOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"EMBARGO_INFO\",\"type\":[\"null\",\"string\"]},{\"name\":\"COVERAGE_DEPTH\",\"type\":[\"null\",\"string\"]},{\"name\":\"NOTES\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLISHER_NAME\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLICATION_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_PRINT\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_ONLIN\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_VOLUME\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_EDITION\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_EDITOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"PARENT_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRECEDING_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"ACCESS_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PROVIDER_PACKAGE_PACKAGE\",\"type\":\"string\"},{\"name\":\"PROVIDER_PACKAGE_DATE_P\",\"type\":{\"type\":\"int\",\"logicalType\":\"date\"}},{\"name\":\"PROVIDER_PACKAGE_IDT_PROVIDER\",\"type\":\"int\"},{\"name\":\"BEST_PPN\",\"type\":[\"null\",\"string\"]}],\"version\":\"10\"}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"LigneKbartConnect\",\"namespace\":\"fr.abes\",\"fields\":[{\"name\":\"PUBLICATION_TITLE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRINT_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"ONLINE_IDENTIFIER\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_FIRST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_VOL_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"NUM_LAST_ISSUE_ONLINE\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_URL\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_AUTHOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"EMBARGO_INFO\",\"type\":[\"null\",\"string\"]},{\"name\":\"COVERAGE_DEPTH\",\"type\":[\"null\",\"string\"]},{\"name\":\"NOTES\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLISHER_NAME\",\"type\":[\"null\",\"string\"]},{\"name\":\"PUBLICATION_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_PRINT\",\"type\":[\"null\",\"string\"]},{\"name\":\"DATE_MONOGRAPH_PUBLISHED_ONLIN\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_VOLUME\",\"type\":[\"null\",\"string\"]},{\"name\":\"MONOGRAPH_EDITION\",\"type\":[\"null\",\"string\"]},{\"name\":\"FIRST_EDITOR\",\"type\":[\"null\",\"string\"]},{\"name\":\"PARENT_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"PRECEDING_PUBLICATION_TITLE_ID\",\"type\":[\"null\",\"string\"]},{\"name\":\"ACCESS_TYPE\",\"type\":[\"null\",\"string\"]},{\"name\":\"PROVIDER_PACKAGE_PACKAGE\",\"type\":\"string\"},{\"name\":\"PROVIDER_PACKAGE_DATE_P\",\"type\":{\"type\":\"int\",\"logicalType\":\"date\"}},{\"name\":\"PROVIDER_PACKAGE_IDT_PROVIDER\",\"type\":\"int\"},{\"name\":\"BEST_PPN\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -794,8 +794,8 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * Creates a new LigneKbartConnect RecordBuilder.
    * @return A new LigneKbartConnect RecordBuilder
    */
-  public static fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder newBuilder() {
-    return new fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder();
+  public static fr.abes.LigneKbartConnect.Builder newBuilder() {
+    return new fr.abes.LigneKbartConnect.Builder();
   }
 
   /**
@@ -803,11 +803,11 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * @param other The existing builder to copy.
    * @return A new LigneKbartConnect RecordBuilder
    */
-  public static fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder newBuilder(fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder other) {
+  public static fr.abes.LigneKbartConnect.Builder newBuilder(fr.abes.LigneKbartConnect.Builder other) {
     if (other == null) {
-      return new fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder();
+      return new fr.abes.LigneKbartConnect.Builder();
     } else {
-      return new fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder(other);
+      return new fr.abes.LigneKbartConnect.Builder(other);
     }
   }
 
@@ -816,11 +816,11 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
    * @param other The existing instance to copy.
    * @return A new LigneKbartConnect RecordBuilder
    */
-  public static fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder newBuilder(fr.abes.bestppn.dto.connect.LigneKbartConnect other) {
+  public static fr.abes.LigneKbartConnect.Builder newBuilder(fr.abes.LigneKbartConnect other) {
     if (other == null) {
-      return new fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder();
+      return new fr.abes.LigneKbartConnect.Builder();
     } else {
-      return new fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder(other);
+      return new fr.abes.LigneKbartConnect.Builder(other);
     }
   }
 
@@ -870,7 +870,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder other) {
+    private Builder(fr.abes.LigneKbartConnect.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.PUBLICATION_TITLE)) {
         this.PUBLICATION_TITLE = data().deepCopy(fields()[0].schema(), other.PUBLICATION_TITLE);
@@ -994,7 +994,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
      * Creates a Builder by copying an existing LigneKbartConnect instance
      * @param other The existing instance to copy.
      */
-    private Builder(fr.abes.bestppn.dto.connect.LigneKbartConnect other) {
+    private Builder(fr.abes.LigneKbartConnect other) {
       super(SCHEMA$, MODEL$);
       if (isValidValue(fields()[0], other.PUBLICATION_TITLE)) {
         this.PUBLICATION_TITLE = data().deepCopy(fields()[0].schema(), other.PUBLICATION_TITLE);
@@ -1128,7 +1128,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PUBLICATION_TITLE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPUBLICATIONTITLE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPUBLICATIONTITLE(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.PUBLICATION_TITLE = value;
       fieldSetFlags()[0] = true;
@@ -1148,7 +1148,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PUBLICATION_TITLE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPUBLICATIONTITLE() {
+    public fr.abes.LigneKbartConnect.Builder clearPUBLICATIONTITLE() {
       PUBLICATION_TITLE = null;
       fieldSetFlags()[0] = false;
       return this;
@@ -1168,7 +1168,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PRINT_IDENTIFIER'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPRINTIDENTIFIER(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPRINTIDENTIFIER(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.PRINT_IDENTIFIER = value;
       fieldSetFlags()[1] = true;
@@ -1188,7 +1188,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PRINT_IDENTIFIER' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPRINTIDENTIFIER() {
+    public fr.abes.LigneKbartConnect.Builder clearPRINTIDENTIFIER() {
       PRINT_IDENTIFIER = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -1208,7 +1208,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'ONLINE_IDENTIFIER'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setONLINEIDENTIFIER(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setONLINEIDENTIFIER(java.lang.CharSequence value) {
       validate(fields()[2], value);
       this.ONLINE_IDENTIFIER = value;
       fieldSetFlags()[2] = true;
@@ -1228,7 +1228,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'ONLINE_IDENTIFIER' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearONLINEIDENTIFIER() {
+    public fr.abes.LigneKbartConnect.Builder clearONLINEIDENTIFIER() {
       ONLINE_IDENTIFIER = null;
       fieldSetFlags()[2] = false;
       return this;
@@ -1248,7 +1248,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_FIRST_ISSUE_ONLINE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setDATEFIRSTISSUEONLINE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setDATEFIRSTISSUEONLINE(java.lang.CharSequence value) {
       validate(fields()[3], value);
       this.DATE_FIRST_ISSUE_ONLINE = value;
       fieldSetFlags()[3] = true;
@@ -1268,7 +1268,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'DATE_FIRST_ISSUE_ONLINE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearDATEFIRSTISSUEONLINE() {
+    public fr.abes.LigneKbartConnect.Builder clearDATEFIRSTISSUEONLINE() {
       DATE_FIRST_ISSUE_ONLINE = null;
       fieldSetFlags()[3] = false;
       return this;
@@ -1288,7 +1288,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'NUM_FIRST_VOL_ONLINE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setNUMFIRSTVOLONLINE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setNUMFIRSTVOLONLINE(java.lang.CharSequence value) {
       validate(fields()[4], value);
       this.NUM_FIRST_VOL_ONLINE = value;
       fieldSetFlags()[4] = true;
@@ -1308,7 +1308,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'NUM_FIRST_VOL_ONLINE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearNUMFIRSTVOLONLINE() {
+    public fr.abes.LigneKbartConnect.Builder clearNUMFIRSTVOLONLINE() {
       NUM_FIRST_VOL_ONLINE = null;
       fieldSetFlags()[4] = false;
       return this;
@@ -1328,7 +1328,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'NUM_FIRST_ISSUE_ONLINE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setNUMFIRSTISSUEONLINE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setNUMFIRSTISSUEONLINE(java.lang.CharSequence value) {
       validate(fields()[5], value);
       this.NUM_FIRST_ISSUE_ONLINE = value;
       fieldSetFlags()[5] = true;
@@ -1348,7 +1348,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'NUM_FIRST_ISSUE_ONLINE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearNUMFIRSTISSUEONLINE() {
+    public fr.abes.LigneKbartConnect.Builder clearNUMFIRSTISSUEONLINE() {
       NUM_FIRST_ISSUE_ONLINE = null;
       fieldSetFlags()[5] = false;
       return this;
@@ -1368,7 +1368,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_LAST_ISSUE_ONLINE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setDATELASTISSUEONLINE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setDATELASTISSUEONLINE(java.lang.CharSequence value) {
       validate(fields()[6], value);
       this.DATE_LAST_ISSUE_ONLINE = value;
       fieldSetFlags()[6] = true;
@@ -1388,7 +1388,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'DATE_LAST_ISSUE_ONLINE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearDATELASTISSUEONLINE() {
+    public fr.abes.LigneKbartConnect.Builder clearDATELASTISSUEONLINE() {
       DATE_LAST_ISSUE_ONLINE = null;
       fieldSetFlags()[6] = false;
       return this;
@@ -1408,7 +1408,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'NUM_LAST_VOL_ONLINE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setNUMLASTVOLONLINE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setNUMLASTVOLONLINE(java.lang.CharSequence value) {
       validate(fields()[7], value);
       this.NUM_LAST_VOL_ONLINE = value;
       fieldSetFlags()[7] = true;
@@ -1428,7 +1428,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'NUM_LAST_VOL_ONLINE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearNUMLASTVOLONLINE() {
+    public fr.abes.LigneKbartConnect.Builder clearNUMLASTVOLONLINE() {
       NUM_LAST_VOL_ONLINE = null;
       fieldSetFlags()[7] = false;
       return this;
@@ -1448,7 +1448,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'NUM_LAST_ISSUE_ONLINE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setNUMLASTISSUEONLINE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setNUMLASTISSUEONLINE(java.lang.CharSequence value) {
       validate(fields()[8], value);
       this.NUM_LAST_ISSUE_ONLINE = value;
       fieldSetFlags()[8] = true;
@@ -1468,7 +1468,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'NUM_LAST_ISSUE_ONLINE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearNUMLASTISSUEONLINE() {
+    public fr.abes.LigneKbartConnect.Builder clearNUMLASTISSUEONLINE() {
       NUM_LAST_ISSUE_ONLINE = null;
       fieldSetFlags()[8] = false;
       return this;
@@ -1488,7 +1488,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'TITLE_URL'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setTITLEURL(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setTITLEURL(java.lang.CharSequence value) {
       validate(fields()[9], value);
       this.TITLE_URL = value;
       fieldSetFlags()[9] = true;
@@ -1508,7 +1508,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'TITLE_URL' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearTITLEURL() {
+    public fr.abes.LigneKbartConnect.Builder clearTITLEURL() {
       TITLE_URL = null;
       fieldSetFlags()[9] = false;
       return this;
@@ -1528,7 +1528,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'FIRST_AUTHOR'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setFIRSTAUTHOR(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setFIRSTAUTHOR(java.lang.CharSequence value) {
       validate(fields()[10], value);
       this.FIRST_AUTHOR = value;
       fieldSetFlags()[10] = true;
@@ -1548,7 +1548,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'FIRST_AUTHOR' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearFIRSTAUTHOR() {
+    public fr.abes.LigneKbartConnect.Builder clearFIRSTAUTHOR() {
       FIRST_AUTHOR = null;
       fieldSetFlags()[10] = false;
       return this;
@@ -1568,7 +1568,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'TITLE_ID'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setTITLEID(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setTITLEID(java.lang.CharSequence value) {
       validate(fields()[11], value);
       this.TITLE_ID = value;
       fieldSetFlags()[11] = true;
@@ -1588,7 +1588,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'TITLE_ID' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearTITLEID() {
+    public fr.abes.LigneKbartConnect.Builder clearTITLEID() {
       TITLE_ID = null;
       fieldSetFlags()[11] = false;
       return this;
@@ -1608,7 +1608,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'EMBARGO_INFO'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setEMBARGOINFO(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setEMBARGOINFO(java.lang.CharSequence value) {
       validate(fields()[12], value);
       this.EMBARGO_INFO = value;
       fieldSetFlags()[12] = true;
@@ -1628,7 +1628,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'EMBARGO_INFO' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearEMBARGOINFO() {
+    public fr.abes.LigneKbartConnect.Builder clearEMBARGOINFO() {
       EMBARGO_INFO = null;
       fieldSetFlags()[12] = false;
       return this;
@@ -1648,7 +1648,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'COVERAGE_DEPTH'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setCOVERAGEDEPTH(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setCOVERAGEDEPTH(java.lang.CharSequence value) {
       validate(fields()[13], value);
       this.COVERAGE_DEPTH = value;
       fieldSetFlags()[13] = true;
@@ -1668,7 +1668,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'COVERAGE_DEPTH' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearCOVERAGEDEPTH() {
+    public fr.abes.LigneKbartConnect.Builder clearCOVERAGEDEPTH() {
       COVERAGE_DEPTH = null;
       fieldSetFlags()[13] = false;
       return this;
@@ -1688,7 +1688,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'NOTES'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setNOTES(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setNOTES(java.lang.CharSequence value) {
       validate(fields()[14], value);
       this.NOTES = value;
       fieldSetFlags()[14] = true;
@@ -1708,7 +1708,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'NOTES' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearNOTES() {
+    public fr.abes.LigneKbartConnect.Builder clearNOTES() {
       NOTES = null;
       fieldSetFlags()[14] = false;
       return this;
@@ -1728,7 +1728,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PUBLISHER_NAME'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPUBLISHERNAME(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPUBLISHERNAME(java.lang.CharSequence value) {
       validate(fields()[15], value);
       this.PUBLISHER_NAME = value;
       fieldSetFlags()[15] = true;
@@ -1748,7 +1748,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PUBLISHER_NAME' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPUBLISHERNAME() {
+    public fr.abes.LigneKbartConnect.Builder clearPUBLISHERNAME() {
       PUBLISHER_NAME = null;
       fieldSetFlags()[15] = false;
       return this;
@@ -1768,7 +1768,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PUBLICATION_TYPE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPUBLICATIONTYPE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPUBLICATIONTYPE(java.lang.CharSequence value) {
       validate(fields()[16], value);
       this.PUBLICATION_TYPE = value;
       fieldSetFlags()[16] = true;
@@ -1788,7 +1788,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PUBLICATION_TYPE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPUBLICATIONTYPE() {
+    public fr.abes.LigneKbartConnect.Builder clearPUBLICATIONTYPE() {
       PUBLICATION_TYPE = null;
       fieldSetFlags()[16] = false;
       return this;
@@ -1808,7 +1808,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_MONOGRAPH_PUBLISHED_PRINT'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDPRINT(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDPRINT(java.lang.CharSequence value) {
       validate(fields()[17], value);
       this.DATE_MONOGRAPH_PUBLISHED_PRINT = value;
       fieldSetFlags()[17] = true;
@@ -1828,7 +1828,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'DATE_MONOGRAPH_PUBLISHED_PRINT' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearDATEMONOGRAPHPUBLISHEDPRINT() {
+    public fr.abes.LigneKbartConnect.Builder clearDATEMONOGRAPHPUBLISHEDPRINT() {
       DATE_MONOGRAPH_PUBLISHED_PRINT = null;
       fieldSetFlags()[17] = false;
       return this;
@@ -1848,7 +1848,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'DATE_MONOGRAPH_PUBLISHED_ONLIN'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDONLIN(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setDATEMONOGRAPHPUBLISHEDONLIN(java.lang.CharSequence value) {
       validate(fields()[18], value);
       this.DATE_MONOGRAPH_PUBLISHED_ONLIN = value;
       fieldSetFlags()[18] = true;
@@ -1868,7 +1868,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'DATE_MONOGRAPH_PUBLISHED_ONLIN' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearDATEMONOGRAPHPUBLISHEDONLIN() {
+    public fr.abes.LigneKbartConnect.Builder clearDATEMONOGRAPHPUBLISHEDONLIN() {
       DATE_MONOGRAPH_PUBLISHED_ONLIN = null;
       fieldSetFlags()[18] = false;
       return this;
@@ -1888,7 +1888,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'MONOGRAPH_VOLUME'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setMONOGRAPHVOLUME(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setMONOGRAPHVOLUME(java.lang.CharSequence value) {
       validate(fields()[19], value);
       this.MONOGRAPH_VOLUME = value;
       fieldSetFlags()[19] = true;
@@ -1908,7 +1908,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'MONOGRAPH_VOLUME' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearMONOGRAPHVOLUME() {
+    public fr.abes.LigneKbartConnect.Builder clearMONOGRAPHVOLUME() {
       MONOGRAPH_VOLUME = null;
       fieldSetFlags()[19] = false;
       return this;
@@ -1928,7 +1928,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'MONOGRAPH_EDITION'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setMONOGRAPHEDITION(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setMONOGRAPHEDITION(java.lang.CharSequence value) {
       validate(fields()[20], value);
       this.MONOGRAPH_EDITION = value;
       fieldSetFlags()[20] = true;
@@ -1948,7 +1948,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'MONOGRAPH_EDITION' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearMONOGRAPHEDITION() {
+    public fr.abes.LigneKbartConnect.Builder clearMONOGRAPHEDITION() {
       MONOGRAPH_EDITION = null;
       fieldSetFlags()[20] = false;
       return this;
@@ -1968,7 +1968,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'FIRST_EDITOR'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setFIRSTEDITOR(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setFIRSTEDITOR(java.lang.CharSequence value) {
       validate(fields()[21], value);
       this.FIRST_EDITOR = value;
       fieldSetFlags()[21] = true;
@@ -1988,7 +1988,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'FIRST_EDITOR' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearFIRSTEDITOR() {
+    public fr.abes.LigneKbartConnect.Builder clearFIRSTEDITOR() {
       FIRST_EDITOR = null;
       fieldSetFlags()[21] = false;
       return this;
@@ -2008,7 +2008,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PARENT_PUBLICATION_TITLE_ID'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPARENTPUBLICATIONTITLEID(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPARENTPUBLICATIONTITLEID(java.lang.CharSequence value) {
       validate(fields()[22], value);
       this.PARENT_PUBLICATION_TITLE_ID = value;
       fieldSetFlags()[22] = true;
@@ -2028,7 +2028,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PARENT_PUBLICATION_TITLE_ID' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPARENTPUBLICATIONTITLEID() {
+    public fr.abes.LigneKbartConnect.Builder clearPARENTPUBLICATIONTITLEID() {
       PARENT_PUBLICATION_TITLE_ID = null;
       fieldSetFlags()[22] = false;
       return this;
@@ -2048,7 +2048,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PRECEDING_PUBLICATION_TITLE_ID'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPRECEDINGPUBLICATIONTITLEID(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPRECEDINGPUBLICATIONTITLEID(java.lang.CharSequence value) {
       validate(fields()[23], value);
       this.PRECEDING_PUBLICATION_TITLE_ID = value;
       fieldSetFlags()[23] = true;
@@ -2068,7 +2068,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PRECEDING_PUBLICATION_TITLE_ID' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPRECEDINGPUBLICATIONTITLEID() {
+    public fr.abes.LigneKbartConnect.Builder clearPRECEDINGPUBLICATIONTITLEID() {
       PRECEDING_PUBLICATION_TITLE_ID = null;
       fieldSetFlags()[23] = false;
       return this;
@@ -2088,7 +2088,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'ACCESS_TYPE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setACCESSTYPE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setACCESSTYPE(java.lang.CharSequence value) {
       validate(fields()[24], value);
       this.ACCESS_TYPE = value;
       fieldSetFlags()[24] = true;
@@ -2108,7 +2108,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'ACCESS_TYPE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearACCESSTYPE() {
+    public fr.abes.LigneKbartConnect.Builder clearACCESSTYPE() {
       ACCESS_TYPE = null;
       fieldSetFlags()[24] = false;
       return this;
@@ -2128,7 +2128,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PROVIDER_PACKAGE_PACKAGE'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPROVIDERPACKAGEPACKAGE(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setPROVIDERPACKAGEPACKAGE(java.lang.CharSequence value) {
       validate(fields()[25], value);
       this.PROVIDER_PACKAGE_PACKAGE = value;
       fieldSetFlags()[25] = true;
@@ -2148,7 +2148,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PROVIDER_PACKAGE_PACKAGE' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPROVIDERPACKAGEPACKAGE() {
+    public fr.abes.LigneKbartConnect.Builder clearPROVIDERPACKAGEPACKAGE() {
       PROVIDER_PACKAGE_PACKAGE = null;
       fieldSetFlags()[25] = false;
       return this;
@@ -2168,7 +2168,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PROVIDER_PACKAGE_DATE_P'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPROVIDERPACKAGEDATEP(java.time.LocalDate value) {
+    public fr.abes.LigneKbartConnect.Builder setPROVIDERPACKAGEDATEP(java.time.LocalDate value) {
       validate(fields()[26], value);
       this.PROVIDER_PACKAGE_DATE_P = value;
       fieldSetFlags()[26] = true;
@@ -2188,7 +2188,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PROVIDER_PACKAGE_DATE_P' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPROVIDERPACKAGEDATEP() {
+    public fr.abes.LigneKbartConnect.Builder clearPROVIDERPACKAGEDATEP() {
       fieldSetFlags()[26] = false;
       return this;
     }
@@ -2207,7 +2207,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'PROVIDER_PACKAGE_IDT_PROVIDER'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setPROVIDERPACKAGEIDTPROVIDER(int value) {
+    public fr.abes.LigneKbartConnect.Builder setPROVIDERPACKAGEIDTPROVIDER(int value) {
       validate(fields()[27], value);
       this.PROVIDER_PACKAGE_IDT_PROVIDER = value;
       fieldSetFlags()[27] = true;
@@ -2227,7 +2227,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'PROVIDER_PACKAGE_IDT_PROVIDER' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearPROVIDERPACKAGEIDTPROVIDER() {
+    public fr.abes.LigneKbartConnect.Builder clearPROVIDERPACKAGEIDTPROVIDER() {
       fieldSetFlags()[27] = false;
       return this;
     }
@@ -2246,7 +2246,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * @param value The value of 'BEST_PPN'.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder setBESTPPN(java.lang.CharSequence value) {
+    public fr.abes.LigneKbartConnect.Builder setBESTPPN(java.lang.CharSequence value) {
       validate(fields()[28], value);
       this.BEST_PPN = value;
       fieldSetFlags()[28] = true;
@@ -2266,7 +2266,7 @@ public class LigneKbartConnect extends org.apache.avro.specific.SpecificRecordBa
       * Clears the value of the 'BEST_PPN' field.
       * @return This builder.
       */
-    public fr.abes.bestppn.dto.connect.LigneKbartConnect.Builder clearBESTPPN() {
+    public fr.abes.LigneKbartConnect.Builder clearBESTPPN() {
       BEST_PPN = null;
       fieldSetFlags()[28] = false;
       return this;

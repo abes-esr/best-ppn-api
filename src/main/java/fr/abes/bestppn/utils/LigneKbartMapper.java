@@ -1,6 +1,6 @@
 package fr.abes.bestppn.utils;
 
-import fr.abes.bestppn.dto.connect.LigneKbartConnect;
+import fr.abes.LigneKbartConnect;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;

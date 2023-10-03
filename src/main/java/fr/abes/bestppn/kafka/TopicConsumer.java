@@ -96,7 +96,6 @@ public class TopicConsumer {
                     producer.sendKbart(kbartToSend, provider, filename);
                     producer.sendPrintNotice(ppnToCreate, provider, filename);
                     producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
-                    //producer.sendOk(lignesKbart.headers());
                 } else {
                     isOnError = false;
                 }

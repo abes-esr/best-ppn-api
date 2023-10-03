@@ -1,7 +1,7 @@
 package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import fr.abes.bestppn.dto.connect.LigneKbartConnect;
+import fr.abes.LigneKbartConnect;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
@@ -9,11 +9,13 @@ import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,7 @@ public class TopicProducer {
     private String topicKbartPpnToCreate;
 
     @Autowired
-    private KafkaProducer<String, LigneKbartConnect> producer;
+    private KafkaTemplate<String, LigneKbartConnect> kafkaTemplate;
 
 
     @Autowired
@@ -45,7 +47,9 @@ public class TopicProducer {
 
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException {
+        int numLigneCourante = 0;
         for (LigneKbartDto ligne : kbart) {
+            numLigneCourante++;
             ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
             ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
             ligne.setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
@@ -54,6 +58,8 @@ public class TopicProducer {
             }
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
+            if (numLigneCourante == kbart.size())
+                headerList.add(constructHeader("OK", "true".getBytes()));
             sendObject(ligne, topicKbart, headerList);
         }
         log.debug("message envoyé vers {}", topicKbart);
@@ -103,18 +109,20 @@ public class TopicProducer {
     }
 
 
-    private void sendObject(LigneKbartDto ligneKbartDto, String topic, List<Header> header) {
+    private SendResult sendObject(LigneKbartDto ligneKbartDto, String topic, List<Header> header) {
         LigneKbartConnect ligne = utilsMapper.map(ligneKbartDto, LigneKbartConnect.class);
-
-        ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, "", ligne, header);
-        producer.send(record, (recordMetadata, e) -> {
-            if (e == null) {
-                log.debug("Envoi à Kafka " + recordMetadata);
-            }
-            else {
-                log.error(e.getMessage());
-            }
-        });
+        try {
+            ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, "", ligne, header);
+            final SendResult result = kafkaTemplate.send(record).get();
+            final RecordMetadata metadata = result.getRecordMetadata();
+            log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d)",
+                    record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset()));
+            return result;
+        } catch (Exception e) {
+            String message = "Error sending message to topic " + topic;
+            log.error(message);
+            throw new RuntimeException(message, e);
+        }
     }
 
 }
