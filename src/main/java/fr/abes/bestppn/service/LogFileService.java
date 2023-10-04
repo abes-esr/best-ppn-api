@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +50,9 @@ public class LogFileService {
                 LocalDateTime time = LocalDateTime.now();
                 DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss", Locale.FRANCE);
                 String date = format.format(time);
+
+                String tempLog = "tempLog/";
+                Files.createDirectory(Paths.get(tempLog));
                 Path target = Path.of("tempLog\\" + date + "_" + source);
 
                 Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
