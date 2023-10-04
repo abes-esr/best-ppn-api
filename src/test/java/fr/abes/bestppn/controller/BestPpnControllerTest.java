@@ -6,9 +6,7 @@ import fr.abes.bestppn.configuration.RestConfiguration;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.ExceptionControllerHandler;
-import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.service.BestPpnService;
-import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = {BestPpnController.class})
@@ -42,9 +38,6 @@ public class BestPpnControllerTest {
 
     @InjectMocks
     BestPpnController controller;
-
-    @MockBean
-    TopicProducer producer;
 
     @MockBean
     BestPpnService service;

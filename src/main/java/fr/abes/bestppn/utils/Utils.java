@@ -8,10 +8,9 @@ import fr.abes.bestppn.exception.IllegalProviderException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,18 +28,18 @@ public class Utils {
     public static String extractDOI(LigneKbartDto kbart) {
         String doiPattern = "10.\\d{0,15}.\\d{0,15}.+";
 
-        if (kbart.getTitle_url() != null && !kbart.getTitle_url().isEmpty()){
+        if (kbart.getTitleUrl() != null && !kbart.getTitleUrl().isEmpty()){
             Pattern pattern = Pattern.compile(doiPattern);
-            Matcher matcher = pattern.matcher(kbart.getTitle_url());
+            Matcher matcher = pattern.matcher(kbart.getTitleUrl());
             if (matcher.find()) {
                 return matcher.group(0);
             } else {
                 return "";
             }
         }
-        if (kbart.getTitle_id() != null && !kbart.getTitle_id().isEmpty()){
+        if (kbart.getTitleId() != null && !kbart.getTitleId().isEmpty()){
             Pattern pattern = Pattern.compile(doiPattern);
-            Matcher matcher = pattern.matcher(kbart.getTitle_id());
+            Matcher matcher = pattern.matcher(kbart.getTitleId());
             if (matcher.find()) {
                 return matcher.group(0);
             } else {
@@ -92,4 +91,28 @@ public class Utils {
         }
     }
 
+    public static LocalDate convertDateToLocalDate(Date dateToConvert) {
+        return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    /**
+     * Permet de formatter une date en entrée dans un fichier kbart et de renvoyer la date prête à être envoyée
+     * @param date : date à formatter
+     * @param debut : indique s'il s'agit d'une date de début : true : date de début, false : date de fin
+     * @return la date formattée
+     */
+    public static String formatDate(String date, boolean debut) {
+        if (date == null) return null;
+        String yearRegExp = "([\\d]{4})";
+        String dateRegExp = "\\d{4}-\\d{2}-\\d{2}";
+        int day = (debut) ? 1 : 31;
+        int month = (debut) ? Calendar.JANUARY : Calendar.DECEMBER;
+        if (date.matches(yearRegExp)) {
+            return new GregorianCalendar(Integer.parseInt(date), month, day).toZonedDateTime().toLocalDate().toString();
+        }
+        if (date.matches(dateRegExp)) {
+            return date;
+        }
+        return null;
+    }
 }
