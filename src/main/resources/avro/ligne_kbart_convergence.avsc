@@ -1,0 +1,127 @@
+{
+  "type": "record",
+  "name": "LigneKbartConnect",
+  "namespace": "fr.abes",
+  "fields": [
+    {
+      "name": "PUBLICATION_TITLE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "PRINT_IDENTIFIER",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "ONLINE_IDENTIFIER",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "DATE_FIRST_ISSUE_ONLINE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "NUM_FIRST_VOL_ONLINE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "NUM_FIRST_ISSUE_ONLINE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "DATE_LAST_ISSUE_ONLINE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "NUM_LAST_VOL_ONLINE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "NUM_LAST_ISSUE_ONLINE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "TITLE_URL",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "FIRST_AUTHOR",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "TITLE_ID",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "EMBARGO_INFO",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "COVERAGE_DEPTH",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "NOTES",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "PUBLISHER_NAME",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "PUBLICATION_TYPE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "DATE_MONOGRAPH_PUBLISHED_PRINT",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "DATE_MONOGRAPH_PUBLISHED_ONLIN",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "MONOGRAPH_VOLUME",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "MONOGRAPH_EDITION",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "FIRST_EDITOR",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "PARENT_PUBLICATION_TITLE_ID",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "PRECEDING_PUBLICATION_TITLE_ID",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "ACCESS_TYPE",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "PROVIDER_PACKAGE_PACKAGE",
+      "type": "string"
+    },
+    {
+      "name": "PROVIDER_PACKAGE_DATE_P",
+      "type":
+        {
+          "type": "int",
+          "logicalType": "date"
+        }
+    },
+    {
+      "name": "PROVIDER_PACKAGE_IDT_PROVIDER",
+      "type": "int"
+    },
+    {
+      "name": "BEST_PPN",
+      "type": ["null", "string"]
+    }
+  ]
+}

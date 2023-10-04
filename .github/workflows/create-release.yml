@@ -57,7 +57,9 @@ jobs:
           git config --global user.name "Github Action"
           # patch la version dans les pom.xml avec xmllint
           sudo apt-get install -y libxml2-utils
-          for POM_FILE in $(ls */pom.xml)
+          echo -e "setns x=http://maven.apache.org/POM/4.0.0\ncd /x:project/x:version\nset $NEW_TAG\nsave" \
+            | xmllint --shell ./pom.xml
+          for POM_FILE in $(ls *pom.xml)
           do
             echo -e "setns x=http://maven.apache.org/POM/4.0.0\ncd /x:project/x:version\nset $NEW_TAG\nsave" \
               | xmllint --shell $POM_FILE
@@ -76,7 +78,9 @@ jobs:
           git push
           
           # switch version to snapshot version
-          for POM_FILE in $(ls */pom.xml)
+          echo -e "setns x=http://maven.apache.org/POM/4.0.0\ncd /x:project/x:version\nset $NEW_TAG\nsave" \
+            | xmllint --shell ./pom.xml
+          for POM_FILE in $(ls *pom.xml)
           do
             echo -e "setns x=http://maven.apache.org/POM/4.0.0\ncd /x:project/x:version\nset $NEW_TAG_SNAPSHOT\nsave" \
               | xmllint --shell $POM_FILE

@@ -55,6 +55,8 @@ public class TopicConsumer {
 
     private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();
 
+    private final List<LigneKbartDto> ppnFromKbartToCreate = new ArrayList<>();
+
     private final PackageKbartDto mailAttachment = new PackageKbartDto();
 
     private final ProviderPackageRepository providerPackageRepository;
@@ -73,7 +75,7 @@ public class TopicConsumer {
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
-    @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
+    @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
         try {
             String filename = "";
@@ -98,23 +100,13 @@ public class TopicConsumer {
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
 
-            if (lignesKbart.value().equals("OK")) {
-                if (!isOnError) {
-                    if (providerOpt.isPresent()) {
-                        Provider provider = providerOpt.get();
-                        ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
-                        Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
-                        //pas d'info de package, on le crée
-                        providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
-                    } else {
-                        //pas de provider, ni de package, on les crée tous les deux
-                        Provider newProvider = new Provider(providerName);
-                        Provider savedProvider = providerRepository.save(newProvider);
-                        ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
-                        providerPackageRepository.save(providerPackage);
-                    }
+            if(lignesKbart.value().equals("OK") ){
+                if( !isOnError ) {
+                    ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
+
                     producer.sendKbart(kbartToSend, lignesKbart.headers());
                     producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
+                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }
@@ -125,6 +117,7 @@ public class TopicConsumer {
                 logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
                 kbartToSend.clear();
                 ppnToCreate.clear();
+                ppnFromKbartToCreate.clear();
                 mailAttachment.clearKbartDto();
                 this.linesWithInputDataErrors = 0;
                 this.linesWithErrorsInBestPPNSearch = 0;
@@ -140,8 +133,10 @@ public class TopicConsumer {
                             this.nbBestPpnFind++;
                             kbartToSend.add(ligneFromKafka);
                         }
-                        case PRINT_PPN_SUDOC ->
-                            ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(), ligneFromKafka, providerName));
+                        case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
+                        case NO_PPN_FOUND_SUDOC -> {
+                            if (ligneFromKafka.getPublicationType().equals("monograph")) ppnFromKbartToCreate.add(ligneFromKafka);
+                        }
                     }
                 } else {
                     log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());
@@ -168,6 +163,22 @@ public class TopicConsumer {
         } catch (MessagingException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    private ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename, String providerName) throws IllegalPackageException, IllegalDateException {
+        if (providerOpt.isPresent()) {
+            Provider provider = providerOpt.get();
+            ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
+            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
+            //pas d'info de package, on le crée
+            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+        } else {
+            //pas de provider, ni de package, on les crée tous les deux
+            Provider newProvider = new Provider(providerName);
+            Provider savedProvider = providerRepository.save(newProvider);
+            ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
+            return providerPackageRepository.save(providerPackage);
         }
     }
 
