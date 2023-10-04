@@ -93,10 +93,9 @@ public class TopicConsumer {
 
                     // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
                     //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
-                    producer.sendKbart(kbartToSend, provider);
-                    producer.sendPrintNotice(ppnToCreate, provider);
-                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider);
-                    //producer.sendOk(lignesKbart.headers());
+                    producer.sendKbart(kbartToSend, provider, filename);
+                    producer.sendPrintNotice(ppnToCreate, provider, filename);
+                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }

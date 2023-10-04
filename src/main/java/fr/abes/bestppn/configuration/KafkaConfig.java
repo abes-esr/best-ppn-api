@@ -1,10 +1,9 @@
 package fr.abes.bestppn.configuration;
 
-import fr.abes.bestppn.dto.connect.LigneKbartConnect;
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import fr.abes.LigneKbartConnect;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -35,6 +34,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.registry.url}")
     private String registryUrl;
 
+    @Value("${spring.kafka.auto.register.schema}")
+    private boolean autoRegisterSchema;
+
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -61,27 +63,24 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-        props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
+        props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
+        props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
         return props;
     }
 
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
-        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
+    public ProducerFactory<String, LigneKbartConnect> producerFactory() {
+        DefaultKafkaProducerFactory<String, LigneKbartConnect> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
         factory.setTransactionIdPrefix(transactionIdPrefix);
         return factory;
     }
 
     @Bean
-    public KafkaTransactionManager<String, String> kafkaTransactionManager(){
+    public KafkaTransactionManager<String, LigneKbartConnect> kafkaTransactionManager(){
         return new KafkaTransactionManager<>(producerFactory());
     }
 
-    @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
-    }
 
     @Bean
-    public KafkaProducer<String, LigneKbartConnect> kafkaProducer() { return new KafkaProducer<>(producerConfigs());}
+    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplate(final ProducerFactory<String, LigneKbartConnect> producerFactory) { return new KafkaTemplate<>(producerFactory);}
 }
