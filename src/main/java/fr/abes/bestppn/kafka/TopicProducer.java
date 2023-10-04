@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
-import fr.abes.bestppn.exception.BestPpnException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.header.Header;
@@ -39,12 +38,9 @@ public class TopicProducer {
 
     private final ObjectMapper mapper;
 
-    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
-    public void sendKbart(List<LigneKbartDto> kbart, Headers headers) throws JsonProcessingException, BestPpnException {
+    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {JsonProcessingException.class})
+    public void sendKbart(List<LigneKbartDto> kbart, Headers headers) throws JsonProcessingException {
         for (LigneKbartDto ligne : kbart) {
-            if( ligne.isBestPpnEmpty()){
-                throw new BestPpnException("La ligne " + ligne +" n'a pas de BestPpn.");
-            }
             setHeadersAndSend(headers, mapper.writeValueAsString(ligne), topicKbart);
         }
     }
@@ -63,6 +59,7 @@ public class TopicProducer {
     @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendEndOfTraitmentReport(Headers headers) {
         setHeadersAndSend(headers, "OK", topicEndOfTraitment);
+        log.info("End of traitment report send.");
     }
 
     private void setHeadersAndSend(Headers headers, String value, String topic) {

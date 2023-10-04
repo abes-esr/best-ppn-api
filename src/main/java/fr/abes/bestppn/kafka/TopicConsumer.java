@@ -75,7 +75,6 @@ public class TopicConsumer {
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "lignesKbart", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
-
         try {
             String filename = "";
             String currentLine = "";
@@ -87,14 +86,14 @@ public class TopicConsumer {
                     if (filename.contains("_FORCE")) {
                         injectKafka = true;
                     }
-                    ThreadContext.put("package", filename);     // Ajoute le nom de fichier au contexte log4j2 pour inscription dans la key kafka
                 } else if (header.key().equals("CurrentLine")) {
                     currentLine = new String(header.value());
-                    ThreadContext.put("nbrLine", currentLine);  // Ajoute le numéro de ligne courante au contexte log4j2 pour inscription dans le header kafka
                 } else if (header.key().equals("TotalLine")) {
                     totalLine = new String(header.value());
                 }
             }
+            ThreadContext.put("package", filename + "[line : " + currentLine + "]");  // Ajoute le numéro de ligne courante au contexte log4j2 pour inscription dans le header kafka
+
             String nbLine = currentLine + "/" + totalLine;
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
