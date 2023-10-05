@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.dto.wscall.SearchDatWebDto;
+import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.ExecutionTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,16 +85,16 @@ public class WsService {
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws  RestClientException, IllegalArgumentException {
+    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException, BestPpnException {
         return getResultWsSudocDto(type, id, provider, urlOnlineId2Ppn);
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws  RestClientException, IllegalArgumentException {
+    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException, BestPpnException {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
 
-    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException{
+    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException, BestPpnException{
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
             result = mapper.readValue((provider != null && !provider.equals("")) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
@@ -102,7 +103,7 @@ public class WsService {
             throw ex;
         } catch (IllegalArgumentException ex) {
             if( ex.getMessage().equals("argument \"content\" is null")) {
-                log.error("Aucuns ppn correspondant à l'"+ id);
+                throw new BestPpnException("Aucuns ppn correspondant à l'"+ id);
             } else {
                 throw ex;
             }

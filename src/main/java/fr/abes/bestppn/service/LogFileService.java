@@ -3,6 +3,7 @@ package fr.abes.bestppn.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,10 +52,15 @@ public class LogFileService {
                 DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss", Locale.FRANCE);
                 String date = format.format(time);
 
+                //  Vérification du chemin et création si inexistant
                 String tempLog = "tempLog/";
-                Files.createDirectory(Paths.get(tempLog));
+                File chemin = new File("tempLog/");
+                if (!chemin.isDirectory()) {
+                    Files.createDirectory(Paths.get(tempLog));
+                }
                 Path target = Path.of("tempLog\\" + date + "_" + source);
 
+                //  Déplacement du fichier
                 Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Fichier de log transféré dans le dossier temporaire.");
             }

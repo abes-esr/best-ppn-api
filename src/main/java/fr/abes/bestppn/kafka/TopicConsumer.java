@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -104,13 +105,13 @@ public class TopicConsumer {
                 if( !isOnError ) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
 
-                    producer.sendKbart(kbartToSend, lignesKbart.headers());
-                    producer.sendPrintNotice(ppnToCreate, lignesKbart.headers());
+                    producer.sendKbart(kbartToSend, provider, filename);
+                    producer.sendPrintNotice(ppnToCreate, provider, filename);
                     producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }
-                log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + "/" + nbLine);
+                log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + "/" + totalLine);
                 this.nbBestPpnFind = 0;
                 serviceMail.sendMailWithAttachment(filename, mailAttachment);
                 producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
@@ -162,6 +163,8 @@ public class TopicConsumer {
             linesWithErrorsInBestPPNSearch++;
         } catch (MessagingException e) {
             log.error(e.getMessage());
+            throw new RuntimeException(e);
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

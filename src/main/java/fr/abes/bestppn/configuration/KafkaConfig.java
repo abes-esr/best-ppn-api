@@ -4,6 +4,7 @@ import fr.abes.LigneKbartConnect;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -83,4 +84,10 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, LigneKbartConnect> kafkaTemplate(final ProducerFactory<String, LigneKbartConnect> producerFactory) { return new KafkaTemplate<>(producerFactory);}
+
+    @Bean
+    public KafkaProducer<String, String> kafkaProducerOk() {
+        StringSerializer serial = new StringSerializer();
+        return new KafkaProducer<>(producerConfigs(), serial, serial);
+    }
 }

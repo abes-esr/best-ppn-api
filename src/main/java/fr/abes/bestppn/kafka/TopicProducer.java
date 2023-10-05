@@ -1,7 +1,6 @@
 package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.LigneKbartConnect;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
@@ -10,6 +9,7 @@ import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
@@ -17,17 +17,14 @@ import org.apache.kafka.common.header.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,10 +51,8 @@ public class TopicProducer {
     @Autowired
     private UtilsMapper utilsMapper;
 
-//    @Autowired
-//    private KafkaTemplate<String, String> kafkaTemplate;
-
-    private final ObjectMapper mapper;
+    @Autowired
+    private KafkaProducer<String, String> kafkaProducer;
 
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException {
@@ -67,9 +62,6 @@ public class TopicProducer {
             ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
             ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
             ligne.setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
-            if( ligne.isBestPpnEmpty()){
-                throw new BestPpnException("La ligne " + ligne +" n'a pas de BestPpn.");
-            }
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
             if (numLigneCourante == kbart.size())
@@ -78,7 +70,6 @@ public class TopicProducer {
         }
         log.debug("message envoyé vers {}", topicKbart);
     }
-
 
     @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, ProviderPackage provider, String filename) throws JsonProcessingException {
@@ -94,6 +85,19 @@ public class TopicProducer {
         log.debug("message envoyé vers {}", topicNoticeImprimee);
     }
 
+    @Transactional(transactionManager = "kafkaTransactionManager")
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
+        for (LigneKbartDto ligne : ppnFromKbartToCreate) {
+            ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
+            ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
+            ligne.setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
+            List<Header> headerList = new ArrayList<>();
+            headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
+            sendObject(ligne, topicKbartPpnToCreate, headerList);
+        }
+        log.debug("message envoyé vers {}", topicKbartPpnToCreate);
+    }
+
     private Header constructHeader(String key, byte[] value) {
         return new Header() {
             @Override
@@ -106,40 +110,6 @@ public class TopicProducer {
                 return value;
             }
         };
-    }
-
-    /**
-     * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
-     * @param headers le header du message (contient le nom du package et la date)
-     */
-    @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendEndOfTraitmentReport(Headers headers) {
-        setHeadersAndSend(headers, "OK", topicEndOfTraitment);
-        log.info("End of traitment report send.");
-    }
-
-    private void setHeadersAndSend(Headers headers, String value, String topic) {
-        MessageBuilder<String> messageBuilder = MessageBuilder
-                .withPayload(value)
-                .setHeader(KafkaHeaders.TOPIC, topic);
-        for (Header header : headers.toArray()) {
-            messageBuilder.setHeader(header.key(), header.value());
-        }
-        Message<String> message = messageBuilder.build();
-        kafkaTemplate.send(message);
-    }
-
-    @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
-        for (LigneKbartDto ligne : ppnFromKbartToCreate) {
-            ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
-            ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
-            ligne.setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
-            List<Header> headerList = new ArrayList<>();
-            headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
-            sendObject(ligne, topicKbartPpnToCreate, headerList);
-        }
-        log.debug("message envoyé vers {}", topicKbartPpnToCreate);
     }
 
     private SendResult sendObject(LigneKbartDto ligneKbartDto, String topic, List<Header> header) {
@@ -158,4 +128,18 @@ public class TopicProducer {
         }
     }
 
+    /**
+     * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
+     * @param headers le header du message (contient le nom du package et la date)
+     */
+    @Transactional(transactionManager = "kafkaTransactionManager")
+    public void sendEndOfTraitmentReport(Headers headers) throws ExecutionException, InterruptedException {
+        List<Header> headerList = new ArrayList<>();
+        for (Header header : headers.toArray()) {
+            headerList.add(constructHeader(header.key(), header.value()));
+        }
+        ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
+        kafkaProducer.send(record);
+        log.info("End of traitment report send.");
+    }
 }

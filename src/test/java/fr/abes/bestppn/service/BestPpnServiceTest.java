@@ -298,7 +298,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test throw BestPpnException same score")
-    void getBestPpnTest04() throws IOException, IllegalPpnException, URISyntaxException {
+    void getBestPpnTest04() throws IOException, IllegalPpnException, URISyntaxException, BestPpnException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -347,7 +347,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test throw BestPpnException with 2 printFromPrint & 2 printFromDat")
-    void getBestPpnTest05() throws IllegalPpnException, IOException {
+    void getBestPpnTest05() throws IllegalPpnException, IOException, BestPpnException {
         String provider = "urlProvider";
         //  Create PpnWithTypeDto for Online
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
