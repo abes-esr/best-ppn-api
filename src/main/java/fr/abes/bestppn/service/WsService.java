@@ -103,6 +103,9 @@ public class WsService {
             throw ex;
         } catch (IllegalArgumentException ex) {
             if( ex.getMessage().equals("argument \"content\" is null")) {
+                //  ATTENTION si le message d'erreur ci-dessous est modifié, il faut mettre à jour la condition de filtrage des messages d'erreurs dans logskbart-api (LogsListener.java)
+                // TODO ajouter ici un log.info et supprimer la levée de BestPpnException + supprimer dans TopicConsumer.java + maj dans logskbart le filtrage sur la condition "Aucuns ppn correspondant"
+                // TODO vérifier sur kbar2kafka que les log.error vont bien dans le topic errorkbart2kafka
                 throw new BestPpnException("Aucuns ppn correspondant à l'"+ id);
             } else {
                 throw ex;

@@ -105,9 +105,10 @@ public class TopicConsumer {
                 if( !isOnError ) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
 
-                    producer.sendKbart(kbartToSend, provider, filename);
-                    producer.sendPrintNotice(ppnToCreate, provider, filename);
-                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
+                    //  TODO décommenter les trois lignes ci-dessous avant de push
+//                    producer.sendKbart(kbartToSend, provider, filename);
+//                    producer.sendPrintNotice(ppnToCreate, provider, filename);
+//                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }
