@@ -99,7 +99,7 @@ public class TopicConsumer {
                 } else {
                     isOnError = false;
                 }
-                log.info("Nombre de best ppn trouvé : "+ this.nbBestPpnFind +"/"+ nbLine);
+                log.info("Nombre de best ppn trouvé : "+ this.nbBestPpnFind +" ("+ nbLine +")");
                 this.nbBestPpnFind = 0;
                 serviceMail.sendMailWithAttachment(filename,mailAttachment);
                 kbartToSend.clear();
