@@ -78,7 +78,7 @@ public class BestPpnService {
             feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList);
         }
 
-        if (ppnElecScoredList.isEmpty()) {
+        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty()) {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
