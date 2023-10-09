@@ -1,0 +1,111 @@
+{
+  "type": "record",
+  "name": "LigneKbartImprime",
+  "namespace": "fr.abes",
+  "fields": [
+    {
+      "name": "ppn",
+      "type": "string"
+    },
+    {
+      "name": "publicationTitle",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "printIdentifier",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "onlineIdentifier",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "dateFirstIssueOnline",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "numFirstVolOnline",
+      "type": ["null", "int"]
+    },
+    {
+      "name": "numFirstIssueOnline",
+      "type": ["null", "int"]
+    },
+    {
+      "name": "dateLastIssueOnline",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "numLastVolOnline",
+      "type": ["null", "int"]
+    },
+    {
+      "name": "numLastIssueOnline",
+      "type": ["null", "int"]
+    },
+    {
+      "name": "titleUrl",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "firstAuthor",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "titleId",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "embargoInfo",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "coverageDepth",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "notes",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "publisherName",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "publicationType",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "dateMonographPublishedPrint",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "dateMonographPublishedOnline",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "monographVolume",
+      "type": ["null", "int"]
+    },
+    {
+      "name": "monographEdition",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "firstEditor",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "parentPublicationTitleId",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "precedingPublicationTitleId",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "accessType",
+      "type": ["null", "string"]
+    }
+  ]
+}
