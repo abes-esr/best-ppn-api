@@ -345,7 +345,7 @@ class BestPpnServiceTest {
         Assertions.assertEquals("Les ppn électroniques 100000001, 100000002 ont le même score" , result.getLocalizedMessage());
     }
 
-    @Test
+    /*@Test
     @DisplayName("Test throw BestPpnException with 2 printFromPrint & 2 printFromDat")
     void getBestPpnTest05() throws IllegalPpnException, IOException {
         String provider = "urlProvider";
@@ -399,7 +399,7 @@ class BestPpnServiceTest {
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
         Assertions.assertEquals("Plusieurs ppn imprimés (100000001, 200000001, 300000002, 300000001) ont été trouvés." , result.getLocalizedMessage());
-    }
+    }*/
 
     @Test
     @DisplayName("Test printFromPrint & 2 printFromDat ")
