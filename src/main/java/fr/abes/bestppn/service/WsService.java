@@ -85,16 +85,16 @@ public class WsService {
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException, BestPpnException {
+    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlOnlineId2Ppn);
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException, BestPpnException {
+    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
 
-    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException, BestPpnException{
+    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException{
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
             result = mapper.readValue((provider != null && !provider.equals("")) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
@@ -103,10 +103,7 @@ public class WsService {
             throw ex;
         } catch (IllegalArgumentException ex) {
             if( ex.getMessage().equals("argument \"content\" is null")) {
-                //  ATTENTION si le message d'erreur ci-dessous est modifié, il faut mettre à jour la condition de filtrage des messages d'erreurs dans logskbart-api (LogsListener.java)
-                // TODO ajouter ici un log.info et supprimer la levée de BestPpnException + supprimer dans TopicConsumer.java + maj dans logskbart le filtrage sur la condition "Aucuns ppn correspondant"
-                // TODO vérifier sur kbar2kafka que les log.error vont bien dans le topic errorkbart2kafka
-                throw new BestPpnException("Aucuns ppn correspondant à l'"+ id);
+                log.info("Aucuns ppn correspondant à l'"+ id);
             } else {
                 throw ex;
             }

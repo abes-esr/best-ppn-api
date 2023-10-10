@@ -66,6 +66,8 @@ public class TopicConsumer {
 
     private boolean isOnError = false;
 
+    boolean injectKafka = false;
+
     private int nbBestPpnFind = 0;
 
     private int linesWithInputDataErrors = 0;
@@ -77,12 +79,11 @@ public class TopicConsumer {
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
+    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws BestPpnException {
         try {
             String filename = "";
             String currentLine = "";
             String totalLine = "";
-            boolean injectKafka = false;
             for (Header header : lignesKbart.headers().toArray()) {
                 if (header.key().equals("FileName")) {
                     filename = new String(header.value());
@@ -95,7 +96,7 @@ public class TopicConsumer {
                     totalLine = new String(header.value());
                 }
             }
-            ThreadContext.put("package", filename + "[line : " + currentLine + "]");  // Ajoute le numéro de ligne courante au contexte log4j2 pour inscription dans le header kafka
+            ThreadContext.put("package", (filename + "[line : " + currentLine + "]"));  // Ajoute le numéro de ligne courante au contexte log4j2 pour inscription dans le header kafka
 
             String nbLine = currentLine + "/" + totalLine;
             String providerName = Utils.extractProvider(filename);
@@ -105,10 +106,9 @@ public class TopicConsumer {
                 if( !isOnError ) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
 
-                    //  TODO décommenter les trois lignes ci-dessous avant de push
-//                    producer.sendKbart(kbartToSend, provider, filename);
-//                    producer.sendPrintNotice(ppnToCreate, provider, filename);
-//                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
+                    producer.sendKbart(kbartToSend, provider, filename);
+                    producer.sendPrintNotice(ppnToCreate, provider, filename);
+                    producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }
@@ -157,11 +157,19 @@ public class TopicConsumer {
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
             linesWithInputDataErrors++;
-        } catch (IllegalPpnException | BestPpnException e) {
+        } catch (IllegalPpnException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
             linesWithErrorsInBestPPNSearch++;
+        } catch (BestPpnException e) {
+            isOnError = true;
+            log.error(e.getMessage());
+            addLineToMailAttachementWithErrorMessage(e.getMessage());
+            linesWithErrorsInBestPPNSearch++;
+            if (!injectKafka) {
+                throw new BestPpnException (e.getMessage());
+            }
         } catch (MessagingException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
