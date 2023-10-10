@@ -17,7 +17,7 @@
     </Properties>
     <Appenders>
         <!-- KAFKA -->
-        <Kafka name="kafkaErrorLogAppender" topic="errorkbart2kafka" key="${ctx:package}" header="${ctx:nbrLine}">
+        <Kafka name="kafkaErrorLogAppender" topic="errorkbart2kafka" key="${ctx:package}">
             <JSONLayout />
             <Property name="bootstrap.servers">${kafkaServer}</Property>
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
