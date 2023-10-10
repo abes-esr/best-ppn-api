@@ -74,3 +74,4 @@ Voici un exemple de configuration d'un sink kafka connect connecté à un topic 
 
 
 
+
