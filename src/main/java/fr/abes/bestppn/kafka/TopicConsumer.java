@@ -1,6 +1,7 @@
 package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
@@ -48,7 +49,7 @@ public class TopicConsumer {
     private EmailService serviceMail;
     private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
 
-    private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();
+    private final List<LigneKbartImprime> ppnToCreate = new ArrayList<>();
 
     private final List<LigneKbartDto> ppnFromKbartToCreate = new ArrayList<>();
 
@@ -61,8 +62,10 @@ public class TopicConsumer {
     private boolean isOnError = false;
 
     private int nbBestPpnFind = 0;
+
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
+     *
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory")
@@ -73,35 +76,35 @@ public class TopicConsumer {
             String totalLine = "";
             boolean injectKafka = false;
             for (Header header : lignesKbart.headers().toArray()) {
-                if(header.key().equals("FileName")){
+                if (header.key().equals("FileName")) {
                     filename = new String(header.value());
-                    if (filename.contains("_FORCE")) {injectKafka = true;}
-                    ThreadContext.put("package",filename);
-                } else if(header.key().equals("CurrentLine")){
+                    if (filename.contains("_FORCE")) {
+                        injectKafka = true;
+                    }
+                    ThreadContext.put("package", filename);
+                } else if (header.key().equals("CurrentLine")) {
                     currentLine = new String(header.value());
-                } else if(header.key().equals("TotalLine")){
+                } else if (header.key().equals("TotalLine")) {
                     totalLine = new String(header.value());
                 }
             }
             String nbLine = currentLine + "/" + totalLine;
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
-
-            if(lignesKbart.value().equals("OK") ){
-                if( !isOnError ) {
+            if (lignesKbart.value().equals("OK")) {
+                if (!isOnError) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
-
                     // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
                     //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
                     producer.sendKbart(kbartToSend, provider, filename);
-                    producer.sendPrintNotice(ppnToCreate, provider, filename);
+                    producer.sendPrintNotice(ppnToCreate, filename);
                     producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }
-                log.info("Nombre de best ppn trouvé : "+ this.nbBestPpnFind +" ("+ nbLine +")");
+                log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + " (" + nbLine +")");
                 this.nbBestPpnFind = 0;
-                serviceMail.sendMailWithAttachment(filename,mailAttachment);
+                serviceMail.sendMailWithAttachment(filename, mailAttachment);
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 ppnFromKbartToCreate.clear();
@@ -112,15 +115,47 @@ public class TopicConsumer {
                     log.info("Debut du calcul du bestppn sur la ligne : " + nbLine);
                     log.info(ligneFromKafka.toString());
                     PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, injectKafka);
-                    switch (ppnWithDestinationDto.getDestination()){
+                    switch (ppnWithDestinationDto.getDestination()) {
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
                             this.nbBestPpnFind++;
                             kbartToSend.add(ligneFromKafka);
                         }
-                        case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
+                        case PRINT_PPN_SUDOC -> {
+                            LigneKbartImprime ligne = LigneKbartImprime.newBuilder()
+                                    .setPpn(ppnWithDestinationDto.getPpn())
+                                    .setPublicationTitle(ligneFromKafka.getPublicationTitle())
+                                    .setPrintIdentifier(ligneFromKafka.getPrintIdentifier())
+                                    .setOnlineIdentifier(ligneFromKafka.getOnlineIdentifier())
+                                    .setDateFirstIssueOnline(ligneFromKafka.getDateFirstIssueOnline())
+                                    .setNumFirstVolOnline(ligneFromKafka.getNumFirstVolOnline())
+                                    .setNumFirstIssueOnline(ligneFromKafka.getNumFirstIssueOnline())
+                                    .setDateLastIssueOnline(ligneFromKafka.getDateLastIssueOnline())
+                                    .setNumLastVolOnline(ligneFromKafka.getNumLastVolOnline())
+                                    .setNumLastIssueOnline(ligneFromKafka.getNumLastIssueOnline())
+                                    .setTitleUrl(ligneFromKafka.getTitleUrl())
+                                    .setFirstAuthor(ligneFromKafka.getFirstAuthor())
+                                    .setTitleId(ligneFromKafka.getTitleId())
+                                    .setEmbargoInfo(ligneFromKafka.getEmbargoInfo())
+                                    .setCoverageDepth(ligneFromKafka.getCoverageDepth())
+                                    .setNotes(ligneFromKafka.getNotes())
+                                    .setPublisherName(ligneFromKafka.getPublisherName())
+                                    .setPublicationType(ligneFromKafka.getPublicationType())
+                                    .setDateMonographPublishedPrint(ligneFromKafka.getDateMonographPublishedPrint())
+                                    .setDateMonographPublishedOnline(ligneFromKafka.getDateMonographPublishedOnline())
+                                    .setMonographVolume(ligneFromKafka.getMonographVolume())
+                                    .setMonographEdition(ligneFromKafka.getMonographEdition())
+                                    .setFirstEditor(ligneFromKafka.getFirstEditor())
+                                    .setParentPublicationTitleId(ligneFromKafka.getParentPublicationTitleId())
+                                    .setPrecedingPublicationTitleId(ligneFromKafka.getPrecedingPublicationTitleId())
+                                    .setAccessType(ligneFromKafka.getAccessType())
+                                    .build();
+                            ppnToCreate.add(ligne);
+                        }
                         case NO_PPN_FOUND_SUDOC -> {
-                            if (ligneFromKafka.getPublicationType().equals("monograph")) ppnFromKbartToCreate.add(ligneFromKafka);
+                            if (ligneFromKafka.getPublicationType().equals("monograph")) {
+                                ppnFromKbartToCreate.add(ligneFromKafka);
+                            }
                         }
                     }
                 } else {
@@ -133,7 +168,8 @@ public class TopicConsumer {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException | IllegalArgumentException e) {
+        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException |
+                 IllegalArgumentException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());

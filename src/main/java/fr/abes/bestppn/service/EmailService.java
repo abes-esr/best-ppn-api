@@ -38,7 +38,7 @@ public class EmailService {
     public void sendMailWithAttachment(String packageName, PackageKbartDto dataLines) throws MessagingException {
         try {
             //  Création du chemin d'accès pour le fichier .csv
-            Path csvPath = Path.of("Rapport de traitement BestPPN " + packageName + ".csv");
+            Path csvPath = Path.of("rapport_" + packageName + ".csv");
 
             //  Création du fichier
             createAttachment(dataLines, csvPath);

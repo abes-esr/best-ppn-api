@@ -1,9 +1,11 @@
 package fr.abes.bestppn.configuration;
 
 import fr.abes.LigneKbartConnect;
+import fr.abes.LigneKbartImprime;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -83,5 +85,9 @@ public class KafkaConfig {
 
 
     @Bean
-    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplate(final ProducerFactory<String, LigneKbartConnect> producerFactory) { return new KafkaTemplate<>(producerFactory);}
+    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect(final ProducerFactory producerFactory) { return new KafkaTemplate<>(producerFactory);}
+
+    @Bean
+    public KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime(final ProducerFactory producerFactory) { return new KafkaTemplate<>(producerFactory);}
+
 }
