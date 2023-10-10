@@ -10,5 +10,4 @@ public class BestPpnApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BestPpnApplication.class, args);
 	}
-
 }

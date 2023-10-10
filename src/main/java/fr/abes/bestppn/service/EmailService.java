@@ -7,9 +7,9 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.mail.MailDto;
-import fr.abes.bestppn.dto.PackageKbartDto;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -35,16 +35,19 @@ public class EmailService {
     @Value("${mail.ws.url}")
     protected String url;
 
+    @Value("${spring.profiles.active}")
+    private String env;
+
     public void sendMailWithAttachment(String packageName, PackageKbartDto dataLines) throws MessagingException {
         try {
             //  Création du chemin d'accès pour le fichier .csv
-            Path csvPath = Path.of("Rapport de traitement BestPPN " + packageName + ".csv");
+            Path csvPath = Path.of("rapport_" + packageName + ".csv");
 
             //  Création du fichier
             createAttachment(dataLines, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
