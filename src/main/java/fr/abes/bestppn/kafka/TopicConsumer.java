@@ -29,6 +29,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -74,26 +75,33 @@ public class TopicConsumer {
 
     private int linesWithErrorsInBestPPNSearch = 0;
 
+    private List<Header> headerList = new ArrayList<>();
+
+    private String filename = "";
+
+    private String totalLine = "";
+
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws BestPpnException {
+    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws ExecutionException, InterruptedException, IOException {
         try {
-            String filename = "";
             String currentLine = "";
-            String totalLine = "";
             for (Header header : lignesKbart.headers().toArray()) {
                 if (header.key().equals("FileName")) {
                     filename = new String(header.value());
+                    headerList.add(header);
                     if (filename.contains("_FORCE")) {
                         injectKafka = true;
                     }
                 } else if (header.key().equals("CurrentLine")) {
                     currentLine = new String(header.value());
+                    headerList.add(header);
                 } else if (header.key().equals("TotalLine")) {
                     totalLine = new String(header.value());
+                    headerList.add(header);
                 }
             }
             ThreadContext.put("package", (filename + "[line : " + currentLine + "]"));  // Ajoute le numéro de ligne courante au contexte log4j2 pour inscription dans le header kafka
@@ -115,7 +123,7 @@ public class TopicConsumer {
                 log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + "/" + totalLine);
                 this.nbBestPpnFind = 0;
                 serviceMail.sendMailWithAttachment(filename, mailAttachment);
-                producer.sendEndOfTraitmentReport(lignesKbart.headers()); // Appel le producer pour l'envoi du message de fin de traitement.
+                producer.sendEndOfTraitmentReport(headerList); // Appel le producer pour l'envoi du message de fin de traitement.
                 logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
                 kbartToSend.clear();
                 ppnToCreate.clear();
@@ -157,24 +165,16 @@ public class TopicConsumer {
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
             linesWithInputDataErrors++;
-        } catch (IllegalPpnException e) {
+        } catch (IllegalPpnException | BestPpnException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
             linesWithErrorsInBestPPNSearch++;
-        } catch (BestPpnException e) {
-            isOnError = true;
+        } catch (MessagingException | ExecutionException | InterruptedException | RuntimeException e) {
             log.error(e.getMessage());
-            addLineToMailAttachementWithErrorMessage(e.getMessage());
-            linesWithErrorsInBestPPNSearch++;
-            if (!injectKafka) {
-                throw new BestPpnException (e.getMessage());
-            }
-        } catch (MessagingException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
+            producer.sendEndOfTraitmentReport(headerList);
+            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
+            // TODO Ajouter une nouvelle donnée à la création du rapport de log de bestPpn-api : erreur bloquante sur l'application bestPpn, processus interrompu
         }
     }
 

@@ -46,8 +46,7 @@ public class LogFileService {
             fh.close();
 
             // Copie le fichier existant vers le répertoire temporaire en ajoutant sa date de création
-            assert source != null;
-            if (Files.exists(source)) {
+            if (source != null && Files.exists(source)) {
                 LocalDateTime time = LocalDateTime.now();
                 DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss", Locale.FRANCE);
                 String date = format.format(time);

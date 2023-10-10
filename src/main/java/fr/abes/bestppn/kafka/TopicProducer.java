@@ -13,7 +13,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -55,7 +54,7 @@ public class TopicProducer {
     private KafkaProducer<String, String> kafkaProducer;
 
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
-    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException {
+    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException, ExecutionException, InterruptedException {
         int numLigneCourante = 0;
         for (LigneKbartDto ligne : kbart) {
             numLigneCourante++;
@@ -72,7 +71,7 @@ public class TopicProducer {
     }
 
     @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, ProviderPackage provider, String filename) throws JsonProcessingException {
+    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, ProviderPackage provider, String filename) throws JsonProcessingException, ExecutionException, InterruptedException {
         for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
             ppnToCreate.getKbart().setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
             ppnToCreate.getKbart().setProviderPackageDateP(provider.getProviderPackageId().getDateP());
@@ -86,7 +85,7 @@ public class TopicProducer {
     }
 
     @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException, ExecutionException, InterruptedException {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
             ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
@@ -123,23 +122,18 @@ public class TopicProducer {
             return result;
         } catch (Exception e) {
             String message = "Error sending message to topic " + topic;
-            log.error(message);
             throw new RuntimeException(message, e);
         }
     }
 
     /**
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
-     * @param headers le header du message (contient le nom du package et la date)
+     * @param headerList list de Header (contient le nom du package et la date)
      */
     @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendEndOfTraitmentReport(Headers headers) throws ExecutionException, InterruptedException {
-        List<Header> headerList = new ArrayList<>();
-        for (Header header : headers.toArray()) {
-            headerList.add(constructHeader(header.key(), header.value()));
-        }
+    public void sendEndOfTraitmentReport(List<Header> headerList) throws ExecutionException, InterruptedException {
         ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
         kafkaProducer.send(record);
-        log.info("End of traitment report send.");
+        log.info("End of traitment report sent.");
     }
 }

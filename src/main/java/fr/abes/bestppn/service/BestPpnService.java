@@ -85,12 +85,12 @@ public class BestPpnService {
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
     }
 
-    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException, BestPpnException {
+    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
         log.debug("Entrée dans onlineId2Ppn");
         setScoreToEveryPpnFromResultWS(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider), kbart.getTitleUrl(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList);
     }
 
-    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException, BestPpnException {
+    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
         log.debug("Entrée dans printId2Ppn");
         ResultWsSudocDto resultCallWs = service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider);
         ResultWsSudocDto resultWithTypeElectronique = resultCallWs.getPpnWithTypeElectronique();
@@ -181,12 +181,13 @@ public class BestPpnService {
                     }
 
                     default -> {
-                        kbart.setErrorType("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                        String errorString = "Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.";
+                        kbart.setErrorType(errorString);
                         // vérification du forçage
                         if (injectKafka) {
                             yield new PpnWithDestinationDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
                         } else {
-                            throw new BestPpnException("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                            throw new BestPpnException(errorString);
                         }
                     }
                 };
@@ -201,7 +202,6 @@ public class BestPpnService {
                 if (injectKafka) {
                     yield new PpnWithDestinationDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
                 } else {
-                    log.error(errorString);
                     throw new BestPpnException(errorString);
                 }
             }
