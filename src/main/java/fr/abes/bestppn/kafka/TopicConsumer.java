@@ -124,7 +124,7 @@ public class TopicConsumer {
                 this.nbBestPpnFind = 0;
                 serviceMail.sendMailWithAttachment(filename, mailAttachment);
                 producer.sendEndOfTraitmentReport(headerList); // Appel le producer pour l'envoi du message de fin de traitement.
-                logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
+                logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch, injectKafka);
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 ppnFromKbartToCreate.clear();
@@ -173,8 +173,7 @@ public class TopicConsumer {
         } catch (MessagingException | ExecutionException | InterruptedException | RuntimeException e) {
             log.error(e.getMessage());
             producer.sendEndOfTraitmentReport(headerList);
-            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch);
-            // TODO Ajouter une nouvelle donnée à la création du rapport de log de bestPpn-api : erreur bloquante sur l'application bestPpn, processus interrompu
+            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch, injectKafka);
         }
     }
 

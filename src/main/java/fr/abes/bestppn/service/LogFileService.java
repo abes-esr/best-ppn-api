@@ -29,7 +29,7 @@ public class LogFileService {
      * @param linesWithErrorsInBestPPNSearch le nombre total de lignes contenant des erreurs lors de la recherche du bestPpn
      * @throws IOException exception levée
      */
-    public void createExecutionReport(String fileName, int totalLines, int linesOk, int linesWithInputDataErrors, int linesWithErrorsInBestPPNSearch) throws IOException {
+    public void createExecutionReport(String fileName, int totalLines, int linesOk, int linesWithInputDataErrors, int linesWithErrorsInBestPPNSearch, boolean injectKafka) throws IOException {
         try {
             // Création du fichier de log
             Logger logger = Logger.getLogger("ExecutionReport");
@@ -40,7 +40,11 @@ public class LogFileService {
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
             logger.setUseParentHandlers(false); // désactive l'affichage du log dans le terminal
-            logger.info("TOTAL LINES : " + totalLines + " / LINES OK : " + linesOk + " / LINES WITH INPUT DATA ERRORS : " + linesWithInputDataErrors + " / LINES WITH ERRORS IN BESTPPN SEARCH : " + linesWithErrorsInBestPPNSearch);
+            logger.info("TOTAL LINES : " + totalLines + System.lineSeparator()
+                    + "LINES OK : " + linesOk + System.lineSeparator()
+                    + "LINES WITH INPUT DATA ERRORS : " + linesWithInputDataErrors + System.lineSeparator()
+                    + "LINES WITH ERRORS IN BESTPPN SEARCH : " + linesWithErrorsInBestPPNSearch + System.lineSeparator()
+                    + "FORCE_OPTION : " + injectKafka + System.lineSeparator());
 
             // Fermeture du fichier de log
             fh.close();
@@ -67,5 +71,4 @@ public class LogFileService {
             e.printStackTrace();
         }
     }
-
 }
