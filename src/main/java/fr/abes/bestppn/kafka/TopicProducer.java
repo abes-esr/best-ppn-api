@@ -2,8 +2,8 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.LigneKbartConnect;
+import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -44,15 +45,33 @@ public class TopicProducer {
     @Value("${topic.name.target.ppnFromKbart}")
     private String topicKbartPpnToCreate;
 
-    @Autowired
     private KafkaTemplate<String, LigneKbartConnect> kafkaTemplate;
 
-    @Autowired
+    private KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect;
+
+    private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
+
     private UtilsMapper utilsMapper;
 
     @Autowired
     private KafkaProducer<String, String> kafkaProducer;
 
+    @Autowired
+    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaTemplate<String, LigneKbartConnect> kafkaTemplate, KafkaProducer<String, String> kafkaProducer, UtilsMapper utilsMapper) {
+        this.kafkaTemplateConnect = kafkaTemplateConnect;
+        this.kafkaTemplateImprime = kafkaTemplateImprime;
+        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaProducer = kafkaProducer;
+        this.utilsMapper = utilsMapper;
+    }
+
+    /**
+     * Méthode d'envoi d'une ligne kbart vers topic kafka pour chargement
+     *
+     * @param kbart    : ligne kbart à envoyer
+     * @param provider
+     * @param filename : nom du fichier du traitement en cours
+     */
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException, ExecutionException, InterruptedException {
         int numLigneCourante = 0;
@@ -67,25 +86,36 @@ public class TopicProducer {
                 headerList.add(constructHeader("OK", "true".getBytes()));
             sendObject(ligne, topicKbart, headerList);
         }
-        log.debug("message envoyé vers {}", topicKbart);
+        if (!kbart.isEmpty())
+            log.debug("message envoyé vers {}", topicKbart);
     }
 
+
+    /**
+     * Méthode d'envoi d'une ligne kbart pour création d'une notice à partir de la version imprimée
+     *
+     * @param ligneKbartImprimes : liste de kbart
+     * @param filename           : nom du fichier à traiter
+     */
     @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPrintNotice(List<PpnKbartProviderDto> ppnKbartProviderDtoList, ProviderPackage provider, String filename) throws JsonProcessingException, ExecutionException, InterruptedException {
-        for (PpnKbartProviderDto ppnToCreate : ppnKbartProviderDtoList) {
-            ppnToCreate.getKbart().setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
-            ppnToCreate.getKbart().setProviderPackageDateP(provider.getProviderPackageId().getDateP());
-            ppnToCreate.getKbart().setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
+    public void sendPrintNotice(List<LigneKbartImprime> ligneKbartImprimes, String filename) {
+        for (LigneKbartImprime ppnToCreate : ligneKbartImprimes) {
             List<Header> headerList = new ArrayList<>();
-            headerList.add(constructHeader("ppn", ppnToCreate.getPpn().getBytes(StandardCharsets.US_ASCII)));
             headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
-            sendObject(ppnToCreate.getKbart(), topicNoticeImprimee, headerList);
+            sendNoticeImprime(ppnToCreate, topicNoticeImprimee, headerList);
         }
-        log.debug("message envoyé vers {}", topicNoticeImprimee);
+        if (!ligneKbartImprimes.isEmpty())
+            log.debug("message envoyé vers {}", topicNoticeImprimee);
     }
 
+
+    /**
+     * Méthode d'envoi d'une ligne Kbart pour création de notice ExNihilo
+     * @param ppnFromKbartToCreate : liste de lignes kbart
+     * @param filename : nom du fichier à traiter
+     */
     @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException, ExecutionException, InterruptedException {
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
             ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
@@ -94,7 +124,49 @@ public class TopicProducer {
             headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
             sendObject(ligne, topicKbartPpnToCreate, headerList);
         }
-        log.debug("message envoyé vers {}", topicKbartPpnToCreate);
+        if (!ppnFromKbartToCreate.isEmpty())
+            log.debug("message envoyé vers {}", topicKbartPpnToCreate);
+    }
+
+    /**
+     * Méthode envoyant un objet de notice imprimé sur un topic Kafka
+     * @param ligneKbartDto : ligne contenant la ligne kbart, et le provider
+     * @param topic : topic d'envoi de la ligne
+     * @param header : header kafka de la ligne
+     */
+    private void sendObject(LigneKbartDto ligneKbartDto, String topic, List<Header> header) {
+        LigneKbartConnect ligne = utilsMapper.map(ligneKbartDto, LigneKbartConnect.class);
+        try {
+            ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, "", ligne, header);
+            final SendResult<String, LigneKbartConnect> result = kafkaTemplateConnect.send(record).get();
+            logEnvoi(result, record);
+        } catch (Exception e) {
+            String message = "Error sending message to topic " + topic;
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    /**
+     * Méthode envoyant un objet de notice imprimé sur un topic Kafka
+     * @param ligne : ligne contenant la ligne kbart, le ppn de la notice imprimée et le provider
+     * @param topic : topic d'envoi de la ligne
+     * @param header : header kafka de la ligne
+     */
+    private void sendNoticeImprime(LigneKbartImprime ligne, String topic, List<Header> header) {
+        try {
+            ProducerRecord<String, LigneKbartImprime> record = new ProducerRecord<>(topic, null, "", ligne, header);
+            final SendResult<String, LigneKbartImprime> result = kafkaTemplateImprime.send(record).get();
+            logEnvoi(result, record);
+        } catch (Exception e) {
+            String message = "Error sending message to topic " + topic;
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    private void logEnvoi(SendResult<String, ?> result, ProducerRecord<String, ?> record) {
+        final RecordMetadata metadata = result.getRecordMetadata();
+        log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d, headers=%s)",
+                record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset(), Stream.of(result.getProducerRecord().headers().toArray()).map(h -> h.key() + ":" + Arrays.toString(h.value())).collect(Collectors.joining(";"))));
     }
 
     private Header constructHeader(String key, byte[] value) {
@@ -109,21 +181,6 @@ public class TopicProducer {
                 return value;
             }
         };
-    }
-
-    private SendResult sendObject(LigneKbartDto ligneKbartDto, String topic, List<Header> header) {
-        LigneKbartConnect ligne = utilsMapper.map(ligneKbartDto, LigneKbartConnect.class);
-        try {
-            ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, "", ligne, header);
-            final SendResult result = kafkaTemplate.send(record).get();
-            final RecordMetadata metadata = result.getRecordMetadata();
-            log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d, headers=%s)",
-                    record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset(), Stream.of(result.getProducerRecord().headers().toArray()).map(h -> new String(h.key() + ":" + h.value())).collect(Collectors.joining(";"))));
-            return result;
-        } catch (Exception e) {
-            String message = "Error sending message to topic " + topic;
-            throw new RuntimeException(message, e);
-        }
     }
 
     /**

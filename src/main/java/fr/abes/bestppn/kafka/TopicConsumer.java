@@ -1,6 +1,7 @@
 package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
@@ -55,7 +56,7 @@ public class TopicConsumer {
 
     private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
 
-    private final List<PpnKbartProviderDto> ppnToCreate = new ArrayList<>();
+    private final List<LigneKbartImprime> ppnToCreate = new ArrayList<>();
 
     private final List<LigneKbartDto> ppnFromKbartToCreate = new ArrayList<>();
 
@@ -109,13 +110,12 @@ public class TopicConsumer {
             String nbLine = currentLine + "/" + totalLine;
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
-
-            if(lignesKbart.value().equals("OK") ){
-                if( !isOnError ) {
+            if (lignesKbart.value().equals("OK")) {
+                if (!isOnError) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
 
                     producer.sendKbart(kbartToSend, provider, filename);
-                    producer.sendPrintNotice(ppnToCreate, provider, filename);
+                    producer.sendPrintNotice(ppnToCreate, filename);
                     producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
@@ -143,9 +143,41 @@ public class TopicConsumer {
                             this.nbBestPpnFind++;
                             kbartToSend.add(ligneFromKafka);
                         }
-                        case PRINT_PPN_SUDOC -> ppnToCreate.add(new PpnKbartProviderDto(ppnWithDestinationDto.getPpn(),ligneFromKafka,providerName));
+                        case PRINT_PPN_SUDOC -> {
+                            LigneKbartImprime ligne = LigneKbartImprime.newBuilder()
+                                    .setPpn(ppnWithDestinationDto.getPpn())
+                                    .setPublicationTitle(ligneFromKafka.getPublicationTitle())
+                                    .setPrintIdentifier(ligneFromKafka.getPrintIdentifier())
+                                    .setOnlineIdentifier(ligneFromKafka.getOnlineIdentifier())
+                                    .setDateFirstIssueOnline(ligneFromKafka.getDateFirstIssueOnline())
+                                    .setNumFirstVolOnline(ligneFromKafka.getNumFirstVolOnline())
+                                    .setNumFirstIssueOnline(ligneFromKafka.getNumFirstIssueOnline())
+                                    .setDateLastIssueOnline(ligneFromKafka.getDateLastIssueOnline())
+                                    .setNumLastVolOnline(ligneFromKafka.getNumLastVolOnline())
+                                    .setNumLastIssueOnline(ligneFromKafka.getNumLastIssueOnline())
+                                    .setTitleUrl(ligneFromKafka.getTitleUrl())
+                                    .setFirstAuthor(ligneFromKafka.getFirstAuthor())
+                                    .setTitleId(ligneFromKafka.getTitleId())
+                                    .setEmbargoInfo(ligneFromKafka.getEmbargoInfo())
+                                    .setCoverageDepth(ligneFromKafka.getCoverageDepth())
+                                    .setNotes(ligneFromKafka.getNotes())
+                                    .setPublisherName(ligneFromKafka.getPublisherName())
+                                    .setPublicationType(ligneFromKafka.getPublicationType())
+                                    .setDateMonographPublishedPrint(ligneFromKafka.getDateMonographPublishedPrint())
+                                    .setDateMonographPublishedOnline(ligneFromKafka.getDateMonographPublishedOnline())
+                                    .setMonographVolume(ligneFromKafka.getMonographVolume())
+                                    .setMonographEdition(ligneFromKafka.getMonographEdition())
+                                    .setFirstEditor(ligneFromKafka.getFirstEditor())
+                                    .setParentPublicationTitleId(ligneFromKafka.getParentPublicationTitleId())
+                                    .setPrecedingPublicationTitleId(ligneFromKafka.getPrecedingPublicationTitleId())
+                                    .setAccessType(ligneFromKafka.getAccessType())
+                                    .build();
+                            ppnToCreate.add(ligne);
+                        }
                         case NO_PPN_FOUND_SUDOC -> {
-                            if (ligneFromKafka.getPublicationType().equals("monograph")) ppnFromKbartToCreate.add(ligneFromKafka);
+                            if (ligneFromKafka.getPublicationType().equals("monograph")) {
+                                ppnFromKbartToCreate.add(ligneFromKafka);
+                            }
                         }
                     }
                 } else {

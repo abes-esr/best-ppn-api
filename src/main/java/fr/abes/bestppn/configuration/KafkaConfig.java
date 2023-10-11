@@ -1,6 +1,7 @@
 package fr.abes.bestppn.configuration;
 
 import fr.abes.LigneKbartConnect;
+import fr.abes.LigneKbartImprime;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -63,6 +64,7 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
         props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
@@ -81,9 +83,11 @@ public class KafkaConfig {
         return new KafkaTransactionManager<>(producerFactory());
     }
 
+    @Bean
+    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect(final ProducerFactory producerFactory) { return new KafkaTemplate<>(producerFactory);}
 
     @Bean
-    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplate(final ProducerFactory<String, LigneKbartConnect> producerFactory) { return new KafkaTemplate<>(producerFactory);}
+    public KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime(final ProducerFactory producerFactory) { return new KafkaTemplate<>(producerFactory);}
 
     @Bean
     public KafkaProducer<String, String> kafkaProducerOk() {
