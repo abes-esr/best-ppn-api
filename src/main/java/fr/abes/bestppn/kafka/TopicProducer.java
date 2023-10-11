@@ -45,22 +45,18 @@ public class TopicProducer {
     @Value("${topic.name.target.ppnFromKbart}")
     private String topicKbartPpnToCreate;
 
-    private KafkaTemplate<String, LigneKbartConnect> kafkaTemplate;
-
     private KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect;
 
     private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
 
+    private KafkaProducer<String, String> kafkaProducer;
+
     private UtilsMapper utilsMapper;
 
     @Autowired
-    private KafkaProducer<String, String> kafkaProducer;
-
-    @Autowired
-    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaTemplate<String, LigneKbartConnect> kafkaTemplate, KafkaProducer<String, String> kafkaProducer, UtilsMapper utilsMapper) {
+    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaProducer<String, String> kafkaProducer, UtilsMapper utilsMapper) {
         this.kafkaTemplateConnect = kafkaTemplateConnect;
         this.kafkaTemplateImprime = kafkaTemplateImprime;
-        this.kafkaTemplate = kafkaTemplate;
         this.kafkaProducer = kafkaProducer;
         this.utilsMapper = utilsMapper;
     }
@@ -69,7 +65,7 @@ public class TopicProducer {
      * Méthode d'envoi d'une ligne kbart vers topic kafka pour chargement
      *
      * @param kbart    : ligne kbart à envoyer
-     * @param provider
+     * @param provider : provider
      * @param filename : nom du fichier du traitement en cours
      */
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})

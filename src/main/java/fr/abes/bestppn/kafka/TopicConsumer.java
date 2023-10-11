@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
@@ -30,7 +29,6 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -66,6 +64,8 @@ public class TopicConsumer {
 
     private final ProviderRepository providerRepository;
 
+    private final List<Header> headerList = new ArrayList<>();
+
     private boolean isOnError = false;
 
     boolean injectKafka = false;
@@ -75,8 +75,6 @@ public class TopicConsumer {
     private int linesWithInputDataErrors = 0;
 
     private int linesWithErrorsInBestPPNSearch = 0;
-
-    private List<Header> headerList = new ArrayList<>();
 
     private String filename = "";
 
