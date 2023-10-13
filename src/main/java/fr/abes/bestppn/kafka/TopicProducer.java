@@ -49,7 +49,7 @@ public class TopicProducer {
 
     private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
 
-    private KafkaProducer<String, String> kafkaProducer;
+    private KafkaProducer<String, String> kafkaProducerOk;
 
     private UtilsMapper utilsMapper;
 
@@ -57,7 +57,7 @@ public class TopicProducer {
     public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaProducer<String, String> kafkaProducer, UtilsMapper utilsMapper) {
         this.kafkaTemplateConnect = kafkaTemplateConnect;
         this.kafkaTemplateImprime = kafkaTemplateImprime;
-        this.kafkaProducer = kafkaProducer;
+        this.kafkaProducerOk = kafkaProducer;
         this.utilsMapper = utilsMapper;
     }
 
@@ -185,8 +185,13 @@ public class TopicProducer {
      */
     @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendEndOfTraitmentReport(List<Header> headerList) throws ExecutionException, InterruptedException {
-        ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
-        kafkaProducer.send(record);
-        log.info("End of traitment report sent.");
+        try {
+            ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
+            kafkaProducerOk.send(record);
+            log.info("End of traitment report sent.");
+        } catch (Exception e) {
+            String message = "Error sending message to topic " + topicEndOfTraitment;
+            throw new RuntimeException(message, e);
+        }
     }
 }

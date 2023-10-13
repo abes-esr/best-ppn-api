@@ -185,6 +185,7 @@ public class BestPpnService {
                         kbart.setErrorType(errorString);
                         // vérification du forçage
                         if (injectKafka) {
+                            log.error(errorString);
                             yield new PpnWithDestinationDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
                         } else {
                             throw new BestPpnException(errorString);
@@ -200,6 +201,7 @@ public class BestPpnService {
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (injectKafka) {
+                    log.error(errorString);
                     yield new PpnWithDestinationDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
                 } else {
                     throw new BestPpnException(errorString);

@@ -85,7 +85,7 @@ public class TopicConsumer {
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws ExecutionException, InterruptedException, IOException {
+    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws Exception {
         try {
             String currentLine = "";
             for (Header header : lignesKbart.headers().toArray()) {
