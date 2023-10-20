@@ -1,4 +1,4 @@
-name: "build-test-pub-kbartwebservices-todockerhub"
+name: "build-test-pub-best-ppn-api-todockerhub"
 
 # IMPORTANT : personnalisez cette variable pour que les images
 # de votre application soient pousées sur dockerhub
