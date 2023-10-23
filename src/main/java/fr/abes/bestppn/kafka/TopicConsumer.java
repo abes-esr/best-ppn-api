@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
@@ -94,8 +93,9 @@ public class TopicConsumer {
             if (lignesKbart.value().equals("OK")) {
                 if (!isOnError) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
-                    // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
-                    //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
+
+
+
                     producer.sendKbart(kbartToSend, provider, filename);
                     producer.sendPrintNotice(ppnToCreate, filename);
                     producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
@@ -185,10 +185,18 @@ public class TopicConsumer {
     private ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename, String providerName) throws IllegalPackageException, IllegalDateException {
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
-            ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
-            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
-            //pas d'info de package, on le crée
-            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+
+            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findAllByPackageNameAndProviderIdtProviderAndDateP(Utils.extractPackageName(filename),provider.getIdtProvider(),Utils.extractDate(filename));
+            if( providerPackageOpt.isPresent()){
+                log.info("clear row package");
+
+                return providerPackageOpt.get();
+            } else {
+                //pas d'info de package, on le crée
+                ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
+                Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
+                return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+            }
         } else {
             //pas de provider, ni de package, on les crée tous les deux
             Provider newProvider = new Provider(providerName);
