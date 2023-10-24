@@ -139,7 +139,6 @@ public class TopicConsumer {
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
                             this.nbBestPpnFind++;
-                            kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> {
                             LigneKbartImprime ligne = LigneKbartImprime.newBuilder()
@@ -178,6 +177,8 @@ public class TopicConsumer {
                             }
                         }
                     }
+                    //on envoie vers bacon même si on n'a pas trouvé de bestppn
+                    kbartToSend.add(ligneFromKafka);
                 } else {
                     log.info("Bestppn déjà existant sur la ligne : " + nbLine + ", le voici : " + ligneFromKafka.getBestPpn());
                     kbartToSend.add(ligneFromKafka);
