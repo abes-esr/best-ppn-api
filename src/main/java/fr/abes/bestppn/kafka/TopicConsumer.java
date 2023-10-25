@@ -5,6 +5,7 @@ import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
+import fr.abes.bestppn.entity.ExecutionReport;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.entity.bacon.ProviderPackageId;
@@ -70,11 +71,7 @@ public class TopicConsumer {
 
     boolean injectKafka = false;
 
-    private int nbBestPpnFind = 0;
-
-    private int linesWithInputDataErrors = 0;
-
-    private int linesWithErrorsInBestPPNSearch = 0;
+    private ExecutionReport executionReport = new ExecutionReport();
 
     private String filename = "";
 
@@ -100,6 +97,7 @@ public class TopicConsumer {
                     headerList.add(header);
                 } else if (header.key().equals("TotalLine")) {
                     totalLine = new String(header.value());
+                    executionReport.setNbtotalLines(Integer.parseInt(totalLine));
                     headerList.add(header);
                 }
             }
@@ -118,17 +116,15 @@ public class TopicConsumer {
                 } else {
                     isOnError = false;
                 }
-                log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + "/" + totalLine);
-                this.nbBestPpnFind = 0;
+                log.info("Nombre de best ppn trouvé : " + executionReport.getNbBestPpnFind() + "/" + totalLine);
                 serviceMail.sendMailWithAttachment(filename, mailAttachment);
                 producer.sendEndOfTraitmentReport(headerList); // Appel le producer pour l'envoi du message de fin de traitement.
-                logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch, injectKafka);
+                logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), executionReport.getNbLinesOk(), executionReport.getNbLinesWithInputDataErrors(), executionReport.getNbLinesWithErrorsInBestPPNSearch(), injectKafka);
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 ppnFromKbartToCreate.clear();
                 mailAttachment.clearKbartDto();
-                this.linesWithInputDataErrors = 0;
-                this.linesWithErrorsInBestPPNSearch = 0;
+                executionReport.clear();
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
@@ -138,7 +134,7 @@ public class TopicConsumer {
                     switch (ppnWithDestinationDto.getDestination()) {
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
-                            this.nbBestPpnFind++;
+                            executionReport.addNbBestPpnFind();
                             kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> {
@@ -188,22 +184,22 @@ public class TopicConsumer {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-            linesWithInputDataErrors++;
+            executionReport.addNbLinesWithInputDataErrors();
         } catch (URISyntaxException | RestClientException | IllegalArgumentException | IOException |
                 IllegalPackageException | IllegalDateException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-            linesWithInputDataErrors++;
+            executionReport.addNbLinesWithInputDataErrors();
         } catch (IllegalPpnException | BestPpnException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-            linesWithErrorsInBestPPNSearch++;
+            executionReport.addNbLinesWithErrorsInBestPPNSearch();
         } catch (MessagingException | ExecutionException | InterruptedException | RuntimeException e) {
             log.error(e.getMessage());
-            producer.sendEndOfTraitmentReport(headerList);
-            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.linesWithInputDataErrors - this.linesWithErrorsInBestPPNSearch, this.linesWithInputDataErrors, this.linesWithErrorsInBestPPNSearch, injectKafka);
+//            producer.sendEndOfTraitmentReport(headerList);
+//            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.nbLinesWithInputDataErrors - this.nbLinesWithErrorsInBestPPNSearch, this.nbLinesWithInputDataErrors, this.nbLinesWithErrorsInBestPPNSearch, injectKafka);
         }
     }
 
