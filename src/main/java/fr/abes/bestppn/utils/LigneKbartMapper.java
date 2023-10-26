@@ -50,6 +50,7 @@ public class LigneKbartMapper {
                 ligne.setPROVIDERPACKAGEPACKAGE(ligneKbartDto.getProviderPackagePackage());
                 ligne.setPROVIDERPACKAGEDATEP(Utils.convertDateToLocalDate(ligneKbartDto.getProviderPackageDateP()));
                 ligne.setPROVIDERPACKAGEIDTPROVIDER(ligneKbartDto.getProviderPackageIdtProvider());
+                ligne.setIDPROVIDERPACKAGE(ligneKbartDto.getIdProviderPackage());
                 ligne.setBESTPPN(ligneKbartDto.getBestPpn());
                 return ligne;
             }
