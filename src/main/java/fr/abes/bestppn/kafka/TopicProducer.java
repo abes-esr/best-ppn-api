@@ -9,7 +9,6 @@ import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
@@ -49,15 +48,15 @@ public class TopicProducer {
 
     private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
 
-    private KafkaProducer<String, String> kafkaProducerOk;
+    private KafkaTemplate<String, String> kafkatemplateEndoftraitement;
 
     private UtilsMapper utilsMapper;
 
     @Autowired
-    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaProducer<String, String> kafkaProducer, UtilsMapper utilsMapper) {
+    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaTemplate<String, String> kafkatemplateEndoftraitement, UtilsMapper utilsMapper) {
         this.kafkaTemplateConnect = kafkaTemplateConnect;
         this.kafkaTemplateImprime = kafkaTemplateImprime;
-        this.kafkaProducerOk = kafkaProducer;
+        this.kafkatemplateEndoftraitement = kafkatemplateEndoftraitement;
         this.utilsMapper = utilsMapper;
     }
 
@@ -68,7 +67,7 @@ public class TopicProducer {
      * @param provider : provider
      * @param filename : nom du fichier du traitement en cours
      */
-    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException, ExecutionException, InterruptedException {
         int numLigneCourante = 0;
         for (LigneKbartDto ligne : kbart) {
@@ -93,7 +92,7 @@ public class TopicProducer {
      * @param ligneKbartImprimes : liste de kbart
      * @param filename           : nom du fichier à traiter
      */
-    @Transactional(transactionManager = "kafkaTransactionManager")
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartImprime")
     public void sendPrintNotice(List<LigneKbartImprime> ligneKbartImprimes, String filename) {
         for (LigneKbartImprime ppnToCreate : ligneKbartImprimes) {
             List<Header> headerList = new ArrayList<>();
@@ -110,7 +109,7 @@ public class TopicProducer {
      * @param ppnFromKbartToCreate : liste de lignes kbart
      * @param filename : nom du fichier à traiter
      */
-    @Transactional(transactionManager = "kafkaTransactionManager")
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
     public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
@@ -183,11 +182,10 @@ public class TopicProducer {
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
      * @param headerList list de Header (contient le nom du package et la date)
      */
-    @Transactional(transactionManager = "kafkaTransactionManager")
     public void sendEndOfTraitmentReport(List<Header> headerList) throws ExecutionException, InterruptedException {
         try {
             ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
-            kafkaProducerOk.send(record);
+            kafkatemplateEndoftraitement.send(record);
             log.info("End of traitment report sent.");
         } catch (Exception e) {
             String message = "Error sending message to topic " + topicEndOfTraitment;
