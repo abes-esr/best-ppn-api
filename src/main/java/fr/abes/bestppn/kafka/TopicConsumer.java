@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
-import fr.abes.bestppn.entity.bacon.ProviderPackageId;
 import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.repository.bacon.ProviderPackageRepository;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
@@ -29,6 +27,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -183,17 +182,18 @@ public class TopicConsumer {
     }
 
     private ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename, String providerName) throws IllegalPackageException, IllegalDateException {
+        String packageName = Utils.extractPackageName(filename);
+        Date packageDate = Utils.extractDate(filename);
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
-            ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
-            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
+            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName, packageDate, provider.getIdtProvider());
             //pas d'info de package, on le crée
-            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N')));
         } else {
             //pas de provider, ni de package, on les crée tous les deux
             Provider newProvider = new Provider(providerName);
             Provider savedProvider = providerRepository.save(newProvider);
-            ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
+            ProviderPackage providerPackage = new ProviderPackage(packageName, packageDate, savedProvider.getIdtProvider(), 'N');
             return providerPackageRepository.save(providerPackage);
         }
     }

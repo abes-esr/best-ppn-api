@@ -123,6 +123,8 @@ public class LigneKbartDto {
     private Date providerPackageDateP;
     @JsonProperty("provider_package_idt_provider")
     private Integer providerPackageIdtProvider;
+    @JsonProperty("id_provider_package")
+    private Integer idProviderPackage;
 
 
     @JsonIgnore
