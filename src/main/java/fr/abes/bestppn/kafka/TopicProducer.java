@@ -72,9 +72,10 @@ public class TopicProducer {
         int numLigneCourante = 0;
         for (LigneKbartDto ligne : kbart) {
             numLigneCourante++;
-            ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
-            ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
-            ligne.setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
+            ligne.setIdProviderPackage(provider.getIdProviderPackage());
+            ligne.setProviderPackagePackage(provider.getPackageName());
+            ligne.setProviderPackageDateP(provider.getDateP());
+            ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
             if (numLigneCourante == kbart.size())
@@ -112,9 +113,10 @@ public class TopicProducer {
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
     public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
-            ligne.setProviderPackagePackage(provider.getProviderPackageId().getPackageName());
-            ligne.setProviderPackageDateP(provider.getProviderPackageId().getDateP());
-            ligne.setProviderPackageIdtProvider(provider.getProviderPackageId().getProviderIdtProvider());
+            ligne.setIdProviderPackage(provider.getIdProviderPackage());
+            ligne.setProviderPackagePackage(provider.getPackageName());
+            ligne.setProviderPackageDateP(provider.getDateP());
+            ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
             sendObject(ligne, topicKbartPpnToCreate, headerList);
