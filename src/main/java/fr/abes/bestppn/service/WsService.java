@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.dto.wscall.SearchDatWebDto;
+import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.ExecutionTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,12 +85,12 @@ public class WsService {
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws  RestClientException, IllegalArgumentException {
+    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlOnlineId2Ppn);
     }
 
     @ExecutionTime
-    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws  RestClientException, IllegalArgumentException {
+    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
 
@@ -102,7 +103,7 @@ public class WsService {
             throw ex;
         } catch (IllegalArgumentException ex) {
             if( ex.getMessage().equals("argument \"content\" is null")) {
-                log.error("Aucuns ppn correspondant à l'"+ id);
+                log.info("Aucuns ppn correspondant à l'"+ id);
             } else {
                 throw ex;
             }

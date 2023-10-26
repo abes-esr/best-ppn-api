@@ -47,7 +47,7 @@ public class EmailService {
             createAttachment(dataLines, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
@@ -110,7 +110,7 @@ public class EmailService {
                     f.getName()
             );
         } catch (FileNotFoundException e) {
-            log.error("Le fichier n'a pas été trouvé. " + e.toString());
+            log.error("Le fichier n'a pas été trouvé. " + e.getMessage());
         }
 
         //  Envoi du mail
@@ -120,11 +120,11 @@ public class EmailService {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(uploadFile);
         } catch (IOException e) {
-            log.error("Erreur lors de l'envoi du mail. " + e.toString());
+            log.error("Erreur lors de l'envoi du mail. " + e.getMessage());
         }
     }
 
-    protected String mailToJSON(String to, String subject, String text) {
+    protected String mailToJSON(String to, String subject) {
         String json = "";
         ObjectMapper mapper = new ObjectMapper();
         MailDto mail = new MailDto();
@@ -133,7 +133,7 @@ public class EmailService {
         mail.setCc(new String[]{});
         mail.setCci(new String[]{});
         mail.setSubject(subject);
-        mail.setText(text);
+        mail.setText("");
         try {
             json = mapper.writeValueAsString(mail);
         } catch (JsonProcessingException e) {
