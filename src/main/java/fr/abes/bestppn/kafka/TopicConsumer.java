@@ -188,16 +188,14 @@ public class TopicConsumer {
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
 
-            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findAllByPackageNameAndProviderIdtProviderAndDateP(Utils.extractPackageName(filename),provider.getIdtProvider(),Utils.extractDate(filename));
+            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(Utils.extractPackageName(filename),Utils.extractDate(filename),provider.getIdtProvider());
             if( providerPackageOpt.isPresent()){
                 log.info("clear row package");
 
                 return providerPackageOpt.get();
             } else {
                 //pas d'info de package, on le crée
-                ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
-                Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
-                return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+                return providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N'));
             }
         } else {
             //pas de provider, ni de package, on les crée tous les deux
