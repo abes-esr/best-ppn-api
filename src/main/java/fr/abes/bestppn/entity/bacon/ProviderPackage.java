@@ -25,18 +25,8 @@ public class ProviderPackage implements Serializable {
     private Date dateP;
     @Column(name = "PROVIDER_IDT_PROVIDER")
     private Integer providerIdtProvider;
-
-    @Column(name = "PACKAGE", insertable=false, updatable=false)
-    private String packageName;
-
-    @Column(name = "DATE_P", insertable=false, updatable=false)
-    private Date dateP;
-
     @Column(name = "LABEL_ABES")
     private char labelAbes;
-
-    @Column(name = "PROVIDER_IDT_PROVIDER", insertable=false, updatable=false)
-    private Integer providerIdtProvider;
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "IDT_PROVIDER", insertable = false, updatable = false)
@@ -47,5 +37,10 @@ public class ProviderPackage implements Serializable {
         this.dateP = dateP;
         this.providerIdtProvider = providerIdtProvider;
         this.labelAbes = labelAbes;
+    }
+
+    @Override
+    public String toString() {
+        return "{ id:"+idProviderPackage + ", packageName:"+packageName+", providerIdt:"+providerIdtProvider+" dateP:"+dateP+" }";
     }
 }

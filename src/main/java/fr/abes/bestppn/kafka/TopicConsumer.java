@@ -8,6 +8,7 @@ import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.repository.bacon.LigneKbartRepository;
 import fr.abes.bestppn.repository.bacon.ProviderPackageRepository;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.BestPpnService;
@@ -57,6 +58,8 @@ public class TopicConsumer {
     private final ProviderPackageRepository providerPackageRepository;
 
     private final ProviderRepository providerRepository;
+
+    private final LigneKbartRepository ligneKbartRepository;
 
     private boolean isOnError = false;
 
@@ -188,10 +191,10 @@ public class TopicConsumer {
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
 
-            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(Utils.extractPackageName(filename),Utils.extractDate(filename),provider.getIdtProvider());
+            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName,packageDate,provider.getIdtProvider());
             if( providerPackageOpt.isPresent()){
-                log.info("clear row package");
-
+                log.info("clear row package : " + providerPackageOpt.get());
+                ligneKbartRepository.deleteAllByIdProviderPackage(providerPackageOpt.get().getIdProviderPackage());
                 return providerPackageOpt.get();
             } else {
                 //pas d'info de package, on le crée
