@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +38,9 @@ public class TopicProducer {
     @Value("${topic.name.target.noticeimprime}")
     private String topicNoticeImprimee;
 
+    @Value("${topic.name.target.endoftraitment}")
+    private String topicEndOfTraitment;
+
     @Value("${topic.name.target.ppnFromKbart}")
     private String topicKbartPpnToCreate;
 
@@ -44,25 +48,27 @@ public class TopicProducer {
 
     private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
 
+    private KafkaTemplate<String, String> kafkatemplateEndoftraitement;
+
     private UtilsMapper utilsMapper;
 
     @Autowired
-    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, UtilsMapper utilsMapper) {
+    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaTemplate<String, String> kafkatemplateEndoftraitement, UtilsMapper utilsMapper) {
         this.kafkaTemplateConnect = kafkaTemplateConnect;
         this.kafkaTemplateImprime = kafkaTemplateImprime;
+        this.kafkatemplateEndoftraitement = kafkatemplateEndoftraitement;
         this.utilsMapper = utilsMapper;
     }
-
 
     /**
      * Méthode d'envoi d'une ligne kbart vers topic kafka pour chargement
      *
      * @param kbart    : ligne kbart à envoyer
-     * @param provider
+     * @param provider : provider
      * @param filename : nom du fichier du traitement en cours
      */
-    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
-    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
+    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException, ExecutionException, InterruptedException {
         int numLigneCourante = 0;
         for (LigneKbartDto ligne : kbart) {
             numLigneCourante++;
@@ -87,7 +93,7 @@ public class TopicProducer {
      * @param ligneKbartImprimes : liste de kbart
      * @param filename           : nom du fichier à traiter
      */
-    @Transactional(transactionManager = "kafkaTransactionManager")
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartImprime")
     public void sendPrintNotice(List<LigneKbartImprime> ligneKbartImprimes, String filename) {
         for (LigneKbartImprime ppnToCreate : ligneKbartImprimes) {
             List<Header> headerList = new ArrayList<>();
@@ -104,8 +110,8 @@ public class TopicProducer {
      * @param ppnFromKbartToCreate : liste de lignes kbart
      * @param filename : nom du fichier à traiter
      */
-    @Transactional(transactionManager = "kafkaTransactionManager")
-    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) {
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
@@ -133,7 +139,6 @@ public class TopicProducer {
             logEnvoi(result, record);
         } catch (Exception e) {
             String message = "Error sending message to topic " + topic;
-            log.error(message);
             throw new RuntimeException(message, e);
         }
     }
@@ -151,7 +156,6 @@ public class TopicProducer {
             logEnvoi(result, record);
         } catch (Exception e) {
             String message = "Error sending message to topic " + topic;
-            log.error(message);
             throw new RuntimeException(message, e);
         }
     }
@@ -174,5 +178,20 @@ public class TopicProducer {
                 return value;
             }
         };
+    }
+
+    /**
+     * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
+     * @param headerList list de Header (contient le nom du package et la date)
+     */
+    public void sendEndOfTraitmentReport(List<Header> headerList) throws ExecutionException, InterruptedException {
+        try {
+            ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
+            kafkatemplateEndoftraitement.send(record);
+            log.info("End of traitment report sent.");
+        } catch (Exception e) {
+            String message = "Error sending message to topic " + topicEndOfTraitment;
+            throw new RuntimeException(message, e);
+        }
     }
 }

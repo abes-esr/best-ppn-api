@@ -5,7 +5,6 @@ import fr.abes.LigneKbartImprime;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -60,7 +59,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public Map<String, Object> producerConfigs() {
+    public Map<String, Object> producerConfigsWithTransaction() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -72,22 +71,52 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, LigneKbartConnect> producerFactory() {
-        DefaultKafkaProducerFactory<String, LigneKbartConnect> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
-        factory.setTransactionIdPrefix(transactionIdPrefix);
+    public Map<String, Object> producerConfigs() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
+        props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
+        props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
+        return props;
+    }
+
+    @Bean
+    public ProducerFactory<String, LigneKbartConnect> producerFactoryLigneKbartConnectWithTransaction() {
+        DefaultKafkaProducerFactory<String, LigneKbartConnect> factory = new DefaultKafkaProducerFactory<>(producerConfigsWithTransaction());
+        factory.setTransactionIdPrefix(transactionIdPrefix+"connect-");
+        return factory;
+    }
+    @Bean
+    public ProducerFactory<String, LigneKbartImprime> producerFactoryLigneKbartImprimeWithTransaction() {
+        DefaultKafkaProducerFactory<String, LigneKbartImprime> factory = new DefaultKafkaProducerFactory<>(producerConfigsWithTransaction());
+        factory.setTransactionIdPrefix(transactionIdPrefix+"print-");
         return factory;
     }
 
     @Bean
-    public KafkaTransactionManager<String, LigneKbartConnect> kafkaTransactionManager(){
-        return new KafkaTransactionManager<>(producerFactory());
+    public ProducerFactory<String, String> producerFactory() {
+        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
+        return factory;
     }
 
+    @Bean
+    public KafkaTransactionManager<String, LigneKbartConnect> kafkaTransactionManagerKbartConnect(){
+        return new KafkaTransactionManager<>(producerFactoryLigneKbartConnectWithTransaction());
+    }
+    @Bean
+    public KafkaTransactionManager<String, LigneKbartImprime> kafkaTransactionManagerKbartImprime(){
+        return new KafkaTransactionManager<>(producerFactoryLigneKbartImprimeWithTransaction());
+    }
 
     @Bean
-    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect(final ProducerFactory producerFactory) { return new KafkaTemplate<>(producerFactory);}
+    public KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect(final ProducerFactory producerFactoryLigneKbartConnectWithTransaction) { return new KafkaTemplate<>(producerFactoryLigneKbartConnectWithTransaction);}
 
     @Bean
-    public KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime(final ProducerFactory producerFactory) { return new KafkaTemplate<>(producerFactory);}
+    public KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime(final ProducerFactory producerFactoryLigneKbartImprimeWithTransaction) { return new KafkaTemplate<>(producerFactoryLigneKbartImprimeWithTransaction);}
 
+    @Bean
+    public KafkaTemplate<String, String> kafkatemplateEndoftraitement(final ProducerFactory producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
 }
