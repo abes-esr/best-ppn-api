@@ -9,6 +9,7 @@ import fr.abes.bestppn.entity.ExecutionReport;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.repository.bacon.LigneKbartRepository;
 import fr.abes.bestppn.repository.bacon.ProviderPackageRepository;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.BestPpnService;
@@ -64,6 +65,8 @@ public class TopicConsumer {
     private final ProviderPackageRepository providerPackageRepository;
 
     private final ProviderRepository providerRepository;
+
+    private final LigneKbartRepository ligneKbartRepository;
 
     private final List<Header> headerList = new ArrayList<>();
 
@@ -210,9 +213,16 @@ public class TopicConsumer {
         Date packageDate = Utils.extractDate(filename);
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
-            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName, packageDate, provider.getIdtProvider());
-            //pas d'info de package, on le crée
-            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N')));
+
+            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName,packageDate,provider.getIdtProvider());
+            if( providerPackageOpt.isPresent()){
+                log.info("clear row package : " + providerPackageOpt.get());
+                ligneKbartRepository.deleteAllByIdProviderPackage(providerPackageOpt.get().getIdProviderPackage());
+                return providerPackageOpt.get();
+            } else {
+                //pas d'info de package, on le crée
+                return providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N'));
+            }
         } else {
             //pas de provider, ni de package, on les crée tous les deux
             Provider newProvider = new Provider(providerName);

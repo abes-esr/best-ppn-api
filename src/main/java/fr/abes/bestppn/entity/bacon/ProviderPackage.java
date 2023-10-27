@@ -25,7 +25,6 @@ public class ProviderPackage implements Serializable {
     private Date dateP;
     @Column(name = "PROVIDER_IDT_PROVIDER")
     private Integer providerIdtProvider;
-
     @Column(name = "LABEL_ABES")
     private char labelAbes;
 
@@ -38,5 +37,10 @@ public class ProviderPackage implements Serializable {
         this.dateP = dateP;
         this.providerIdtProvider = providerIdtProvider;
         this.labelAbes = labelAbes;
+    }
+
+    @Override
+    public String toString() {
+        return "{ id:"+idProviderPackage + ", packageName:"+packageName+", providerIdt:"+providerIdtProvider+" dateP:"+dateP+" }";
     }
 }
