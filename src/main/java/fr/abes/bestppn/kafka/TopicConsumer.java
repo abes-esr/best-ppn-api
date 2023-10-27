@@ -203,8 +203,8 @@ public class TopicConsumer {
             executionReport.addNbLinesWithErrorsInBestPPNSearch();
         } catch (MessagingException | ExecutionException | InterruptedException | RuntimeException e) {
             log.error(e.getMessage());
-//            producer.sendEndOfTraitmentReport(headerList);
-//            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), Integer.parseInt(totalLine) - this.nbLinesWithInputDataErrors - this.nbLinesWithErrorsInBestPPNSearch, this.nbLinesWithInputDataErrors, this.nbLinesWithErrorsInBestPPNSearch, injectKafka);
+            producer.sendEndOfTraitmentReport(headerList);
+            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), executionReport.getNbLinesOk(), executionReport.getNbLinesWithInputDataErrors(), executionReport.getNbLinesWithErrorsInBestPPNSearch(), injectKafka);
         }
     }
 

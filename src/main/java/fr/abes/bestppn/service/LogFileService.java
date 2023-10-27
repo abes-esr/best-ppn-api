@@ -9,9 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -34,7 +31,7 @@ public class LogFileService {
             // Création du fichier de log
             Logger logger = Logger.getLogger("ExecutionReport");
             FileHandler fh;
-            Path source = Path.of(fileName.replaceAll(".tsv", ".log"));
+            Path source = Path.of(fileName.replace(".tsv", ".log"));
             fh = new FileHandler(String.valueOf(source), 1000, 1);
             logger.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();
@@ -51,17 +48,14 @@ public class LogFileService {
 
             // Copie le fichier existant vers le répertoire temporaire en ajoutant sa date de création
             if (source != null && Files.exists(source)) {
-                LocalDateTime time = LocalDateTime.now();
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss", Locale.FRANCE);
-                String date = format.format(time);
 
                 //  Vérification du chemin et création si inexistant
-                String tempLog = "tempLog/";
-                File chemin = new File("tempLog/");
+                String tempLogWithSeparator = "tempLog" + File.separator;
+                File chemin = new File(tempLogWithSeparator);
                 if (!chemin.isDirectory()) {
-                    Files.createDirectory(Paths.get(tempLog));
+                    Files.createDirectory(Paths.get(tempLogWithSeparator));
                 }
-                Path target = Path.of("tempLog\\" + date + "_" + source);
+                Path target = Path.of(tempLogWithSeparator + source);
 
                 //  Déplacement du fichier
                 Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
