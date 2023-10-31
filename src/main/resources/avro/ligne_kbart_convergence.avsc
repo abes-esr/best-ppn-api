@@ -120,6 +120,10 @@
       "type": "int"
     },
     {
+      "name": "ID_PROVIDER_PACKAGE",
+      "type": "int"
+    },
+    {
       "name": "BEST_PPN",
       "type": ["null", "string"]
     }

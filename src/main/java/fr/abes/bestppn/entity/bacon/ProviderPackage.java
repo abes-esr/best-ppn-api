@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "PROVIDER_PACKAGE")
@@ -14,9 +15,16 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProviderPackage implements Serializable {
-    @EmbeddedId
-    private ProviderPackageId providerPackageId;
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_PROVIDER_PACKAGE")
+    private Integer idProviderPackage;
+    @Column(name = "PACKAGE")
+    private String packageName;
+    @Column(name = "DATE_P")
+    private Date dateP;
+    @Column(name = "PROVIDER_IDT_PROVIDER")
+    private Integer providerIdtProvider;
     @Column(name = "LABEL_ABES")
     private char labelAbes;
 
@@ -24,8 +32,15 @@ public class ProviderPackage implements Serializable {
     @JoinColumn(referencedColumnName = "IDT_PROVIDER", insertable = false, updatable = false)
     private Provider provider;
 
-    public ProviderPackage(ProviderPackageId providerPackageId, char labelAbes) {
-        this.providerPackageId = providerPackageId;
+    public ProviderPackage(String packageName, Date dateP, Integer providerIdtProvider, char labelAbes) {
+        this.packageName = packageName;
+        this.dateP = dateP;
+        this.providerIdtProvider = providerIdtProvider;
         this.labelAbes = labelAbes;
+    }
+
+    @Override
+    public String toString() {
+        return "{ id:"+idProviderPackage + ", packageName:"+packageName+", providerIdt:"+providerIdtProvider+" dateP:"+dateP+" }";
     }
 }

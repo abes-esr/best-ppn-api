@@ -4,16 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnKbartProviderDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
+import fr.abes.bestppn.entity.ExecutionReport;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
-import fr.abes.bestppn.entity.bacon.ProviderPackageId;
 import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.repository.bacon.LigneKbartRepository;
 import fr.abes.bestppn.repository.bacon.ProviderPackageRepository;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.BestPpnService;
 import fr.abes.bestppn.service.EmailService;
+import fr.abes.bestppn.service.LogFileService;
 import fr.abes.bestppn.utils.Utils;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,10 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -47,6 +50,10 @@ public class TopicConsumer {
 
     @Autowired
     private EmailService serviceMail;
+
+    @Autowired
+    private LogFileService logFileService;
+
     private final List<LigneKbartDto> kbartToSend = new ArrayList<>();
 
     private final List<LigneKbartImprime> ppnToCreate = new ArrayList<>();
@@ -59,56 +66,68 @@ public class TopicConsumer {
 
     private final ProviderRepository providerRepository;
 
+    private final LigneKbartRepository ligneKbartRepository;
+
+    private final List<Header> headerList = new ArrayList<>();
+
     private boolean isOnError = false;
 
-    private int nbBestPpnFind = 0;
+    boolean injectKafka = false;
+
+    private ExecutionReport executionReport = new ExecutionReport();
+
+    private String filename = "";
+
+    private String totalLine = "";
 
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
-     *
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) {
+    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws Exception {
         try {
-            String filename = "";
             String currentLine = "";
-            String totalLine = "";
-            boolean injectKafka = false;
             for (Header header : lignesKbart.headers().toArray()) {
                 if (header.key().equals("FileName")) {
                     filename = new String(header.value());
+                    headerList.add(header);
                     if (filename.contains("_FORCE")) {
                         injectKafka = true;
                     }
-                    ThreadContext.put("package", filename);
                 } else if (header.key().equals("CurrentLine")) {
                     currentLine = new String(header.value());
+                    headerList.add(header);
                 } else if (header.key().equals("TotalLine")) {
                     totalLine = new String(header.value());
+                    executionReport.setNbtotalLines(Integer.parseInt(totalLine));
+                    headerList.add(header);
                 }
             }
+            ThreadContext.put("package", (filename + "[line : " + currentLine + "]"));  // Ajoute le numéro de ligne courante au contexte log4j2 pour inscription dans le header kafka
+
             String nbLine = currentLine + "/" + totalLine;
             String providerName = Utils.extractProvider(filename);
             Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
             if (lignesKbart.value().equals("OK")) {
                 if (!isOnError) {
                     ProviderPackage provider = handlerProvider(providerOpt, filename, providerName);
-                    // TODO vérifier s'il est pertinent de retirer le "_FORCE" du paramètre FileName du header avant envoi au producer
-                    //  fileName = fileName.contains("_FORCE") ? fileName.replace("_FORCE", "") : fileName;
+
                     producer.sendKbart(kbartToSend, provider, filename);
                     producer.sendPrintNotice(ppnToCreate, filename);
                     producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
                 } else {
                     isOnError = false;
                 }
-                log.info("Nombre de best ppn trouvé : " + this.nbBestPpnFind + " (" + nbLine +")");
-                this.nbBestPpnFind = 0;
+                log.info("Nombre de best ppn trouvé : " + executionReport.getNbBestPpnFind() + "/" + totalLine);
                 serviceMail.sendMailWithAttachment(filename, mailAttachment);
+                producer.sendEndOfTraitmentReport(headerList); // Appel le producer pour l'envoi du message de fin de traitement.
+                logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), executionReport.getNbLinesOk(), executionReport.getNbLinesWithInputDataErrors(), executionReport.getNbLinesWithErrorsInBestPPNSearch(), injectKafka);
                 kbartToSend.clear();
                 ppnToCreate.clear();
                 ppnFromKbartToCreate.clear();
                 mailAttachment.clearKbartDto();
+                executionReport.clear();
             } else {
                 LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
                 if (ligneFromKafka.isBestPpnEmpty()) {
@@ -118,7 +137,8 @@ public class TopicConsumer {
                     switch (ppnWithDestinationDto.getDestination()) {
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
-                            this.nbBestPpnFind++;
+                            executionReport.addNbBestPpnFind();
+                            kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> {
                             LigneKbartImprime ligne = LigneKbartImprime.newBuilder()
@@ -169,31 +189,45 @@ public class TopicConsumer {
             isOnError = true;
             log.error("Erreur dans les données en entrée, provider incorrect");
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-        } catch (IllegalPpnException | BestPpnException | IOException | URISyntaxException | RestClientException |
-                 IllegalArgumentException e) {
+            executionReport.addNbLinesWithInputDataErrors();
+        } catch (URISyntaxException | RestClientException | IllegalArgumentException | IOException |
+                IllegalPackageException | IllegalDateException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-        } catch (MessagingException | IllegalPackageException | IllegalDateException e) {
+            executionReport.addNbLinesWithInputDataErrors();
+        } catch (IllegalPpnException | BestPpnException e) {
             isOnError = true;
             log.error(e.getMessage());
             addLineToMailAttachementWithErrorMessage(e.getMessage());
-            throw new RuntimeException(e);
+            executionReport.addNbLinesWithErrorsInBestPPNSearch();
+        } catch (MessagingException | ExecutionException | InterruptedException | RuntimeException e) {
+            log.error(e.getMessage());
+            producer.sendEndOfTraitmentReport(headerList);
+            logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), executionReport.getNbLinesOk(), executionReport.getNbLinesWithInputDataErrors(), executionReport.getNbLinesWithErrorsInBestPPNSearch(), injectKafka);
         }
     }
 
     private ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename, String providerName) throws IllegalPackageException, IllegalDateException {
+        String packageName = Utils.extractPackageName(filename);
+        Date packageDate = Utils.extractDate(filename);
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
-            ProviderPackageId providerPackageId = new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), provider.getIdtProvider());
-            Optional<ProviderPackage> providerPackage = providerPackageRepository.findByProviderPackageId(providerPackageId);
-            //pas d'info de package, on le crée
-            return providerPackage.orElseGet(() -> providerPackageRepository.save(new ProviderPackage(providerPackageId, 'N')));
+
+            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName,packageDate,provider.getIdtProvider());
+            if( providerPackageOpt.isPresent()){
+                log.info("clear row package : " + providerPackageOpt.get());
+                ligneKbartRepository.deleteAllByIdProviderPackage(providerPackageOpt.get().getIdProviderPackage());
+                return providerPackageOpt.get();
+            } else {
+                //pas d'info de package, on le crée
+                return providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N'));
+            }
         } else {
             //pas de provider, ni de package, on les crée tous les deux
             Provider newProvider = new Provider(providerName);
             Provider savedProvider = providerRepository.save(newProvider);
-            ProviderPackage providerPackage = new ProviderPackage(new ProviderPackageId(Utils.extractPackageName(filename), Utils.extractDate(filename), savedProvider.getIdtProvider()), 'N');
+            ProviderPackage providerPackage = new ProviderPackage(packageName, packageDate, savedProvider.getIdtProvider(), 'N');
             return providerPackageRepository.save(providerPackage);
         }
     }
