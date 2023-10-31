@@ -138,7 +138,6 @@ public class TopicConsumer {
                         case BEST_PPN_BACON -> {
                             ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
                             executionReport.addNbBestPpnFind();
-                            kbartToSend.add(ligneFromKafka);
                         }
                         case PRINT_PPN_SUDOC -> {
                             LigneKbartImprime ligne = LigneKbartImprime.newBuilder()
