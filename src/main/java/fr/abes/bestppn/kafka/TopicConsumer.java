@@ -226,6 +226,7 @@ public class TopicConsumer {
             //pas de provider, ni de package, on les crée tous les deux
             Provider newProvider = new Provider(providerName);
             Provider savedProvider = providerRepository.save(newProvider);
+            log.info("Le provider " + savedProvider.getProvider() + " a été créé.");
             ProviderPackage providerPackage = new ProviderPackage(packageName, packageDate, savedProvider.getIdtProvider(), 'N');
             return providerPackageRepository.save(providerPackage);
         }
