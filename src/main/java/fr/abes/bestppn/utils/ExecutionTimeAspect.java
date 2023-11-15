@@ -18,7 +18,7 @@ public class ExecutionTimeAspect {
         Object result = joinPoint.proceed();
 
         long endTime = System.currentTimeMillis();
-        double executionTime = (endTime - startTime) / 1000;
+        double executionTime = (double) (endTime - startTime) / 1000;
 
         log.debug("------------------------------------------------------");
         log.debug("Classe : " + joinPoint.getSignature().getDeclaringTypeName());
