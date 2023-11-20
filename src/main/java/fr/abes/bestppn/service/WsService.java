@@ -64,7 +64,7 @@ public class WsService {
             formedUrl.append("/");
             formedUrl.append(param);
         }
-        log.info(formedUrl.toString());
+        log.debug(formedUrl.toString());
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
@@ -80,7 +80,7 @@ public class WsService {
             }
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
-        log.info(formedUrl.toString());
+        log.debug(formedUrl.toString());
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
