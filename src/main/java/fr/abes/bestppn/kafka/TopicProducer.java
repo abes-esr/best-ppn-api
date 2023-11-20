@@ -68,18 +68,14 @@ public class TopicProducer {
      * @param filename : nom du fichier du traitement en cours
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
-    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException, ExecutionException, InterruptedException {
-        int numLigneCourante = 0;
+    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
         for (LigneKbartDto ligne : kbart) {
-            numLigneCourante++;
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
             ligne.setProviderPackageDateP(provider.getDateP());
             ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
-            if (numLigneCourante == kbart.size())
-                headerList.add(constructHeader("OK", "true".getBytes()));
             sendObject(ligne, topicKbart, headerList);
         }
         if (!kbart.isEmpty())
