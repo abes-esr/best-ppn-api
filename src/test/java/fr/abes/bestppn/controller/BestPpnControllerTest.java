@@ -75,17 +75,17 @@ public class BestPpnControllerTest {
     @DisplayName("test controller with wrong URL format")
     void testBestPpnControllerBadUrlFormat() throws Exception {
         Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new URISyntaxException("test", "Format d'URL incorrect"));
-        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&doi=test").characterEncoding(StandardCharsets.UTF_8))
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof IllegalArgumentException)))
-                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Une url dans le champ doi du kbart n'est pas correcte")));
+                .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Une url dans le champ title_url du kbart n'est pas correcte")));
     }
 
     @Test
     @DisplayName("test controller with BestPpnException")
     void testBestPpnControllerBestPpnException() throws Exception {
         Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new BestPpnException("Plusieurs ppn imprimés"));
-        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&doi=test").characterEncoding(StandardCharsets.UTF_8))
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Plusieurs ppn imprimés")));
     }
@@ -94,7 +94,7 @@ public class BestPpnControllerTest {
     @DisplayName("test controller Ok")
     void testBestPpnControllerOk() throws Exception {
         Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new PpnWithDestinationDto("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
-        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&doi=test").characterEncoding(StandardCharsets.UTF_8))
+        this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("111111111")));
     }
