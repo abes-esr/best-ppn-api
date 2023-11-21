@@ -38,6 +38,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.auto.register.schema}")
     private boolean autoRegisterSchema;
 
+    @Value("${spring.kafka.producer.transaction-timeout}")
+    private Integer transactionTimeout;
+
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -46,6 +49,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -67,6 +71,7 @@ public class KafkaConfig {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
         props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
+        props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, transactionTimeout);
         return props;
     }
 
