@@ -2,36 +2,57 @@ package fr.abes.bestppn.entity;
 
 import lombok.Data;
 
-@Data
+import java.util.concurrent.atomic.AtomicInteger;
+
+
 public class ExecutionReport {
-    private int nbtotalLines = 0;
+    private int nbtotalLines;
 
-    private int nbBestPpnFind = 0;
+    private AtomicInteger nbBestPpnFind;
 
-    private int nbLinesWithInputDataErrors = 0;
+    private AtomicInteger nbLinesWithInputDataErrors;
 
-    private int nbLinesWithErrorsInBestPPNSearch = 0;
+    private AtomicInteger nbLinesWithErrorsInBestPPNSearch;
 
-    public int getNbLinesOk(){
-        return nbtotalLines - nbLinesWithErrorsInBestPPNSearch - nbLinesWithInputDataErrors;
+    public ExecutionReport() {
+        nbBestPpnFind = new AtomicInteger(0);
+        nbLinesWithInputDataErrors = new AtomicInteger(0);
+        nbLinesWithErrorsInBestPPNSearch = new AtomicInteger(0);
+        nbtotalLines = 0;
     }
 
-    public void addNbBestPpnFind(){
-        nbBestPpnFind++;
+    public int getNbtotalLines() {
+        return nbtotalLines;
     }
 
-    public void addNbLinesWithInputDataErrors(){
-        nbLinesWithInputDataErrors++;
+    public int getNbBestPpnFind() {
+        return nbBestPpnFind.get();
     }
 
-    public void addNbLinesWithErrorsInBestPPNSearch(){
-        nbLinesWithErrorsInBestPPNSearch++;
+    public int getNbLinesWithInputDataErrors() {
+        return nbLinesWithInputDataErrors.get();
+    }
+
+    public int getNbLinesWithErrorsInBestPPNSearch() {
+        return nbLinesWithErrorsInBestPPNSearch.get();
+    }
+
+    public void incrementNbBestPpnFind() {
+        nbBestPpnFind.incrementAndGet();
+    }
+
+    public void incrementNbLinesWithInputDataErrors() {
+        nbLinesWithInputDataErrors.incrementAndGet();
     }
 
     public void clear(){
         nbtotalLines = 0;
-        nbBestPpnFind = 0;
-        nbLinesWithInputDataErrors = 0;
-        nbLinesWithErrorsInBestPPNSearch = 0;
+        nbBestPpnFind.set(0);
+        nbLinesWithInputDataErrors.set(0);
+        nbLinesWithErrorsInBestPPNSearch.set(0);
+    }
+
+    public void incrementNbLinesWithErrorsInBestPPNSearch() {
+        nbLinesWithErrorsInBestPPNSearch.incrementAndGet();
     }
 }
