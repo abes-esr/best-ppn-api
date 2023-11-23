@@ -9,10 +9,9 @@ public class ExecutionReportService {
     @Getter
     private ExecutionReport executionReport = new ExecutionReport();
 
-    public int getNbLinesOk(){
-        return executionReport.getNbtotalLines() - executionReport.getNbLinesWithErrorsInBestPPNSearch() - executionReport.getNbLinesWithInputDataErrors();
+    public void setNbtotalLines(int nbtotalLines) {
+        this.executionReport.setNbtotalLines(nbtotalLines);
     }
-
     public void addNbBestPpnFind(){
         executionReport.incrementNbBestPpnFind();
     }

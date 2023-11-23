@@ -27,13 +27,6 @@ import java.util.concurrent.*;
 public class TopicConsumer {
     private final KbartService service;
 
-    @Value("${topic.name.source.kbart}")
-    private String topicKbart;
-    @Value("${topic.name.source.nbLines}")
-    private String topicKbartNbLines;
-    @Value("${topic.name.source.kbart.errors}")
-    private String topicKbartErrors;
-
     @Value("${spring.kafka.concurrency.nbThread}")
     private int nbThread;
     private final EmailService emailService;
@@ -52,17 +45,16 @@ public class TopicConsumer {
 
     private final LogFileService logFileService;
 
-    private int totalLine = 0;
+    private final Semaphore semaphoreNbLines;
 
-    private final Semaphore semaphore;
 
-    public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService, Semaphore semaphore) {
+    public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService, Semaphore semaphoreNbLines) {
         this.service = service;
         this.emailService = emailService;
         this.providerRepository = providerRepository;
         this.executionReportService = executionReportService;
         this.logFileService = logFileService;
-        this.semaphore = semaphore;
+        this.semaphoreNbLines = semaphoreNbLines;
     }
 
     @PostConstruct
@@ -80,90 +72,75 @@ public class TopicConsumer {
         log.info("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
         try {
             //traitement de chaque ligne kbart
-            if (lignesKbart.topic().equals(topicKbart)) {
-                this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
-                ThreadContext.put("package", (filename));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
-                String providerName = Utils.extractProvider(filename);
-                executorService.execute(() -> {
-                    try {
-                        service.processConsumerRecord(lignesKbart, providerName, isForced);
-                    } catch (ExecutionException | InterruptedException | IOException | URISyntaxException e) {
-                        isOnError = true;
-                        log.error(e.getMessage());
-                        emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
-                        executionReportService.addNbLinesWithInputDataErrors();
-                    } catch (IllegalPpnException | BestPpnException e) {
-                        isOnError = true;
-                        log.error(e.getMessage());
-                        emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
-                        executionReportService.addNbLinesWithErrorsInBestPPNSearch();
-                    }
-                });
-            }
+            this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
+            ThreadContext.put("package", (filename));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
+            String providerName = Utils.extractProvider(filename);
+            executorService.execute(() -> {
+                try {
+                    service.processConsumerRecord(lignesKbart, providerName, isForced);
+                } catch (ExecutionException | InterruptedException | IOException | URISyntaxException e) {
+                    addDataError(e.getMessage());
+                } catch (IllegalPpnException | BestPpnException e) {
+                    addBestPPNSearchError(e.getMessage());
+                }
+            });
         } catch (IllegalProviderException e) {
-            isOnError = true;
-            log.error("Erreur dans les données en entrée, provider incorrect");
-            emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
-            executionReportService.addNbLinesWithInputDataErrors();
+            addDataError(e.getMessage());
         }
-
     }
 
-    @KafkaListener(topics = {"${topic.name.source.nbLines}"}, groupId = "nbLinesLocal", containerFactory = "kafkaNbLinesListenerContainerFactory")
+
+    @KafkaListener(topics = {"${topic.name.source.nbLines}"}, groupId = "${topic.groupid.source.nbLines}", containerFactory = "kafkaNbLinesListenerContainerFactory")
     public void listenNbLines(ConsumerRecord<String, String> nbLines) {
         try {
-            semaphore.acquire();
-            log.info("Permit acquis");
+            semaphoreNbLines.acquire();
+            log.debug("Permit acquis");
             if (this.filename.equals(extractFilenameFromHeader(nbLines.headers().toArray()))) {
                 log.info("condition vérifiée : " + nbLines.value());
-                totalLine = Integer.parseInt(nbLines.value());
+                executionReportService.setNbtotalLines(Integer.parseInt(nbLines.value()));
                 if (!isOnError) {
                     String providerName = Utils.extractProvider(filename);
                     Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
                     service.commitDatas(providerOpt, providerName, filename);
                     //quel que soit le résultat du traitement, on envoie le rapport par mail
-                    log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + totalLine);
+                    log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
                     emailService.sendMailWithAttachment(filename);
-                    logFileService.createExecutionReport(filename, totalLine, executionReportService.getNbLinesOk(), executionReportService.getExecutionReport().getNbLinesWithInputDataErrors(), executionReportService.getExecutionReport().getNbLinesWithErrorsInBestPPNSearch(), isForced);
-                    emailService.clearMailAttachment();
-                    executionReportService.clearExecutionReport();
-                    totalLine = 0;
+                    logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
                 } else {
                     isOnError = false;
                 }
             }
         } catch (IllegalPackageException | IllegalDateException e) {
-            isOnError = true;
-            log.error(e.getMessage());
-            emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
-            executionReportService.addNbLinesWithErrorsInBestPPNSearch();
-        } catch (IllegalProviderException e) {
-            isOnError = true;
-            log.error("Erreur dans les données en entrée, provider incorrect");
-            emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
-            executionReportService.addNbLinesWithInputDataErrors();
-        } catch (ExecutionException | InterruptedException | IOException e) {
-            isOnError = true;
-            log.error(e.getMessage());
-            emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
-            executionReportService.addNbLinesWithInputDataErrors();
+            addBestPPNSearchError(e.getMessage());
+        } catch (IllegalProviderException | ExecutionException | InterruptedException | IOException e) {
+            addDataError(e.getMessage());
         } finally {
-            semaphore.release();
-            log.info("semaphore libéré");
+            semaphoreNbLines.release();
+            log.debug("semaphore libéré");
+            emailService.clearMailAttachment();
+            executionReportService.clearExecutionReport();
+            service.clearListesKbart();
         }
     }
 
-  /* @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "errorsLocal", containerFactory = "kafkaKbartListenerContainerFactory")
+    @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "${topic.groupid.source.errors}", containerFactory = "kafkaKbartListenerContainerFactory")
     public void listenErrors(ConsumerRecord<String, String> error) {
-        executorService.shutdownNow();
-        isOnError = true;
-        log.error(error.value());
-        emailService.addLineKbartToMailAttachementWithErrorMessage(error.value());
-        emailService.sendMailWithAttachment(filename);
-        logFileService.createExecutionReport(filename, totalLine, executionReportService.getNbLinesOk(), executionReportService.getExecutionReport().getNbLinesWithInputDataErrors(), executionReportService.getExecutionReport().getNbLinesWithErrorsInBestPPNSearch(), isForced);
-        emailService.clearMailAttachment();
-        executionReportService.clearExecutionReport();
-    } */
+        try {
+            if (this.filename.equals(extractFilenameFromHeader(error.headers().toArray()))) {
+                //erreur lors du chargement du fichier détectée, on arrête tous les threads en cours pour ne pas envoyer de lignes dans le topic
+                executorService.shutdown();
+                isOnError = true;
+                log.error(error.value());
+                emailService.addLineKbartToMailAttachementWithErrorMessage(error.value());
+                logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
+                emailService.clearMailAttachment();
+                executionReportService.clearExecutionReport();
+                service.clearListesKbart();
+            }
+        } catch (IOException e) {
+            addDataError(e.getMessage());
+        }
+    }
 
     private String extractFilenameFromHeader(Header[] headers) {
         String nomFichier = "";
@@ -176,5 +153,20 @@ public class TopicConsumer {
             }
         }
         return nomFichier;
+    }
+
+
+    private void addBestPPNSearchError(String message) {
+        isOnError = true;
+        log.error(message);
+        emailService.addLineKbartToMailAttachementWithErrorMessage(message);
+        executionReportService.addNbLinesWithErrorsInBestPPNSearch();
+    }
+
+    private void addDataError(String message) {
+        isOnError = true;
+        log.error(message);
+        emailService.addLineKbartToMailAttachementWithErrorMessage(message);
+        executionReportService.addNbLinesWithInputDataErrors();
     }
 }

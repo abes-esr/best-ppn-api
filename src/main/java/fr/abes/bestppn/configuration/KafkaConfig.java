@@ -160,7 +160,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public Semaphore semaphore() {
+    public Semaphore semaphoreNbLines() {
         return new Semaphore(1);
     }
 }

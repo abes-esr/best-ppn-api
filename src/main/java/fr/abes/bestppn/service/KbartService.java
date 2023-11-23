@@ -87,16 +87,17 @@ public class KbartService {
 
     public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
-
         producer.sendKbart(kbartToSend, provider, filename);
         producer.sendPrintNotice(ppnToCreate, filename);
         producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
+        clearListesKbart();
+        producer.sendEndOfTraitmentReport(filename);
+    }
 
+    public void clearListesKbart() {
         kbartToSend.clear();
         ppnToCreate.clear();
         ppnFromKbartToCreate.clear();
-
-        producer.sendEndOfTraitmentReport(filename);
     }
 
     private static LigneKbartImprime getLigneKbartImprime(PpnWithDestinationDto ppnWithDestinationDto, LigneKbartDto ligneFromKafka) {

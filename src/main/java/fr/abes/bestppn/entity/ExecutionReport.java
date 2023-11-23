@@ -22,7 +22,11 @@ public class ExecutionReport {
     }
 
     public int getNbtotalLines() {
-        return nbtotalLines;
+        return this.nbtotalLines;
+    }
+
+    public void setNbtotalLines(int nbtotalLines) {
+        this.nbtotalLines = nbtotalLines;
     }
 
     public int getNbBestPpnFind() {
@@ -35,6 +39,10 @@ public class ExecutionReport {
 
     public int getNbLinesWithErrorsInBestPPNSearch() {
         return nbLinesWithErrorsInBestPPNSearch.get();
+    }
+
+    public int getNbLinesOk(){
+        return nbtotalLines - nbLinesWithErrorsInBestPPNSearch.get() - nbLinesWithInputDataErrors.get();
     }
 
     public void incrementNbBestPpnFind() {
