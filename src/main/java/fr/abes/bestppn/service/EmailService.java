@@ -50,7 +50,7 @@ public class EmailService {
         mailAttachment.addKbartDto(dto);
     }
 
-    public void sendMailWithAttachment(String packageName) throws MessagingException {
+    public void sendMailWithAttachment(String packageName) {
         try {
             //  Création du chemin d'accès pour le fichier .csv
             Path csvPath = Path.of("rapport_" + packageName + ".csv");

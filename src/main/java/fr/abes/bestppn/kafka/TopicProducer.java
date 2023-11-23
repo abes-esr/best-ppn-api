@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -108,7 +109,7 @@ public class TopicProducer {
      * @param filename : nom du fichier à traiter
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
-    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
@@ -179,9 +180,10 @@ public class TopicProducer {
 
     /**
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
-     * @param headerList list de Header (contient le nom du package et la date)
      */
-    public void sendEndOfTraitmentReport(Set<Header> headerList) throws ExecutionException, InterruptedException {
+    public void sendEndOfTraitmentReport(String filename) {
+        List<Header> headerList = new ArrayList<>();
+        headerList.add(new RecordHeader("FileName", filename.getBytes(StandardCharsets.UTF_8)));
         try {
             ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
             kafkatemplateEndoftraitement.send(record);

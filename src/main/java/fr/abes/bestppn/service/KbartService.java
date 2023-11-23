@@ -85,7 +85,7 @@ public class KbartService {
         serviceMail.addLineKbartToMailAttachment(ligneFromKafka);
     }
 
-    public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename, Set<Header> headerList) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, MessagingException, IOException {
+    public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
 
         producer.sendKbart(kbartToSend, provider, filename);
@@ -96,7 +96,7 @@ public class KbartService {
         ppnToCreate.clear();
         ppnFromKbartToCreate.clear();
 
-        producer.sendEndOfTraitmentReport(headerList);
+        producer.sendEndOfTraitmentReport(filename);
     }
 
     private static LigneKbartImprime getLigneKbartImprime(PpnWithDestinationDto ppnWithDestinationDto, LigneKbartDto ligneFromKafka) {
