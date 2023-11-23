@@ -40,13 +40,13 @@ public class EmailService {
 
     private final PackageKbartDto mailAttachment = new PackageKbartDto();
 
-    public void addLineToMailAttachementWithErrorMessage(String messageError) {
+    public void addLineKbartToMailAttachementWithErrorMessage(String messageError) {
         LigneKbartDto ligneVide = new LigneKbartDto();
         ligneVide.setErrorType(messageError);
         mailAttachment.addKbartDto(ligneVide);
     }
 
-    public void addPackageToMailAttachment(LigneKbartDto dto) {
+    public void addLineKbartToMailAttachment(LigneKbartDto dto) {
         mailAttachment.addKbartDto(dto);
     }
 

@@ -18,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -34,8 +31,6 @@ public class KbartService {
     private final TopicProducer producer;
 
     private final EmailService serviceMail;
-
-    private final LogFileService logFileService;
 
     @Getter
     private final List<LigneKbartDto> kbartToSend = Collections.synchronizedList(new ArrayList<>());
@@ -51,14 +46,11 @@ public class KbartService {
     private final ExecutionReportService executionReportService;
 
 
-    private String totalLine = "";
-
-    public KbartService(ObjectMapper mapper, BestPpnService service, TopicProducer producer, EmailService serviceMail, LogFileService logFileService, ProviderService providerService, ExecutionReportService executionReportService) {
+    public KbartService(ObjectMapper mapper, BestPpnService service, TopicProducer producer, EmailService serviceMail, ProviderService providerService, ExecutionReportService executionReportService) {
         this.mapper = mapper;
         this.service = service;
         this.producer = producer;
         this.serviceMail = serviceMail;
-        this.logFileService = logFileService;
         this.providerService = providerService;
         this.executionReportService = executionReportService;
     }
@@ -90,10 +82,10 @@ public class KbartService {
             log.info("Bestppn déjà existant sur la ligne : " + lignesKbart + ",PPN : " + ligneFromKafka.getBestPpn());
             kbartToSend.add(ligneFromKafka);
         }
-        serviceMail.addPackageToMailAttachment(ligneFromKafka);
+        serviceMail.addLineKbartToMailAttachment(ligneFromKafka);
     }
 
-    public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename, List<Header> headerList, boolean isForced) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, MessagingException, IOException {
+    public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename, Set<Header> headerList) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, MessagingException, IOException {
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
 
         producer.sendKbart(kbartToSend, provider, filename);
@@ -104,13 +96,7 @@ public class KbartService {
         ppnToCreate.clear();
         ppnFromKbartToCreate.clear();
 
-        log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + totalLine);
-        serviceMail.sendMailWithAttachment(filename);
-        producer.sendEndOfTraitmentReport(headerList); // Appel le producer pour l'envoi du message de fin de traitement.
-        logFileService.createExecutionReport(filename, Integer.parseInt(totalLine), executionReportService.getNbLinesOk(), executionReportService.getExecutionReport().getNbLinesWithInputDataErrors(), executionReportService.getExecutionReport().getNbLinesWithErrorsInBestPPNSearch(), isForced);
-
-        serviceMail.clearMailAttachment();
-        executionReportService.clearExecutionReport();
+        producer.sendEndOfTraitmentReport(headerList);
     }
 
     private static LigneKbartImprime getLigneKbartImprime(PpnWithDestinationDto ppnWithDestinationDto, LigneKbartDto ligneFromKafka) {

@@ -84,12 +84,10 @@ public class WsService {
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
-    @ExecutionTime
     public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlOnlineId2Ppn);
     }
 
-    @ExecutionTime
     public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
@@ -113,7 +111,6 @@ public class WsService {
         return result;
     }
 
-    @ExecutionTime
     public ResultDat2PpnWebDto callDat2Ppn(String date, String author, String title) throws JsonProcessingException {
         SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title);
         if (author != null && !author.isEmpty()) {
@@ -125,7 +122,6 @@ public class WsService {
         return mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);
     }
 
-    @ExecutionTime
     public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException {
         Map<String, String> params = new HashMap<>();
         params.put("doi", doi);

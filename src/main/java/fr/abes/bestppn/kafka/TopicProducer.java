@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -180,7 +181,7 @@ public class TopicProducer {
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
      * @param headerList list de Header (contient le nom du package et la date)
      */
-    public void sendEndOfTraitmentReport(List<Header> headerList) throws ExecutionException, InterruptedException {
+    public void sendEndOfTraitmentReport(Set<Header> headerList) throws ExecutionException, InterruptedException {
         try {
             ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
             kafkatemplateEndoftraitement.send(record);
