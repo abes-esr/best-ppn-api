@@ -6,19 +6,23 @@ import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
-import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.exception.BestPpnException;
+import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalPackageException;
+import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.kafka.TopicProducer;
-import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Header;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -56,7 +60,7 @@ public class KbartService {
     }
 
     @Transactional
-    public void processConsumerRecord(ConsumerRecord<String, String> lignesKbart, String providerName, boolean isForced) throws ExecutionException, InterruptedException, IOException, IllegalPpnException, BestPpnException, URISyntaxException {
+    public void processConsumerRecord(ConsumerRecord<String, String> lignesKbart, String providerName, boolean isForced) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
         LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
         log.info("Début calcul BestPpn pour la ligne " + lignesKbart);
         if (ligneFromKafka.isBestPpnEmpty()) {
@@ -67,21 +71,17 @@ public class KbartService {
                     ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
                     executionReportService.addNbBestPpnFind();
                 }
-                case PRINT_PPN_SUDOC -> {
-                    ppnToCreate.add(getLigneKbartImprime(ppnWithDestinationDto, ligneFromKafka));
-                }
+                case PRINT_PPN_SUDOC -> ppnToCreate.add(getLigneKbartImprime(ppnWithDestinationDto, ligneFromKafka));
                 case NO_PPN_FOUND_SUDOC -> {
                     if (ligneFromKafka.getPublicationType().equals("monograph")) {
                         ppnFromKbartToCreate.add(ligneFromKafka);
                     }
                 }
             }
-            //on envoie vers bacon même si on n'a pas trouvé de bestppn
-            kbartToSend.add(ligneFromKafka);
         } else {
             log.info("Bestppn déjà existant sur la ligne : " + lignesKbart + ",PPN : " + ligneFromKafka.getBestPpn());
-            kbartToSend.add(ligneFromKafka);
         }
+        kbartToSend.add(ligneFromKafka);
         serviceMail.addLineKbartToMailAttachment(ligneFromKafka);
     }
 
@@ -101,7 +101,7 @@ public class KbartService {
     }
 
     private static LigneKbartImprime getLigneKbartImprime(PpnWithDestinationDto ppnWithDestinationDto, LigneKbartDto ligneFromKafka) {
-        LigneKbartImprime ligne = LigneKbartImprime.newBuilder()
+        return LigneKbartImprime.newBuilder()
                 .setPpn(ppnWithDestinationDto.getPpn())
                 .setPublicationTitle(ligneFromKafka.getPublicationTitle())
                 .setPrintIdentifier(ligneFromKafka.getPrintIdentifier())
@@ -129,7 +129,6 @@ public class KbartService {
                 .setPrecedingPublicationTitleId(ligneFromKafka.getPrecedingPublicationTitleId())
                 .setAccessType(ligneFromKafka.getAccessType())
                 .build();
-        return ligne;
     }
 
 

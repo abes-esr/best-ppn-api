@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -45,11 +46,10 @@ public class TopicConsumer {
 
     private final LogFileService logFileService;
 
-//    private final Semaphore semaphoreNbLines;
-
     private CountDownLatch countDownLatch;
 
-    private int nbLignesTraitees;
+    private AtomicInteger nbLignesTraitees;
+    private int nbLignesTotal;
 
     public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService) {
         this.service = service;
@@ -57,9 +57,8 @@ public class TopicConsumer {
         this.providerRepository = providerRepository;
         this.executionReportService = executionReportService;
         this.logFileService = logFileService;
-//        this.semaphoreNbLines = semaphoreNbLines;
         this.countDownLatch = new CountDownLatch(1);
-        this.nbLignesTraitees = 0;
+        this.nbLignesTraitees = new AtomicInteger(0);
     }
 
     @PostConstruct
@@ -73,12 +72,8 @@ public class TopicConsumer {
      * @param lignesKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}",}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
-    public void listenKbartFromKafka(ConsumerRecord<String, String> lignesKbart) throws InterruptedException {
+    public void kbartFromkafkaListener(ConsumerRecord<String, String> lignesKbart) {
         log.info("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
-//        if (semaphoreNbLines.tryAcquire()) {
-//            semaphoreNbLines.acquire();
-//            log.debug("semaphore acquis par kbart");
-//        }
         try {
             //traitement de chaque ligne kbart
             this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
@@ -87,19 +82,17 @@ public class TopicConsumer {
             executorService.execute(() -> {
                 try {
                     service.processConsumerRecord(lignesKbart, providerName, isForced);
-                    nbLignesTraitees++;
-                    countDownLatch.countDown();
-                    log.debug("CountDownLatch dans kbartFromKafka : " + this.countDownLatch.getCount());
-                } catch (ExecutionException | InterruptedException | IOException | URISyntaxException e) {
+                    nbLignesTraitees.incrementAndGet();
+                    if (nbLignesTraitees.get() == nbLignesTotal) {
+                        countDownLatch.countDown();
+                        log.debug("CountDownLatch dans kbartFromKafka : " + this.countDownLatch.getCount());
+                    }
+                } catch (IOException | URISyntaxException e) {
                     addDataError(e.getMessage());
+                    this.countDownLatch.countDown();
                 } catch (IllegalPpnException | BestPpnException e) {
                     addBestPPNSearchError(e.getMessage());
-                } finally {
-//                    countDownLatch.countDown();
-//                    if (nbCurrentLines.get() == totalNbLines) {
-//                        log.debug("semaphore libéré par kbart");
-//                        semaphoreNbLines.release();
-//                    }
+                    this.countDownLatch.countDown();
                 }
             });
         } catch (IllegalProviderException e) {
@@ -109,30 +102,24 @@ public class TopicConsumer {
 
 
     @KafkaListener(topics = {"${topic.name.source.nbLines}"}, groupId = "${topic.groupid.source.nbLines}", containerFactory = "kafkaNbLinesListenerContainerFactory")
-    public void listenNbLines(ConsumerRecord<String, String> nbLines) {
+    public void nbLinesListener(ConsumerRecord<String, String> nbLines) {
         try {
             log.debug("Nombre de lignes traitées par kbart2kafka : " + nbLines.value());
-//            nbLignesTraitees = Integer.parseInt(nbLines.value());
-//            semaphoreNbLines.acquire();
-//            log.debug("semaphore acquis par nbLines");
-            countDownLatch = new CountDownLatch(Integer.parseInt(nbLines.value())-this.nbLignesTraitees);
-            log.debug("CountDownLatch dans NbLines: " + this.countDownLatch.getCount());
-            synchronized (countDownLatch) {
-                countDownLatch.wait();
-                if (this.filename.equals(extractFilenameFromHeader(nbLines.headers().toArray()))) {
-                    log.info("condition vérifiée : " + nbLines.value());
-                    executionReportService.setNbtotalLines(Integer.parseInt(nbLines.value()));
-                    if (!isOnError) {
-                        String providerName = Utils.extractProvider(filename);
-                        Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
-                        service.commitDatas(providerOpt, providerName, filename);
-                        //quel que soit le résultat du traitement, on envoie le rapport par mail
-                        log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
-                        emailService.sendMailWithAttachment(filename);
-                        logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
-                    } else {
-                        isOnError = false;
-                    }
+            nbLignesTotal = Integer.parseInt(nbLines.value());
+            countDownLatch.await();
+            if (this.filename.equals(extractFilenameFromHeader(nbLines.headers().toArray()))) {
+                log.info("condition vérifiée : " + nbLines.value());
+                executionReportService.setNbtotalLines(Integer.parseInt(nbLines.value()));
+                if (!isOnError) {
+                    String providerName = Utils.extractProvider(filename);
+                    Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
+                    service.commitDatas(providerOpt, providerName, filename);
+                    //quel que soit le résultat du traitement, on envoie le rapport par mail
+                    log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
+                    emailService.sendMailWithAttachment(filename);
+                    logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
+                } else {
+                    isOnError = false;
                 }
             }
         } catch (IllegalPackageException | IllegalDateException e) {
@@ -140,33 +127,36 @@ public class TopicConsumer {
         } catch (IllegalProviderException | ExecutionException | InterruptedException | IOException e) {
             addDataError(e.getMessage());
         } finally {
-//            semaphoreNbLines.release();
-//            log.debug("semaphore libéré par nbLines");
             emailService.clearMailAttachment();
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
-            nbLignesTraitees = 0;
-            log.debug("Sortie de NbLines");
+            nbLignesTraitees = new AtomicInteger(0);
+            countDownLatch = new CountDownLatch(1);
+            clearSharedObjects();
         }
     }
 
     @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "${topic.groupid.source.errors}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void listenErrors(ConsumerRecord<String, String> error) {
+    public void errorsListener(ConsumerRecord<String, String> error) {
         try {
             if (this.filename.equals(extractFilenameFromHeader(error.headers().toArray()))) {
                 //erreur lors du chargement du fichier détectée, on arrête tous les threads en cours pour ne pas envoyer de lignes dans le topic
-                executorService.shutdown();
+                executorService.shutdownNow();
                 isOnError = true;
                 log.error(error.value());
                 emailService.addLineKbartToMailAttachementWithErrorMessage(error.value());
                 logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
-                emailService.clearMailAttachment();
-                executionReportService.clearExecutionReport();
-                service.clearListesKbart();
+                clearSharedObjects();
             }
         } catch (IOException e) {
             addDataError(e.getMessage());
         }
+    }
+
+    private void clearSharedObjects() {
+        emailService.clearMailAttachment();
+        executionReportService.clearExecutionReport();
+        service.clearListesKbart();
     }
 
     private String extractFilenameFromHeader(Header[] headers) {
