@@ -24,8 +24,6 @@ import org.springframework.kafka.transaction.KafkaTransactionManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
 
 @Configuration
 @EnableKafka
