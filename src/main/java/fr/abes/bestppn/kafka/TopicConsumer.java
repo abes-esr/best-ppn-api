@@ -122,9 +122,7 @@ public class TopicConsumer {
                     isOnError = false;
                 }
             }
-        } catch (IllegalPackageException | IllegalDateException e) {
-            addBestPPNSearchError(e.getMessage());
-        } catch (IllegalProviderException | ExecutionException | InterruptedException | IOException e) {
+        } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException | InterruptedException | IOException e) {
             addDataError(e.getMessage());
         } finally {
             emailService.clearMailAttachment();
