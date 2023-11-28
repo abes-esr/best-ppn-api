@@ -72,7 +72,12 @@ public class Utils {
 
     public static String extractPackageName(String filename) throws IllegalPackageException {
         try {
-            return filename.substring(filename.indexOf('_') + 1, filename.lastIndexOf('_'));
+            if (filename.contains("_FORCE")) {
+                String tempsStr =  filename.substring(0, filename.indexOf("_FORCE"));
+                return tempsStr.substring(tempsStr.indexOf('_') + 1, tempsStr.lastIndexOf('_'));
+            } else {
+                return filename.substring(filename.indexOf('_') + 1, filename.lastIndexOf('_'));
+            }
         } catch (Exception e) {
             throw new IllegalPackageException(e);
         }

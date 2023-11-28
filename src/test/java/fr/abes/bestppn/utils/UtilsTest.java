@@ -2,6 +2,7 @@ package fr.abes.bestppn.utils;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalPackageException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -101,5 +102,16 @@ class UtilsTest {
 
         date = null;
         Assertions.assertNull(Utils.formatDate(date, true));
+    }
+
+    @Test
+    @DisplayName("test récupération package dans nom de fichier")
+    void testextractPackageName() throws IllegalPackageException {
+        String filename = "SPRINGER_GLOBAL_ALLEBOOKS_2023-05-01_FORCE.tsv";
+        Assertions.assertEquals("GLOBAL_ALLEBOOKS", Utils.extractPackageName(filename));
+
+        filename = "SPRINGER_GLOBAL_ALLEBOOKS_2023-05-01.tsv";
+        Assertions.assertEquals("GLOBAL_ALLEBOOKS", Utils.extractPackageName(filename));
+
     }
 }
