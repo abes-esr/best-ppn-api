@@ -205,7 +205,7 @@ public class BestPpnService {
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
-                String errorString = "Les ppn électroniques " + listPpn + " ont le même score";
+                String errorString = "Kbart : " + kbart + " : Les ppn électroniques " + listPpn + " ont le même score";
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (injectKafka) {

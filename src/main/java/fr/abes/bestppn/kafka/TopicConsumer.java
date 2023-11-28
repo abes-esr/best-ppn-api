@@ -82,8 +82,9 @@ public class TopicConsumer {
             String providerName = Utils.extractProvider(filename);
             executorService.execute(() -> {
                 try {
-                    service.processConsumerRecord(lignesKbart, providerName, isForced);
                     nbLignesTraitees.incrementAndGet();
+                    service.processConsumerRecord(lignesKbart, providerName, isForced);
+                    log.warn(String.valueOf(nbLignesTraitees.get()));
                     if (nbLignesTraitees.get() == nbLignesTotal) {
                         countDownLatch.countDown();
                         log.debug("CountDownLatch dans kbartFromKafka : " + this.countDownLatch.getCount());
@@ -115,10 +116,10 @@ public class TopicConsumer {
     @KafkaListener(topics = {"${topic.name.source.nbLines}"}, groupId = "${topic.groupid.source.nbLines}", containerFactory = "kafkaNbLinesListenerContainerFactory")
     public void nbLinesListener(ConsumerRecord<String, String> nbLines) {
         try {
-            log.debug("Nombre de lignes traitées par kbart2kafka : " + nbLines.value());
+            log.warn("Nombre de lignes traitées par kbart2kafka : " + nbLines.value());
             nbLignesTotal = Integer.parseInt(nbLines.value());
-            countDownLatch.await();
             if (this.filename.equals(extractFilenameFromHeader(nbLines.headers().toArray()))) {
+                countDownLatch.await();
                 log.debug("Thread débloqué : " + nbLines.value());
                 executionReportService.setNbtotalLines(Integer.parseInt(nbLines.value()));
                 if (!isOnError) {
@@ -136,12 +137,14 @@ public class TopicConsumer {
         } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException | InterruptedException | IOException e) {
             addDataError(e.getMessage());
         } finally {
+            log.warn("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
             emailService.clearMailAttachment();
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
             nbLignesTraitees = new AtomicInteger(0);
             countDownLatch = new CountDownLatch(1);
             clearSharedObjects();
+
         }
     }
 

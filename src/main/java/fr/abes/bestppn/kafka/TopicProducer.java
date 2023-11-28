@@ -81,7 +81,9 @@ public class TopicProducer {
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
-        for (LigneKbartDto ligne : kbart) {
+        Iterator<LigneKbartDto> iterator = kbart.iterator();
+        while (iterator.hasNext()) {
+            LigneKbartDto ligne = iterator.next();
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
             ligne.setProviderPackageDateP(provider.getDateP());

@@ -102,7 +102,7 @@ public class WsService {
             throw ex;
         } catch (IllegalArgumentException ex) {
             if( ex.getMessage().equals("argument \"content\" is null")) {
-                log.info("Aucuns ppn correspondant à l'"+ id);
+                log.info("Aucuns ppn correspondant à l'identifiant "+ id);
             } else {
                 throw ex;
             }
