@@ -8,8 +8,8 @@ import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.exception.IllegalPackageException;
-import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class KbartService {
     }
 
     @Transactional
-    public void processConsumerRecord(ConsumerRecord<String, String> lignesKbart, String providerName, boolean isForced) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException {
+    public void processConsumerRecord(ConsumerRecord<String, String> lignesKbart, String providerName, boolean isForced) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
         log.info("Début calcul BestPpn pour la ligne " + lignesKbart);
         if (ligneFromKafka.isBestPpnEmpty()) {
@@ -85,6 +85,7 @@ public class KbartService {
         serviceMail.addLineKbartToMailAttachment(ligneFromKafka);
     }
 
+    @Transactional
     public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
         producer.sendKbart(kbartToSend, provider, filename);

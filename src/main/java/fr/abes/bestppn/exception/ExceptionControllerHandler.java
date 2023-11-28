@@ -30,12 +30,6 @@ public class ExceptionControllerHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new ApiReturnError(HttpStatus.BAD_REQUEST, error, ex));
     }
 
-    @ExceptionHandler(IllegalPpnException.class)
-    protected ResponseEntity<Object> handleIllegalPpnException(IllegalPpnException ex) {
-        String error = "Erreur dans la récupération d'une notice";
-        log.debug(ex.getLocalizedMessage());
-        return buildResponseEntity(new ApiReturnError(HttpStatus.SERVICE_UNAVAILABLE, error, ex));
-    }
 
     @ExceptionHandler(BestPpnException.class)
     protected ResponseEntity<Object> handleBestPpnException(BestPpnException ex) {

@@ -6,6 +6,7 @@ import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.dto.wscall.SearchDatWebDto;
 import fr.abes.bestppn.exception.BestPpnException;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.utils.ExecutionTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,7 +96,7 @@ public class WsService {
     private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException{
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
-            result = mapper.readValue((provider != null && !provider.equals("")) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
+            result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
         } catch (RestClientException ex) {
             log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
             throw ex;
@@ -122,15 +123,16 @@ public class WsService {
         return mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);
     }
 
-    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException {
+    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException {
         Map<String, String> params = new HashMap<>();
         params.put("doi", doi);
         params.put("provider", provider);
-        ResultWsSudocDto result = new ResultWsSudocDto();
+        ResultWsSudocDto result;
         try {
             result = mapper.readValue(getCall(urlDoi2Ppn, params), ResultWsSudocDto.class);
         } catch (RestClientException ex) {
-            log.info("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
+            log.error("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
+            throw new IllegalDoiException(ex.getMessage());
         }
         return result;
     }

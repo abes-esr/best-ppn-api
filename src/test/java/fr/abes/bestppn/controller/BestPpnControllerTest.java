@@ -6,6 +6,7 @@ import fr.abes.bestppn.configuration.RestConfiguration;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.ExceptionControllerHandler;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.service.BestPpnService;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +59,7 @@ public class BestPpnControllerTest {
 
     @Test
     @DisplayName("test controller with wrong number of parameters")
-    void testBestPpnControllerWrongNumberOfParameters() throws Exception {
+    void testBestPpnControllerWrongNumberOfParameters() throws Exception, IllegalDoiException {
         Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new PpnWithDestinationDto("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
         this.mockMvc.perform(get("/api/v1/bestPpn").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isBadRequest())

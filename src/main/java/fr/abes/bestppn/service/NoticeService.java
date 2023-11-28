@@ -3,7 +3,6 @@ package fr.abes.bestppn.service;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.abes.bestppn.entity.basexml.NoticesBibio;
 import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
-import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.repository.basexml.NoticesBibioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,9 +18,7 @@ public class NoticeService {
 
     private final XmlMapper xmlMapper;
 
-    public NoticeXml getNoticeByPpn(String ppn) throws IllegalPpnException, IOException {
-        if (ppn == null)
-            throw new IllegalPpnException("Le PPN ne peut pas être null");
+    public NoticeXml getNoticeByPpn(String ppn) throws IOException {
         Optional<NoticesBibio> noticeOpt = this.noticesBibioRepository.findByPpn(ppn);
         if (noticeOpt.isPresent()) {
             try {

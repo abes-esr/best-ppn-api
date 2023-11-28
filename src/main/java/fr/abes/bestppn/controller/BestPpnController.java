@@ -2,7 +2,7 @@ package fr.abes.bestppn.controller;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalPpnException;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.service.BestPpnService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,7 +41,7 @@ public class BestPpnController {
                           @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
                           @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "titleUrl", required = false) String titleUrl,
                           @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
-                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException, IllegalPpnException {
+                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublicationType(publicationType);
@@ -56,7 +56,7 @@ public class BestPpnController {
             return service.getBestPpn(ligneKbartDto, provider, injectKafka).getPpn();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
-        } catch (BestPpnException | RestClientException | IllegalArgumentException e) {
+        } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {
             return e.getMessage();
         }
     }

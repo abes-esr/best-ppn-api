@@ -7,6 +7,7 @@ import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -21,11 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,6 +34,8 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class TopicProducer {
+    @Value("${spring.kafka.concurrency.nbThread}")
+    private int nbThread;
 
     @Value("${topic.name.target.kbart}")
     private String topicKbart;
@@ -52,6 +55,8 @@ public class TopicProducer {
 
     private KafkaTemplate<String, String> kafkatemplateEndoftraitement;
 
+    private ExecutorService executorService;
+
     private UtilsMapper utilsMapper;
 
     @Autowired
@@ -60,6 +65,11 @@ public class TopicProducer {
         this.kafkaTemplateImprime = kafkaTemplateImprime;
         this.kafkatemplateEndoftraitement = kafkatemplateEndoftraitement;
         this.utilsMapper = utilsMapper;
+    }
+
+    @PostConstruct
+    public void initExecutor() {
+        executorService = Executors.newFixedThreadPool(nbThread);
     }
 
     /**
@@ -76,12 +86,21 @@ public class TopicProducer {
             ligne.setProviderPackagePackage(provider.getPackageName());
             ligne.setProviderPackageDateP(provider.getDateP());
             ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
+            LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligne, LigneKbartConnect.class);
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
-            sendObject(ligne, topicKbart, headerList);
+            executorService.execute(() -> {
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), "", ligneKbartConnect, headerList);
+                CompletableFuture<SendResult<String, LigneKbartConnect>>  result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
+                result.whenComplete((sr, ex) -> {
+                    try {
+                        logEnvoi(result.get(), record);
+                    } catch (InterruptedException | ExecutionException e) {
+                        log.warn("erreur de récupération du résultat de l'envoi");
+                    }
+                });
+            });
         }
-        if (!kbart.isEmpty())
-            log.debug("message envoyé vers {}", topicKbart);
     }
 
 

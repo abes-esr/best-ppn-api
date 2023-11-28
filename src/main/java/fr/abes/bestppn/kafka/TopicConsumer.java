@@ -16,6 +16,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -87,16 +88,26 @@ public class TopicConsumer {
                         countDownLatch.countDown();
                         log.debug("CountDownLatch dans kbartFromKafka : " + this.countDownLatch.getCount());
                     }
-                } catch (IOException | URISyntaxException e) {
-                    addDataError(e.getMessage());
-                    this.countDownLatch.countDown();
-                } catch (IllegalPpnException | BestPpnException e) {
-                    addBestPPNSearchError(e.getMessage());
-                    this.countDownLatch.countDown();
+                } catch (IOException | URISyntaxException | IllegalDoiException e) {
+                    //erreurs non bloquantes, on les inscrits dans le rapport, mais on n'arrête pas le programme
+                    log.error(e.getMessage());
+                    emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
+                    executionReportService.addNbLinesWithInputDataErrors();
+                } catch (BestPpnException e) {
+                    if (isForced) {
+                        //si le programme doit forcer l'insertion, il n'est pas arrêté en cas d'erreur sur le calcul du bestPpn
+                        log.error(e.getMessage());
+                        emailService.addLineKbartToMailAttachementWithErrorMessage(e.getMessage());
+                        executionReportService.addNbLinesWithErrorsInBestPPNSearch();
+                    } else {
+                        addBestPPNSearchError(e.getMessage());
+                        this.countDownLatch.countDown();
+                    }
                 }
             });
         } catch (IllegalProviderException e) {
             addDataError(e.getMessage());
+            this.countDownLatch.countDown();
         }
     }
 
@@ -108,7 +119,7 @@ public class TopicConsumer {
             nbLignesTotal = Integer.parseInt(nbLines.value());
             countDownLatch.await();
             if (this.filename.equals(extractFilenameFromHeader(nbLines.headers().toArray()))) {
-                log.info("condition vérifiée : " + nbLines.value());
+                log.debug("Thread débloqué : " + nbLines.value());
                 executionReportService.setNbtotalLines(Integer.parseInt(nbLines.value()));
                 if (!isOnError) {
                     String providerName = Utils.extractProvider(filename);
