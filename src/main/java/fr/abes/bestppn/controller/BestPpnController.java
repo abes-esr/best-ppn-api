@@ -16,7 +16,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-@Tag(name = "Convergence localhost", description = "Convergence localhost managements APIs")
+@Tag(name = "Calcul du meilleur PPN", description = "API de calcul du meilleur PPN pour une ligne tsv")
 @CrossOrigin(origins = "*")
 @RestController
 @Slf4j
