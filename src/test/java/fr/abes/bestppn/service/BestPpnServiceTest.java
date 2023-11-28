@@ -342,7 +342,7 @@ class BestPpnServiceTest {
 
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
-        Assertions.assertEquals("Les ppn électroniques 100000001, 100000002 ont le même score" , result.getLocalizedMessage());
+        Assertions.assertEquals("Kbart : publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 : Les ppn électroniques 100000001, 100000002 ont le même score" , result.getLocalizedMessage());
     }
 
 
