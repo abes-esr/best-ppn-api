@@ -24,6 +24,7 @@ import org.springframework.kafka.transaction.KafkaTransactionManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 @Configuration
 @EnableKafka
@@ -58,17 +59,6 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
-    @Bean
-    public ConsumerFactory<String, String> consumerLineFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,("SchedulerCoordinator"+ UUID.randomUUID()));
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        return new DefaultKafkaConsumerFactory<>(props, new ErrorHandlingDeserializer<>(new StringDeserializer()), new ErrorHandlingDeserializer<>(new StringDeserializer()));
-    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String>
@@ -79,24 +69,6 @@ public class KafkaConfig {
         return factory;
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaNbLinesListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerLineFactory());
-        factory.setCommonErrorHandler(new CommonErrorHandler() {
-            @Override
-            public void handleOtherException(Exception thrownException, Consumer<?, ?> consumer, MessageListenerContainer container, boolean batchListener) {
-                CommonErrorHandler.super.handleOtherException(thrownException, consumer, container, batchListener);
-            }
-
-            @Override
-            public boolean handleOne(Exception thrownException, ConsumerRecord<?, ?> record, Consumer<?, ?> consumer, MessageListenerContainer container) {
-                return CommonErrorHandler.super.handleOne(thrownException, record, consumer, container);
-            }
-        });
-        return factory;
-    }
 
     @Bean
     public Map<String, Object> producerConfigsWithTransaction() {

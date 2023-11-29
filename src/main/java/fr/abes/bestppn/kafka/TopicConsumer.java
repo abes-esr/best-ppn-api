@@ -16,7 +16,6 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,7 +49,6 @@ public class TopicConsumer {
     private CountDownLatch countDownLatch;
 
     private AtomicInteger nbLignesTraitees;
-    private int nbLignesTotal;
 
     public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService) {
         this.service = service;
@@ -75,6 +73,7 @@ public class TopicConsumer {
     @KafkaListener(topics = {"${topic.name.source.kbart}",}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> lignesKbart) {
         log.info("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
+
         try {
             //traitement de chaque ligne kbart
             this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
@@ -85,9 +84,13 @@ public class TopicConsumer {
                     nbLignesTraitees.incrementAndGet();
                     service.processConsumerRecord(lignesKbart, providerName, isForced);
                     log.warn(String.valueOf(nbLignesTraitees.get()));
-                    if (nbLignesTraitees.get() == nbLignesTotal) {
-                        countDownLatch.countDown();
-                        log.debug("CountDownLatch dans kbartFromKafka : " + this.countDownLatch.getCount());
+                    Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
+                    if (lastHeader != null) {
+                        int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
+                        if (nbLignesTotal == nbLignesTraitees.get()) {
+                            Thread.sleep(10000);
+                            handleFichier(nbLignesTotal);
+                        }
                     }
                 } catch (IOException | URISyntaxException | IllegalDoiException e) {
                     //erreurs non bloquantes, on les inscrits dans le rapport, mais on n'arrête pas le programme
@@ -104,37 +107,31 @@ public class TopicConsumer {
                         addBestPPNSearchError(e.getMessage());
                         this.countDownLatch.countDown();
                     }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             });
         } catch (IllegalProviderException e) {
             addDataError(e.getMessage());
-            this.countDownLatch.countDown();
         }
     }
 
-
-    @KafkaListener(topics = {"${topic.name.source.nbLines}"}, groupId = "${topic.groupid.source.nbLines}", containerFactory = "kafkaNbLinesListenerContainerFactory")
-    public void nbLinesListener(ConsumerRecord<String, String> nbLines) {
+    private void handleFichier(int nbLines) {
+        executionReportService.setNbtotalLines(nbLines);
         try {
-            log.warn("Nombre de lignes traitées par kbart2kafka : " + nbLines.value());
-            nbLignesTotal = Integer.parseInt(nbLines.value());
-            if (this.filename.equals(extractFilenameFromHeader(nbLines.headers().toArray()))) {
-                countDownLatch.await();
-                log.debug("Thread débloqué : " + nbLines.value());
-                executionReportService.setNbtotalLines(Integer.parseInt(nbLines.value()));
-                if (!isOnError) {
-                    String providerName = Utils.extractProvider(filename);
-                    Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
-                    service.commitDatas(providerOpt, providerName, filename);
-                    //quel que soit le résultat du traitement, on envoie le rapport par mail
-                    log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
-                    emailService.sendMailWithAttachment(filename);
-                    logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
-                } else {
-                    isOnError = false;
-                }
+            if (!isOnError) {
+                String providerName = Utils.extractProvider(filename);
+                Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
+                service.commitDatas(providerOpt, providerName, filename);
+                //quel que soit le résultat du traitement, on envoie le rapport par mail
+                log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
+                emailService.sendMailWithAttachment(filename);
+                logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
+            } else {
+                isOnError = false;
             }
-        } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException | InterruptedException | IOException e) {
+        } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException |
+                 InterruptedException | IOException e) {
             addDataError(e.getMessage());
         } finally {
             log.warn("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
@@ -144,7 +141,6 @@ public class TopicConsumer {
             nbLignesTraitees = new AtomicInteger(0);
             countDownLatch = new CountDownLatch(1);
             clearSharedObjects();
-
         }
     }
 
