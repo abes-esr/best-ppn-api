@@ -50,6 +50,7 @@ public class TopicConsumer {
 
     private AtomicInteger nbLignesTraitees;
 
+    private boolean traitementTermine = false;
     public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService) {
         this.service = service;
         this.emailService = emailService;
@@ -81,6 +82,10 @@ public class TopicConsumer {
             String providerName = Utils.extractProvider(filename);
             executorService.execute(() -> {
                 try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        if (traitementTermine)
+                            Thread.currentThread().interrupt();
+                    }
                     nbLignesTraitees.incrementAndGet();
                     service.processConsumerRecord(lignesKbart, providerName, isForced);
                     log.warn(String.valueOf(nbLignesTraitees.get()));
@@ -88,7 +93,7 @@ public class TopicConsumer {
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == nbLignesTraitees.get()) {
-                            Thread.sleep(10000);
+                            traitementTermine = true;
                             handleFichier(nbLignesTotal);
                         }
                     }
@@ -107,8 +112,6 @@ public class TopicConsumer {
                         addBestPPNSearchError(e.getMessage());
                         this.countDownLatch.countDown();
                     }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             });
         } catch (IllegalProviderException e) {
@@ -124,7 +127,7 @@ public class TopicConsumer {
                 Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
                 service.commitDatas(providerOpt, providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
-                log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
+                log.warn("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
                 emailService.sendMailWithAttachment(filename);
                 logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
             } else {
