@@ -24,11 +24,15 @@ import org.springframework.kafka.transaction.KafkaTransactionManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 @Configuration
 @EnableKafka
 public class KafkaConfig {
+    @Value("${spring.kafka.concurrency.nbThread}")
+    private int nbThread;
+
     @Value("${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapAddress;
 
@@ -68,7 +72,6 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerKbartFactory());
         return factory;
     }
-
 
     @Bean
     public Map<String, Object> producerConfigsWithTransaction() {
@@ -134,4 +137,5 @@ public class KafkaConfig {
     public Semaphore semaphore() {
         return new Semaphore(1);
     }
+
 }
