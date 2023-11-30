@@ -3,7 +3,6 @@ package fr.abes.bestppn.service;
 import fr.abes.bestppn.entity.basexml.notice.Datafield;
 import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.entity.basexml.notice.SubField;
-import fr.abes.bestppn.exception.IllegalPpnException;
 import fr.abes.bestppn.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class CheckUrlService {
         this.noticeService = noticeService;
     }
 
-    public boolean checkUrlInNotice(String ppn, String titleUrl) throws IOException, IllegalPpnException, URISyntaxException {
+    public boolean checkUrlInNotice(String ppn, String titleUrl) throws IOException, URISyntaxException {
         log.debug("entrée dans checkUrlInNotice " + titleUrl);
         if (titleUrl == null || titleUrl.contains("doi.org")) {
             log.debug("titleUrl null ou contient doi.org");

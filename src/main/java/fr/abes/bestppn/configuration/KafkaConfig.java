@@ -19,10 +19,14 @@ import org.springframework.kafka.transaction.KafkaTransactionManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 @Configuration
 @EnableKafka
 public class KafkaConfig {
+    @Value("${spring.kafka.concurrency.nbThread}")
+    private int nbThread;
+
     @Value("${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapAddress;
 
@@ -52,6 +56,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return new DefaultKafkaConsumerFactory<>(props);
     }
+
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String>
@@ -99,8 +104,7 @@ public class KafkaConfig {
 
     @Bean
     public ProducerFactory<String, String> producerFactory() {
-        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
-        return factory;
+        return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
@@ -122,4 +126,10 @@ public class KafkaConfig {
     public KafkaTemplate<String, String> kafkatemplateEndoftraitement(final ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
+
+    @Bean
+    public Semaphore semaphore() {
+        return new Semaphore(1);
+    }
+
 }

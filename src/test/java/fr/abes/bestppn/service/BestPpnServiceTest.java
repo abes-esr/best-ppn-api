@@ -9,7 +9,7 @@ import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalPpnException;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
@@ -79,7 +79,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 printFromOnline")
-    void getBestPpnTest01() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest01() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -131,7 +131,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 printFromOnline with no provider in notice")
-    void getBestPpnTest01_WithProviderInNoticeIsPresent() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest01_WithProviderInNoticeIsPresent() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -182,7 +182,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 elecFromPrint")
-    void getBestPpnTest02() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest02() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -240,7 +240,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test sum of scores")
-    void getBestPpnTest03() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest03() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -298,7 +298,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test throw BestPpnException same score")
-    void getBestPpnTest04() throws IOException, IllegalPpnException, URISyntaxException, BestPpnException {
+    void getBestPpnTest04() throws IOException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -342,68 +342,13 @@ class BestPpnServiceTest {
 
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
-        Assertions.assertEquals("Les ppn électroniques 100000001, 100000002 ont le même score" , result.getLocalizedMessage());
+        Assertions.assertEquals("Kbart : publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 : Les ppn électroniques 100000001, 100000002 ont le même score" , result.getLocalizedMessage());
     }
 
-    /*@Test
-    @DisplayName("Test throw BestPpnException with 2 printFromPrint & 2 printFromDat")
-    void getBestPpnTest05() throws IllegalPpnException, IOException, BestPpnException {
-        String provider = "urlProvider";
-        //  Create PpnWithTypeDto for Online
-        PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
-        ppnWithType1.setPpn("100000001");
-        ppnWithType1.setTypeSupport(TYPE_SUPPORT.IMPRIME);
-        ppnWithType1.setProviderPresent(false);
-        //  Create a List of PpnWithListDto for elec
-        List<PpnWithTypeDto> ppnWithTypeDto = new ArrayList<>();
-        ppnWithTypeDto.add(ppnWithType1);
-        //  Create a ResultWsSudocDto for elec
-        ResultWsSudocDto resultElec = new ResultWsSudocDto();
-        resultElec.setPpns(ppnWithTypeDto);
-
-        //  Create a PpnWithTypeDto for print
-        PpnWithTypeDto ppnWithTypePrint1 = new PpnWithTypeDto();
-        ppnWithTypePrint1.setPpn("200000001");
-        ppnWithTypePrint1.setTypeSupport(TYPE_SUPPORT.IMPRIME);
-        ppnWithTypePrint1.setProviderPresent(false);
-        //  Create a List of PpnWithListDto for print
-        List<PpnWithTypeDto> ppnWithTypePrintDto = new ArrayList<>();
-        ppnWithTypePrintDto.add(ppnWithTypePrint1);
-        //  Create a ResultWsSudocDto for print
-        ResultWsSudocDto resultPrint = new ResultWsSudocDto();
-        resultPrint.setPpns(ppnWithTypePrintDto);
-
-        //  Create a ResultDat2PpnWebDto
-        ResultDat2PpnWebDto resultDat2PpnWeb = new ResultDat2PpnWebDto();
-        resultDat2PpnWeb.addPpn("300000001");
-        resultDat2PpnWeb.addPpn("300000002");
-
-        //  Create a LigneKbartDto
-        LigneKbartDto kbart = new LigneKbartDto();
-        kbart.setOnlineIdentifier("1292-8399");
-        kbart.setPrintIdentifier("2-84358-095-1");
-        kbart.setPublicationType("monograph");
-        kbart.setDateMonographPublishedPrint("DateOnline");
-        kbart.setDateMonographPublishedOnline("");
-        kbart.setPublicationTitle("Titre");
-        kbart.setFirstAuthor("Auteur");
-        kbart.setDateMonographPublishedPrint("DatePrint");
-
-        //  Mock
-        Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
-        Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
-        Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticePrint);
-        Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
-        Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
-
-        //  Vérification
-        BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
-        Assertions.assertEquals("Plusieurs ppn imprimés (100000001, 200000001, 300000002, 300000001) ont été trouvés." , result.getLocalizedMessage());
-    }*/
 
     @Test
     @DisplayName("Test printFromPrint & 2 printFromDat ")
-    void getBestPpnTest06() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest06() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
 
         //  Create a List of PpnWithListDto for elec
@@ -451,7 +396,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test printFromPrint & 0 printFromDat ")
-    void getBestPpnTest06_NoBestPpnByDat2Ppn() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest06_NoBestPpnByDat2Ppn() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
 
         //  Create a List of PpnWithListDto for elec
@@ -493,7 +438,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 printFromOnline & titleUrl is null")
-    void getBestPpnTest07() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest07() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -545,7 +490,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 0 FromOnline & 1 elecFromPrint")
-    void getBestPpnTest08() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest08() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
         //  Create a ResultWsSudocDto for elec
         ResultWsSudocDto resultElec = new ResultWsSudocDto();
@@ -596,7 +541,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromDoi")
-    void getBestPpnTest09() throws IllegalPpnException, IOException, BestPpnException, URISyntaxException {
+    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "urlProvider";
 
         //Creation d'une ligne kbart

@@ -1,5 +1,6 @@
 package fr.abes.bestppn.service;
 
+import fr.abes.bestppn.entity.ExecutionReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,10 @@ public class LogFileService {
     /**
      * Méthode qui créé le rapport d'execution dans un fichier log indépendant du reste de l'application
      * @param fileName le nom du fichier
-     * @param totalLines le nombre total de lignes pour le fichier concerné
-     * @param linesOk le nombre de lignes OK pour le fichier concerné
-     * @param linesWithInputDataErrors le nombre de lignes contenant des erreurs de données
-     * @param linesWithErrorsInBestPPNSearch le nombre total de lignes contenant des erreurs lors de la recherche du bestPpn
+     * @param executionReport le rapport d'exécution qui sert à alimenter le fichier
      * @throws IOException exception levée
      */
-    public void createExecutionReport(String fileName, int totalLines, int linesOk, int linesWithInputDataErrors, int linesWithErrorsInBestPPNSearch, boolean injectKafka) throws IOException {
+    public void createExecutionReport(String fileName, ExecutionReport executionReport, boolean isForced) throws IOException {
         try {
             // Création du fichier de log
             Logger logger = Logger.getLogger("ExecutionReport");
@@ -37,17 +35,17 @@ public class LogFileService {
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
             logger.setUseParentHandlers(false); // désactive l'affichage du log dans le terminal
-            logger.info("TOTAL LINES : " + totalLines + System.lineSeparator()
-                    + "LINES OK : " + linesOk + System.lineSeparator()
-                    + "LINES WITH INPUT DATA ERRORS : " + linesWithInputDataErrors + System.lineSeparator()
-                    + "LINES WITH ERRORS IN BESTPPN SEARCH : " + linesWithErrorsInBestPPNSearch + System.lineSeparator()
-                    + "FORCE_OPTION : " + injectKafka + System.lineSeparator());
+            logger.info("TOTAL LINES : " + executionReport.getNbtotalLines() + System.lineSeparator()
+                    + "LINES OK : " + executionReport.getNbLinesOk() + System.lineSeparator()
+                    + "LINES WITH INPUT DATA ERRORS : " + executionReport.getNbLinesWithInputDataErrors() + System.lineSeparator()
+                    + "LINES WITH ERRORS IN BESTPPN SEARCH : " + executionReport.getNbLinesWithErrorsInBestPPNSearch() + System.lineSeparator()
+                    + "FORCE_OPTION : " + isForced + System.lineSeparator());
 
             // Fermeture du fichier de log
             fh.close();
 
             // Copie le fichier existant vers le répertoire temporaire en ajoutant sa date de création
-            if (source != null && Files.exists(source)) {
+            if (Files.exists(source)) {
 
                 //  Vérification du chemin et création si inexistant
                 String tempLogWithSeparator = "tempLog" + File.separator;

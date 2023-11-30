@@ -3,11 +3,9 @@ package fr.abes.bestppn.service;
 import fr.abes.bestppn.entity.basexml.notice.Datafield;
 import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.entity.basexml.notice.SubField;
-import fr.abes.bestppn.exception.IllegalPpnException;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 
 @SpringBootTest(classes = {CheckUrlService.class})
 class CheckUrlServiceTest {
@@ -25,21 +22,21 @@ class CheckUrlServiceTest {
     NoticeService noticeService;
 
     @Test
-    void checkUrlInNoticeFirstCase() throws IllegalPpnException, IOException, URISyntaxException {
+    void checkUrlInNoticeFirstCase() throws IOException, URISyntaxException {
         Assertions.assertTrue(checkUrlService.checkUrlInNotice("111111111", null));
         Assertions.assertTrue(checkUrlService.checkUrlInNotice("111111111", "doi.org"));
         Assertions.assertTrue(checkUrlService.checkUrlInNotice("111111111", "http://doi.org/test"));
     }
 
     @Test
-    void checkUrlInNoticeNullNotice() throws IllegalPpnException, IOException, URISyntaxException {
+    void checkUrlInNoticeNullNotice() throws IOException, URISyntaxException {
         NoticeXml notice = new NoticeXml();
         Mockito.when(noticeService.getNoticeByPpn("111111111")).thenReturn(notice);
         Assertions.assertFalse(checkUrlService.checkUrlInNotice("111111111", "http://www.test.com/"));
     }
 
     @Test
-    void checkUrlInNotice856() throws IllegalPpnException, IOException, URISyntaxException {
+    void checkUrlInNotice856() throws IOException, URISyntaxException {
         NoticeXml notice = new NoticeXml();
         SubField dollaru = new SubField();
         dollaru.setCode("u");
@@ -54,7 +51,7 @@ class CheckUrlServiceTest {
     }
 
     @Test
-    void checkUrlInNotice858() throws IllegalPpnException, IOException, URISyntaxException {
+    void checkUrlInNotice858() throws IOException, URISyntaxException {
         NoticeXml notice = new NoticeXml();
         SubField dollaru = new SubField();
         dollaru.setCode("u");

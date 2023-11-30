@@ -7,7 +7,7 @@ import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalPpnException;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.utils.*;
 import lombok.Getter;
@@ -57,7 +57,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, IllegalPpnException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
+    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -85,25 +85,33 @@ public class BestPpnService {
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
     }
 
-    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
+    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
         log.debug("Entrée dans onlineId2Ppn");
-        setScoreToEveryPpnFromResultWS(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider), kbart.getTitleUrl(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList);
+        try {
+            setScoreToEveryPpnFromResultWS(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider), kbart.getTitleUrl(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList);
+        } catch (RestClientException ex) {
+            throw new BestPpnException(ex.getMessage());
+        }
     }
 
-    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
+    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
         log.debug("Entrée dans printId2Ppn");
-        ResultWsSudocDto resultCallWs = service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider);
-        ResultWsSudocDto resultWithTypeElectronique = resultCallWs.getPpnWithTypeElectronique();
-        if (resultWithTypeElectronique != null && !resultWithTypeElectronique.getPpns().isEmpty()) {
-            setScoreToEveryPpnFromResultWS(resultWithTypeElectronique, kbart.getTitleUrl(), this.scorePrintId2PpnElect, ppnElecScoredList, ppnPrintResultList);
-        }
-        ResultWsSudocDto resultWithTypeImprime = resultCallWs.getPpnWithTypeImprime();
-        if (resultWithTypeElectronique != null && !resultWithTypeImprime.getPpns().isEmpty()) {
-            setScoreToEveryPpnFromResultWS(resultWithTypeImprime, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList);
+        try {
+            ResultWsSudocDto resultCallWs = service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider);
+            ResultWsSudocDto resultWithTypeElectronique = resultCallWs.getPpnWithTypeElectronique();
+            if (resultWithTypeElectronique != null && !resultWithTypeElectronique.getPpns().isEmpty()) {
+                setScoreToEveryPpnFromResultWS(resultWithTypeElectronique, kbart.getTitleUrl(), this.scorePrintId2PpnElect, ppnElecScoredList, ppnPrintResultList);
+            }
+            ResultWsSudocDto resultWithTypeImprime = resultCallWs.getPpnWithTypeImprime();
+            if (resultWithTypeElectronique != null && !resultWithTypeImprime.getPpns().isEmpty()) {
+                setScoreToEveryPpnFromResultWS(resultWithTypeImprime, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList);
+            }
+        } catch (RestClientException ex) {
+            throw new BestPpnException(ex.getMessage());
         }
     }
 
-    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalPpnException {
+    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException {
         ResultDat2PpnWebDto resultDat2PpnWeb = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
             log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
@@ -125,7 +133,7 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException {
+    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, IllegalDoiException {
         ResultWsSudocDto resultWS = service.callDoi2Ppn(doi, provider);
         int nbPpnElec = (int) resultWS.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
         for(PpnWithTypeDto ppn : resultWS.getPpns()){
@@ -138,7 +146,7 @@ public class BestPpnService {
         }
     }
 
-    private void setScoreToEveryPpnFromResultWS(ResultWsSudocDto resultCallWs, String titleUrl, int score, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws URISyntaxException, IOException, IllegalPpnException {
+    private void setScoreToEveryPpnFromResultWS(ResultWsSudocDto resultCallWs, String titleUrl, int score, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws URISyntaxException, IOException {
         if (!resultCallWs.getPpns().isEmpty()) {
             int nbPpnElec = (int) resultCallWs.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
@@ -197,7 +205,7 @@ public class BestPpnService {
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
-                String errorString = "Les ppn électroniques " + listPpn + " ont le même score";
+                String errorString = "Kbart : " + kbart + " : Les ppn électroniques " + listPpn + " ont le même score";
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (injectKafka) {
