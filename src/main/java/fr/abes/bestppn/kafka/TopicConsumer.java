@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -46,18 +47,18 @@ public class TopicConsumer {
 
     private final LogFileService logFileService;
 
-    private CountDownLatch countDownLatch;
-
     private AtomicInteger nbLignesTraitees;
 
-    private boolean traitementTermine = false;
-    public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService) {
+
+    private final Semaphore semaphore;
+
+    public TopicConsumer(KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService, Semaphore semaphore) {
         this.service = service;
         this.emailService = emailService;
         this.providerRepository = providerRepository;
         this.executionReportService = executionReportService;
         this.logFileService = logFileService;
-        this.countDownLatch = new CountDownLatch(1);
+        this.semaphore = semaphore;
         this.nbLignesTraitees = new AtomicInteger(0);
     }
 
@@ -74,7 +75,6 @@ public class TopicConsumer {
     @KafkaListener(topics = {"${topic.name.source.kbart}",}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> lignesKbart) {
         log.info("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
-
         try {
             //traitement de chaque ligne kbart
             this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
@@ -82,19 +82,13 @@ public class TopicConsumer {
             String providerName = Utils.extractProvider(filename);
             executorService.execute(() -> {
                 try {
-                    while (!Thread.currentThread().isInterrupted()) {
-                        if (traitementTermine)
-                            Thread.currentThread().interrupt();
-                    }
                     nbLignesTraitees.incrementAndGet();
                     service.processConsumerRecord(lignesKbart, providerName, isForced);
-                    log.warn(String.valueOf(nbLignesTraitees.get()));
                     Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
-                        if (nbLignesTotal == nbLignesTraitees.get()) {
-                            traitementTermine = true;
-                            handleFichier(nbLignesTotal);
+                        if (nbLignesTotal == nbLignesTraitees.get() && semaphore.tryAcquire()) {
+                                handleFichier(nbLignesTotal);
                         }
                     }
                 } catch (IOException | URISyntaxException | IllegalDoiException e) {
@@ -110,7 +104,6 @@ public class TopicConsumer {
                         executionReportService.addNbLinesWithErrorsInBestPPNSearch();
                     } else {
                         addBestPPNSearchError(e.getMessage());
-                        this.countDownLatch.countDown();
                     }
                 }
             });
@@ -142,8 +135,8 @@ public class TopicConsumer {
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
             nbLignesTraitees = new AtomicInteger(0);
-            countDownLatch = new CountDownLatch(1);
             clearSharedObjects();
+            semaphore.release();
         }
     }
 

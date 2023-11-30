@@ -130,4 +130,8 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
+    @Bean
+    public Semaphore semaphore() {
+        return new Semaphore(1);
+    }
 }
