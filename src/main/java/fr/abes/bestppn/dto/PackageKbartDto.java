@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class PackageKbartDto {
     private String packageName;
     private Date datePackage;
     private String provider;
-    private List<LigneKbartDto> kbartDtos = new ArrayList<>();
+    private List<LigneKbartDto> kbartDtos = Collections.synchronizedList(new ArrayList<>());
 
     public void addKbartDto(LigneKbartDto ligneKbartDto) {
         this.kbartDtos.add(ligneKbartDto);

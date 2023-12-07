@@ -2,7 +2,7 @@ package fr.abes.bestppn.controller;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalPpnException;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.service.BestPpnService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +16,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-@Tag(name = "Convergence localhost", description = "Convergence localhost managements APIs")
+@Tag(name = "Calcul du meilleur PPN", description = "API de calcul du meilleur PPN pour une ligne tsv")
 @CrossOrigin(origins = "*")
 @RestController
 @Slf4j
@@ -39,24 +39,24 @@ public class BestPpnController {
     @GetMapping(value = "/bestPpn")
     public String bestPpn(@RequestParam(name = "provider") String provider, @RequestParam(name = "publication_title", required = false) String publicationTitle,
                           @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
-                          @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "doi", required = false) String doi,
+                          @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "titleUrl", required = false) String titleUrl,
                           @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
-                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException, IllegalPpnException {
+                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublicationType(publicationType);
             ligneKbartDto.setPublicationTitle((publicationTitle != null) ? publicationTitle : "");
             ligneKbartDto.setOnlineIdentifier((onlineIdentifier != null) ? onlineIdentifier : "");
             ligneKbartDto.setPrintIdentifier((printIdentifier != null) ? printIdentifier : "");
-            ligneKbartDto.setTitleUrl((doi != null) ? doi : "");
+            ligneKbartDto.setTitleUrl((titleUrl != null) ? titleUrl : "");
             ligneKbartDto.setDateMonographPublishedPrint((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
             boolean injectKafka = (force != null) ? force : false;
             return service.getBestPpn(ligneKbartDto, provider, injectKafka).getPpn();
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Une url dans le champ doi du kbart n'est pas correcte");
-        } catch (BestPpnException | RestClientException | IllegalArgumentException e) {
+            throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
+        } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {
             return e.getMessage();
         }
     }

@@ -7,11 +7,13 @@ import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,10 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +34,8 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class TopicProducer {
+    @Value("${spring.kafka.concurrency.nbThread}")
+    private int nbThread;
 
     @Value("${topic.name.target.kbart}")
     private String topicKbart;
@@ -50,6 +55,8 @@ public class TopicProducer {
 
     private KafkaTemplate<String, String> kafkatemplateEndoftraitement;
 
+    private ExecutorService executorService;
+
     private UtilsMapper utilsMapper;
 
     @Autowired
@@ -60,6 +67,11 @@ public class TopicProducer {
         this.utilsMapper = utilsMapper;
     }
 
+    @PostConstruct
+    public void initExecutor() {
+        executorService = Executors.newFixedThreadPool(nbThread);
+    }
+
     /**
      * Méthode d'envoi d'une ligne kbart vers topic kafka pour chargement
      *
@@ -68,22 +80,36 @@ public class TopicProducer {
      * @param filename : nom du fichier du traitement en cours
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
-    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) throws JsonProcessingException, BestPpnException, ExecutionException, InterruptedException {
-        int numLigneCourante = 0;
-        for (LigneKbartDto ligne : kbart) {
-            numLigneCourante++;
+    public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+        int nbLignesTotal = kbart.size();
+        int nbLignesCourant = 0;
+        Iterator<LigneKbartDto> iterator = kbart.iterator();
+        while (iterator.hasNext()) {
+            nbLignesCourant++;
+            LigneKbartDto ligne = iterator.next();
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
             ligne.setProviderPackageDateP(provider.getDateP());
             ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
+            LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligne, LigneKbartConnect.class);
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
-            if (numLigneCourante == kbart.size())
-                headerList.add(constructHeader("OK", "true".getBytes()));
-            sendObject(ligne, topicKbart, headerList);
+            int finalNbLignesCourant = nbLignesCourant;
+            executorService.execute(() -> {
+                if (finalNbLignesCourant == nbLignesTotal) {
+                    headerList.add(new RecordHeader("nbLinesTotal",  String.valueOf(nbLignesTotal).getBytes()));
+                }
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), "", ligneKbartConnect, headerList);
+                CompletableFuture<SendResult<String, LigneKbartConnect>>  result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
+                result.whenComplete((sr, ex) -> {
+                    try {
+                        logEnvoi(result.get(), record);
+                    } catch (InterruptedException | ExecutionException e) {
+                        log.warn("erreur de récupération du résultat de l'envoi");
+                    }
+                });
+            });
         }
-        if (!kbart.isEmpty())
-            log.debug("message envoyé vers {}", topicKbart);
     }
 
 
@@ -111,7 +137,7 @@ public class TopicProducer {
      * @param filename : nom du fichier à traiter
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
-    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) throws JsonProcessingException {
+    public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) {
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
@@ -182,9 +208,10 @@ public class TopicProducer {
 
     /**
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
-     * @param headerList list de Header (contient le nom du package et la date)
      */
-    public void sendEndOfTraitmentReport(List<Header> headerList) throws ExecutionException, InterruptedException {
+    public void sendEndOfTraitmentReport(String filename) {
+        List<Header> headerList = new ArrayList<>();
+        headerList.add(new RecordHeader("FileName", filename.getBytes(StandardCharsets.UTF_8)));
         try {
             ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
             kafkatemplateEndoftraitement.send(record);
