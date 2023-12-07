@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -39,7 +40,7 @@ public class TopicConsumer {
 
     private boolean isForced = false;
 
-    private boolean isOnError = false;
+    private final AtomicBoolean isOnError;
 
     private ExecutorService executorService;
 
@@ -65,6 +66,7 @@ public class TopicConsumer {
         this.semaphore = semaphore;
         this.nbLignesTraitees = new AtomicInteger(0);
         this.nbActiveThreads = new AtomicInteger(0);
+        this.isOnError = new AtomicBoolean(false);
     }
 
 
@@ -123,23 +125,32 @@ public class TopicConsumer {
     }
 
     private void handleFichier() {
+        //on attend que l'ensemble des threads aient terminé de travailler avant de lancer le commit
+        do {
+            try {
+                //ajout d'un sleep sur la durée du poll kafka pour être sur que le consumer de kbart ait lu au moins une fois
+                Thread.sleep(80);
+            } catch (InterruptedException e) {
+                log.warn("Erreur de sleep sur attente fin de traitement");
+            }
+        } while (this.nbActiveThreads.get() > 1);
         try {
-            if (!isOnError) {
+            if (isOnError.get()) {
+                isOnError.set(false);
+            } else {
                 String providerName = Utils.extractProvider(filename);
                 Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
                 service.commitDatas(providerOpt, providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
-                log.warn("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
+                log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
                 logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
-            } else {
-                isOnError = false;
             }
             emailService.sendMailWithAttachment(filename);
         } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException |
                  InterruptedException | IOException e) {
             addDataError(e.getMessage());
         } finally {
-            log.warn("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
+            log.info("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
             emailService.clearMailAttachment();
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
@@ -161,12 +172,11 @@ public class TopicConsumer {
                     log.warn("Erreur de sleep sur attente fin de traitement");
                 }
             } while (this.nbActiveThreads.get() != 0);
-            log.warn("boucle infinie terminée");
             if (this.filename.equals(extractFilenameFromHeader(error.headers().toArray()))) {
                 if (semaphore.tryAcquire()) {
                     emailService.addLineKbartToMailAttachementWithErrorMessage(error.value());
                     logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
-                    isOnError = true;
+                    isOnError.set(true);
                     handleFichier();
                 }
             }
@@ -196,14 +206,14 @@ public class TopicConsumer {
 
 
     private void addBestPPNSearchError(String message) {
-        isOnError = true;
+        isOnError.set(true);
         log.error(message);
         emailService.addLineKbartToMailAttachementWithErrorMessage(message);
         executionReportService.addNbLinesWithErrorsInBestPPNSearch();
     }
 
     private void addDataError(String message) {
-        isOnError = true;
+        isOnError.set(true);
         log.error(message);
         emailService.addLineKbartToMailAttachementWithErrorMessage(message);
         executionReportService.addNbLinesWithInputDataErrors();
