@@ -172,7 +172,7 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean injectKafka) throws BestPpnException {
+    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         return switch (ppnElecScore.size()) {
             case 0 -> {
@@ -192,7 +192,7 @@ public class BestPpnService {
                         String errorString = "Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.";
                         kbart.setErrorType(errorString);
                         // vérification du forçage
-                        if (injectKafka) {
+                        if (isForced) {
                             log.error(errorString);
                             yield new PpnWithDestinationDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
                         } else {
@@ -208,7 +208,7 @@ public class BestPpnService {
                 String errorString = "Kbart : " + kbart + " : Les ppn électroniques " + listPpn + " ont le même score";
                 kbart.setErrorType(errorString);
                 // vérification du forçage
-                if (injectKafka) {
+                if (isForced) {
                     log.error(errorString);
                     yield new PpnWithDestinationDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
                 } else {
