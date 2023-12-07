@@ -10,7 +10,6 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.mail.MailDto;
-import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -19,9 +18,14 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -40,10 +44,9 @@ public class EmailService {
 
     private final PackageKbartDto mailAttachment = new PackageKbartDto();
 
-    public void addLineKbartToMailAttachementWithErrorMessage(String messageError) {
-        LigneKbartDto ligneVide = new LigneKbartDto();
-        ligneVide.setErrorType(messageError);
-        mailAttachment.addKbartDto(ligneVide);
+    public void addLineKbartToMailAttachementWithErrorMessage(LigneKbartDto kbart, String messageError) {
+        kbart.setErrorType(messageError);
+        mailAttachment.addKbartDto(kbart);
     }
 
     public void addLineKbartToMailAttachment(LigneKbartDto dto) {
@@ -59,13 +62,13 @@ public class EmailService {
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv");
+            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
 
             //  Envoi du message par mail
-            sendMail(requestJson, file);
+            sendMailWithFile(requestJson, file);
 
             //  Suppression du csv temporaire
             Files.deleteIfExists(csvPath);
@@ -106,7 +109,32 @@ public class EmailService {
         }
     }
 
-    protected void sendMail(String requestJson, File f) {
+    protected void sendMail(String requestJson) {
+        RestTemplate restTemplate = new RestTemplate(); //appel ws qui envoie le mail
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestJson, headers);
+
+        restTemplate.getMessageConverters()
+                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        try {
+            restTemplate.postForObject(url + "htmlMail/", entity, String.class); //appel du ws avec
+        } catch (Exception e) {
+            log.error("Erreur dans l'envoi du mail d'erreur Sudoc" + e);
+        }
+        //  Création du l'adresse du ws d'envoi de mails
+        HttpPost mail = new HttpPost(this.url + "htmlMail/");
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            httpClient.execute(mail);
+        } catch (IOException e) {
+            log.error("Erreur lors de l'envoi du mail. " + e);
+        }
+    }
+
+    protected void sendMailWithFile(String requestJson, File f) {
         //  Création du l'adresse du ws d'envoi de mails
         HttpPost uploadFile = new HttpPost(this.url + "htmlMailAttachment/");
 
@@ -136,7 +164,7 @@ public class EmailService {
         }
     }
 
-    protected String mailToJSON(String to, String subject) {
+    protected String mailToJSON(String to, String subject, String text) {
         String json = "";
         ObjectMapper mapper = new ObjectMapper();
         MailDto mail = new MailDto();
@@ -145,7 +173,7 @@ public class EmailService {
         mail.setCc(new String[]{});
         mail.setCci(new String[]{});
         mail.setSubject(subject);
-        mail.setText("");
+        mail.setText(text);
         try {
             json = mapper.writeValueAsString(mail);
         } catch (JsonProcessingException e) {
@@ -156,5 +184,13 @@ public class EmailService {
 
     public void clearMailAttachment() {
         mailAttachment.clearKbartDto();
+    }
+
+    public void sendProductionErrorEmail(String packageName, String message) {
+        //  Création du mail
+        String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName, message);
+
+        //  Envoi du message par mail
+        sendMail(requestJson);
     }
 }

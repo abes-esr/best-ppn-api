@@ -24,7 +24,7 @@ public class LogFileService {
      * @param executionReport le rapport d'exécution qui sert à alimenter le fichier
      * @throws IOException exception levée
      */
-    public void createExecutionReport(String fileName, ExecutionReport executionReport, boolean isForced) throws IOException {
+    public void createExecutionReport(String fileName, ExecutionReport executionReport, boolean isForced) {
         try {
             // Création du fichier de log
             Logger logger = Logger.getLogger("ExecutionReport");
