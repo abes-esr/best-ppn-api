@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,16 +36,6 @@ public class TopicConsumer {
     private final ObjectMapper mapper;
     private final KbartService service;
 
-    @Value("${spring.kafka.concurrency.nbThread}")
-    private int nbThread;
-    private final EmailService emailService;
-
-    private String filename = "";
-
-    private boolean isForced = false;
-
-    private final AtomicBoolean isOnError;
-
     private ExecutorService executorService;
 
     private final ProviderRepository providerRepository;
@@ -54,11 +44,24 @@ public class TopicConsumer {
 
     private final LogFileService logFileService;
 
-    private AtomicInteger nbLignesTraitees;
+    private final EmailService emailService;
+
+    @Value("${spring.kafka.concurrency.nbThread}")
+    private int nbThread;
+
+    private final Set<String> filenames = Collections.synchronizedSet(new HashSet<>());
+
+    private final Map<String, AtomicBoolean> isForced = Collections.synchronizedMap(new HashMap<>());
+
+    private final Map<String, AtomicBoolean> isOnError = Collections.synchronizedMap(new HashMap<>());
+
+    private final Map<String, AtomicInteger> nbLignesTraitees = Collections.synchronizedMap(new HashMap<>());
+
+    private final AtomicInteger nbActiveThreads;
 
     private final Semaphore semaphore;
 
-    private final AtomicInteger nbActiveThreads;
+
 
 
     public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService, Semaphore semaphore) {
@@ -69,9 +72,7 @@ public class TopicConsumer {
         this.executionReportService = executionReportService;
         this.logFileService = logFileService;
         this.semaphore = semaphore;
-        this.nbLignesTraitees = new AtomicInteger(0);
         this.nbActiveThreads = new AtomicInteger(0);
-        this.isOnError = new AtomicBoolean(false);
     }
 
 
@@ -90,21 +91,27 @@ public class TopicConsumer {
         log.warn("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
         try {
             //traitement de chaque ligne kbart
-            this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
+            if (!this.filenames.contains(lignesKbart.key())) {
+                //nouveau fichier trouvé dans le topic, on initialise les variables partagées
+                this.filenames.add(extractFilenameFromKey(lignesKbart.key()));
+                this.nbLignesTraitees.put(lignesKbart.key(), new AtomicInteger(0));
+                this.isOnError.put(lignesKbart.key(), new AtomicBoolean(false));
+                this.isForced.put(lignesKbart.key(), new AtomicBoolean(false));
+            }
             LigneKbartDto ligneKbartDto = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
-            String providerName = Utils.extractProvider(filename);
+            String providerName = Utils.extractProvider(lignesKbart.key());
             executorService.execute(() -> {
                 try {
                     this.nbActiveThreads.incrementAndGet();
-                    this.nbLignesTraitees.incrementAndGet();
-                    ThreadContext.put("package", (filename));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
-                    service.processConsumerRecord(ligneKbartDto, providerName, isForced);
+                    this.nbLignesTraitees.get(lignesKbart.key()).incrementAndGet();
+                    ThreadContext.put("package", (lignesKbart.key()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
+                    service.processConsumerRecord(ligneKbartDto, providerName, isForced.get(lignesKbart.key()).get());
                     Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
-                        if (nbLignesTotal == nbLignesTraitees.get() && semaphore.tryAcquire()) {
+                        if (nbLignesTotal == nbLignesTraitees.get(lignesKbart.key()).get() && semaphore.tryAcquire()) {
                             executionReportService.setNbtotalLines(nbLignesTotal);
-                            handleFichier();
+                            handleFichier(lignesKbart.key());
                         }
                     }
                 } catch (IOException | URISyntaxException | IllegalDoiException e) {
@@ -113,24 +120,26 @@ public class TopicConsumer {
                     emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
                     executionReportService.addNbLinesWithInputDataErrors();
                 } catch (BestPpnException e) {
-                    if (isForced) {
-                        //si le programme doit forcer l'insertion, il n'est pas arrêté en cas d'erreur sur le calcul du bestPpn
-                        log.error(e.getMessage());
-                        emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
-                        executionReportService.addNbLinesWithErrorsInBestPPNSearch();
-                    } else {
-                        addBestPPNSearchError(ligneKbartDto, e.getMessage());
+                    if (!isForced.get(lignesKbart.key()).get()) {
+                        isOnError.get(lignesKbart.key()).set(true);
                     }
+                    log.error(e.getMessage());
+                    emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
+                    executionReportService.addNbLinesWithErrorsInBestPPNSearch();
                 } finally {
                     this.nbActiveThreads.addAndGet(-1);
                 }
             });
         } catch (IllegalProviderException | JsonProcessingException e) {
-            addDataError(new LigneKbartDto(), e.getMessage());
+            isOnError.get(lignesKbart.key()).set(true);
+            log.error(e.getMessage());
+            emailService.addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
+            executionReportService.addNbLinesWithInputDataErrors();
         }
     }
 
-    private void handleFichier() {
+
+    private void handleFichier(String filename) {
         //on attend que l'ensemble des threads aient terminé de travailler avant de lancer le commit
         do {
             try {
@@ -141,26 +150,26 @@ public class TopicConsumer {
             }
         } while (this.nbActiveThreads.get() > 1);
         try {
-            if (isOnError.get()) {
-                isOnError.set(false);
+            if (isOnError.get(filename).get()) {
+                isOnError.get(filename).set(false);
             } else {
                 String providerName = Utils.extractProvider(filename);
                 Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
                 service.commitDatas(providerOpt, providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
                 log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
-                logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
+                logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced.get(filename).get());
             }
             emailService.sendMailWithAttachment(filename);
         } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException |
                  InterruptedException | IOException e) {
-            emailService.sendProductionErrorEmail(this.filename, e.getMessage());
+            emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            log.info("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
+            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + nbLignesTraitees);
             emailService.clearMailAttachment();
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
-            nbLignesTraitees = new AtomicInteger(0);
+            nbLignesTraitees.remove(filename);
             clearSharedObjects();
             semaphore.release();
         }
@@ -177,12 +186,13 @@ public class TopicConsumer {
                 log.warn("Erreur de sleep sur attente fin de traitement");
             }
         } while (this.nbActiveThreads.get() != 0);
-        if (this.filename.equals(extractFilenameFromHeader(error.headers().toArray()))) {
+        if (this.filenames.contains(extractFilenameFromKey(error.key()))) {
+            String fileNameFromError = error.key();
             if (semaphore.tryAcquire()) {
-                emailService.sendProductionErrorEmail(this.filename, error.value());
-                logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), isForced);
-                isOnError.set(true);
-                handleFichier();
+                emailService.sendProductionErrorEmail(fileNameFromError, error.value());
+                logFileService.createExecutionReport(fileNameFromError, executionReportService.getExecutionReport(), isForced.get(fileNameFromError).get());
+                isOnError.get(fileNameFromError).set(true);
+                handleFichier(fileNameFromError);
             }
         }
     }
@@ -193,31 +203,10 @@ public class TopicConsumer {
         service.clearListesKbart();
     }
 
-    private String extractFilenameFromHeader(Header[] headers) {
-        String nomFichier = "";
-        for (Header header : headers) {
-            if (header.key().equals("FileName")) {
-                nomFichier = new String(header.value());
-                if (nomFichier.contains("_FORCE")) {
-                    isForced = true;
-                }
-            }
+    private String extractFilenameFromKey(String key) {
+        if (key.contains("_FORCE")) {
+            this.isForced.get(key).set(true);
         }
-        return nomFichier;
-    }
-
-
-    private void addBestPPNSearchError(LigneKbartDto ligneKbartDto, String message) {
-        isOnError.set(true);
-        log.error(message);
-        emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, message);
-        executionReportService.addNbLinesWithErrorsInBestPPNSearch();
-    }
-
-    private void addDataError(LigneKbartDto ligneKbartDto, String message) {
-        isOnError.set(true);
-        log.error(message);
-        emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, message);
-        executionReportService.addNbLinesWithInputDataErrors();
+        return key;
     }
 }
