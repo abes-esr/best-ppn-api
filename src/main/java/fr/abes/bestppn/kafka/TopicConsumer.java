@@ -130,7 +130,6 @@ public class TopicConsumer {
             try {
                 //ajout d'un sleep sur la durée du poll kafka pour être sur que le consumer de kbart ait lu au moins une fois
                 Thread.sleep(80);
-                log.error(String.valueOf(this.nbActiveThreads.get()));
             } catch (InterruptedException e) {
                 log.warn("Erreur de sleep sur attente fin de traitement");
             }
