@@ -92,12 +92,12 @@ public class TopicConsumer {
             //traitement de chaque ligne kbart
             this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
             LigneKbartDto ligneKbartDto = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
-            ThreadContext.put("package", (filename));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
             String providerName = Utils.extractProvider(filename);
             executorService.execute(() -> {
                 try {
                     this.nbActiveThreads.incrementAndGet();
                     this.nbLignesTraitees.incrementAndGet();
+                    ThreadContext.put("package", (filename));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, isForced);
                     Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
