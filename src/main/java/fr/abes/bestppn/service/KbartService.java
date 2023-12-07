@@ -1,6 +1,5 @@
 package fr.abes.bestppn.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
@@ -13,7 +12,6 @@ import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +26,6 @@ import java.util.concurrent.ExecutionException;
 @Service
 @Slf4j
 public class KbartService {
-    private final ObjectMapper mapper;
-
     private final BestPpnService service;
 
     private final TopicProducer producer;
@@ -50,8 +46,7 @@ public class KbartService {
     private final ExecutionReportService executionReportService;
 
 
-    public KbartService(ObjectMapper mapper, BestPpnService service, TopicProducer producer, EmailService serviceMail, ProviderService providerService, ExecutionReportService executionReportService) {
-        this.mapper = mapper;
+    public KbartService(BestPpnService service, TopicProducer producer, EmailService serviceMail, ProviderService providerService, ExecutionReportService executionReportService) {
         this.service = service;
         this.producer = producer;
         this.serviceMail = serviceMail;
@@ -60,9 +55,8 @@ public class KbartService {
     }
 
     @Transactional
-    public void processConsumerRecord(ConsumerRecord<String, String> lignesKbart, String providerName, boolean isForced) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
-        LigneKbartDto ligneFromKafka = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
-        log.info("Début calcul BestPpn pour la ligne " + lignesKbart);
+    public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+        log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
         if (ligneFromKafka.isBestPpnEmpty()) {
             log.info(ligneFromKafka.toString());
             PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, isForced);
@@ -79,7 +73,7 @@ public class KbartService {
                 }
             }
         } else {
-            log.info("Bestppn déjà existant sur la ligne : " + lignesKbart + ",PPN : " + ligneFromKafka.getBestPpn());
+            log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
         }
         kbartToSend.add(ligneFromKafka);
         serviceMail.addLineKbartToMailAttachment(ligneFromKafka);
