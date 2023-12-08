@@ -1,5 +1,6 @@
 package fr.abes.bestppn.dto.wscall;
 
+import fr.abes.bestppn.dto.PpnDto;
 import fr.abes.bestppn.utils.TYPE_DOCUMENT;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import lombok.Data;
@@ -7,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PpnWithTypeDto {
+public class PpnWithTypeDto extends PpnDto {
     private String ppn;
     private TYPE_SUPPORT typeSupport;
 

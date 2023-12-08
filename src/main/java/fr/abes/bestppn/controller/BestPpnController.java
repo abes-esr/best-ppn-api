@@ -41,7 +41,8 @@ public class BestPpnController {
                           @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
                           @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "titleUrl", required = false) String titleUrl,
                           @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
-                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force) throws IOException {
+                          @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force,
+                          @RequestParam(name = "logs", required = false) Boolean logs) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublicationType(publicationType);
