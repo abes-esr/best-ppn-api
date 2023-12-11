@@ -86,6 +86,9 @@ public class KbartService {
         producer.sendPrintNotice(ppnToCreate, filename);
         producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
         clearListesKbart();
+    }
+
+    public void finishLogFile(String filename){
         producer.sendEndOfTraitmentReport(filename);
     }
 
