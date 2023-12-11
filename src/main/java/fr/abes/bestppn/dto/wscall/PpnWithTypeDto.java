@@ -1,32 +1,33 @@
 package fr.abes.bestppn.dto.wscall;
 
-import fr.abes.bestppn.dto.PpnDto;
 import fr.abes.bestppn.utils.TYPE_DOCUMENT;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-public class PpnWithTypeDto extends PpnDto {
+public class PpnWithTypeDto {
+    private String ppn;
+    private TYPE_SUPPORT typeSupport;
 
     private TYPE_DOCUMENT typeDocument;
     private Boolean providerPresent = false;
 
 
     public PpnWithTypeDto(String ppn, TYPE_SUPPORT typeSupport, TYPE_DOCUMENT typeDocument) {
-        super(ppn, typeSupport);
+        this.ppn = ppn;
+        this.typeSupport = typeSupport;
         this.typeDocument = typeDocument;
     }
 
     public PpnWithTypeDto(String ppn, TYPE_SUPPORT typeSupport) {
-        super(ppn, typeSupport);
+        this.ppn = ppn;
+        this.typeSupport = typeSupport;
     }
 
     public PpnWithTypeDto(String ppn) {
-        super.setPpn(ppn);
+        this.ppn = ppn;
     }
 
     public boolean isProviderPresent() {

@@ -3,7 +3,7 @@ package fr.abes.bestppn.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.configuration.MapperConfig;
 import fr.abes.bestppn.configuration.RestConfiguration;
-import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
+import fr.abes.bestppn.dto.kafka.PpnDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.ExceptionControllerHandler;
 import fr.abes.bestppn.exception.IllegalDoiException;
@@ -59,8 +59,8 @@ public class BestPpnControllerTest {
 
     @Test
     @DisplayName("test controller with wrong number of parameters")
-    void testBestPpnControllerWrongNumberOfParameters() throws Exception, IllegalDoiException {
-        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new PpnWithDestinationDto("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
+    void testBestPpnControllerWrongNumberOfParameters() throws Exception {
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new PpnDto("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
         this.mockMvc.perform(get("/api/v1/bestPpn").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof MissingServletRequestParameterException)))
@@ -75,7 +75,7 @@ public class BestPpnControllerTest {
     @Test
     @DisplayName("test controller with wrong URL format")
     void testBestPpnControllerBadUrlFormat() throws Exception {
-        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new URISyntaxException("test", "Format d'URL incorrect"));
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(new URISyntaxException("test", "Format d'URL incorrect"));
         this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> Assertions.assertTrue((result.getResolvedException() instanceof IllegalArgumentException)))
@@ -85,7 +85,7 @@ public class BestPpnControllerTest {
     @Test
     @DisplayName("test controller with BestPpnException")
     void testBestPpnControllerBestPpnException() throws Exception {
-        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new BestPpnException("Plusieurs ppn imprimés"));
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(new BestPpnException("Plusieurs ppn imprimés"));
         this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("Plusieurs ppn imprimés")));
@@ -94,7 +94,7 @@ public class BestPpnControllerTest {
     @Test
     @DisplayName("test controller Ok")
     void testBestPpnControllerOk() throws Exception {
-        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new PpnWithDestinationDto("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
+        Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new PpnDto("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
         this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> Assertions.assertTrue(result.getResponse().getContentAsString(StandardCharsets.UTF_8).contains("111111111")));

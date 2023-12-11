@@ -1,6 +1,7 @@
 package fr.abes.bestppn.controller;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.dto.kafka.PpnDto;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.service.BestPpnService;
@@ -37,12 +38,12 @@ public class BestPpnController {
             }
     )
     @GetMapping(value = "/bestPpn")
-    public String bestPpn(@RequestParam(name = "provider") String provider, @RequestParam(name = "publication_title", required = false) String publicationTitle,
+    public PpnDto bestPpn(@RequestParam(name = "provider") String provider, @RequestParam(name = "publication_title", required = false) String publicationTitle,
                           @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
                           @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "titleUrl", required = false) String titleUrl,
                           @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
                           @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force,
-                          @RequestParam(name = "logs", required = false) Boolean logs) throws IOException {
+                          @RequestParam(name = "errors", required = false) Boolean errors) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublicationType(publicationType);
@@ -54,11 +55,12 @@ public class BestPpnController {
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
             boolean injectKafka = (force != null) ? force : false;
-            return service.getBestPpn(ligneKbartDto, provider, injectKafka).getPpn();
+            boolean sendErrors = (errors != null) ? errors : false;
+            return service.getBestPpn(ligneKbartDto, provider, injectKafka, sendErrors);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
         } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {
-            return e.getMessage();
+            return new PpnDto(e.getMessage());
         }
     }
 }

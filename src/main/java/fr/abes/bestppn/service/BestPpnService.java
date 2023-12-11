@@ -1,7 +1,7 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnWithDestinationDto;
+import fr.abes.bestppn.dto.kafka.PpnDto;
 import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
 import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
@@ -57,7 +57,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public PpnWithDestinationDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
+    public PpnDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka, boolean sendErrors) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
 
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -82,7 +82,7 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
-        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
+        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka, sendErrors);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
@@ -172,7 +172,7 @@ public class BestPpnService {
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public PpnWithDestinationDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced) throws BestPpnException {
+    public PpnDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced, boolean sendErrors) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         return switch (ppnElecScore.size()) {
             case 0 -> {
@@ -180,12 +180,20 @@ public class BestPpnService {
                 yield switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         kbart.setErrorType("Aucun ppn trouvé");
-                        yield new PpnWithDestinationDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC);
+                        if(sendErrors) {
+                            yield new PpnDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, "Aucun ppn électronique trouvé.");
+                        } else {
+                            yield new PpnDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC);
+                        }
                     }
 
                     case 1 -> {
                         kbart.setErrorType("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
-                        yield new PpnWithDestinationDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC);
+                        if(sendErrors) {
+                            yield new PpnDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, "Ppn imprimé trouvé à la place d'un ppn électronique : " + ppnPrintResultList.stream().toList().get(0));
+                        } else {
+                            yield new PpnDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME);
+                        }
                     }
 
                     default -> {
@@ -194,14 +202,18 @@ public class BestPpnService {
                         // vérification du forçage
                         if (isForced) {
                             log.error(errorString);
-                            yield new PpnWithDestinationDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
+                            if (sendErrors) {
+                                yield new PpnDto("",DESTINATION_TOPIC.BEST_PPN_BACON, "Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                            } else {
+                                yield new PpnDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
+                            }
                         } else {
                             throw new BestPpnException(errorString);
                         }
                     }
                 };
             }
-            case 1 -> new PpnWithDestinationDto(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON);
+            case 1 -> new PpnDto(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE);
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
@@ -210,7 +222,11 @@ public class BestPpnService {
                 // vérification du forçage
                 if (isForced) {
                     log.error(errorString);
-                    yield new PpnWithDestinationDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
+                    if (sendErrors) {
+                        yield new PpnDto("", DESTINATION_TOPIC.BEST_PPN_BACON, errorString);
+                    } else {
+                        yield new PpnDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
+                    }
                 } else {
                     throw new BestPpnException(errorString);
                 }
