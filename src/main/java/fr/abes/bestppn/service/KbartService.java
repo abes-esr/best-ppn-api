@@ -32,6 +32,10 @@ public class KbartService {
 
     private final EmailService serviceMail;
 
+    private final ProviderService providerService;
+
+    private final ExecutionReportService executionReportService;
+
     @Getter
     private final List<LigneKbartDto> kbartToSend = Collections.synchronizedList(new ArrayList<>());
 
@@ -40,10 +44,6 @@ public class KbartService {
 
     @Getter
     private final List<LigneKbartDto> ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
-
-    private final ProviderService providerService;
-
-    private final ExecutionReportService executionReportService;
 
 
     public KbartService(BestPpnService service, TopicProducer producer, EmailService serviceMail, ProviderService providerService, ExecutionReportService executionReportService) {
