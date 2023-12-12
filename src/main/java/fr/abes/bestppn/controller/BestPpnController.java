@@ -58,8 +58,9 @@ public class BestPpnController {
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
             boolean injectKafka = (force != null) ? force : false;
-            boolean sendLog = (log != null) ? log : false;
-            BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, injectKafka, sendLog);
+            boolean isSendLog = (log != null) ? log : false;
+            BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, injectKafka, isSendLog);
+            if(!isSendLog) bestPpn.setLogs(null); // désactive l'envoi des logs si non demandés.
             return new BestPpnDto(bestPpn.getPpn(), bestPpn.getTypeSupport(), bestPpn.getLogs());
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
