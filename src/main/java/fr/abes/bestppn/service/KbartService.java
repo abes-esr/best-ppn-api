@@ -1,10 +1,10 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.BestPpn;
-import fr.abes.bestppn.entity.bacon.Provider;
-import fr.abes.bestppn.entity.bacon.ProviderPackage;
+import fr.abes.bestppn.model.entity.bacon.Provider;
+import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalDoiException;

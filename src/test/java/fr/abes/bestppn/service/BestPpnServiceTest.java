@@ -2,12 +2,12 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.BestPpn;
-import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
-import fr.abes.bestppn.dto.wscall.ResultDat2PpnWebDto;
-import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
-import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
+import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
+import fr.abes.bestppn.model.dto.wscall.ResultDat2PpnWebDto;
+import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
+import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;

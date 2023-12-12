@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.kafka;
+package fr.abes.bestppn.model.dto.kafka;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

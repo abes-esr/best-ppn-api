@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto;
+package fr.abes.bestppn.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;

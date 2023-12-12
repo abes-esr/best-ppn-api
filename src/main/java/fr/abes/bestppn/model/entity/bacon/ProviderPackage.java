@@ -1,4 +1,4 @@
-package fr.abes.bestppn.entity.bacon;
+package fr.abes.bestppn.model.entity.bacon;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

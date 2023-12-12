@@ -1,8 +1,8 @@
 package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import fr.abes.bestppn.entity.basexml.NoticesBibio;
-import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
+import fr.abes.bestppn.model.entity.basexml.NoticesBibio;
+import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.repository.basexml.NoticesBibioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

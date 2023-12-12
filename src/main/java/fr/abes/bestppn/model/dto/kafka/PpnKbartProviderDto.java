@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.kafka;
+package fr.abes.bestppn.model.dto.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

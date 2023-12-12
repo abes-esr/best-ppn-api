@@ -1,4 +1,4 @@
-package fr.abes.bestppn.entity.basexml;
+package fr.abes.bestppn.model.entity.basexml;
 
 import jakarta.persistence.*;
 import lombok.Getter;

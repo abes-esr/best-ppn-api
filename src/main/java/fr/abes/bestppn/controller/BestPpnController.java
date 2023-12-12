@@ -1,7 +1,7 @@
 package fr.abes.bestppn.controller;
 
-import fr.abes.bestppn.dto.BestPpnDto;
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.BestPpnDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDoiException;
