@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PpnControllerDto {
+public class BestPpnDto {
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String ppn;
@@ -25,13 +25,13 @@ public class PpnControllerDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> logs;
 
-    public PpnControllerDto (String ppn, TYPE_SUPPORT typeSupport, List<String> logs) {
+    public BestPpnDto(String ppn, TYPE_SUPPORT typeSupport, List<String> logs) {
         this.ppn = ppn;
         this.typeSupport = typeSupport;
         this.logs = logs;
     }
 
-    public  PpnControllerDto (List<String> logs) {
+    public BestPpnDto(List<String> logs) {
         this.logs = logs;
     }
 }

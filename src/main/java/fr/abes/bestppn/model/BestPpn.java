@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.kafka;
+package fr.abes.bestppn.model;
 
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PpnDto {
+public class BestPpn {
 
     @Nullable
     private String ppn;
@@ -26,24 +26,24 @@ public class PpnDto {
     @Nullable
     private List<String> logs;
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination) {
+    public BestPpn(String ppn, DESTINATION_TOPIC destination) {
         this.ppn = ppn;
         this.destination = destination;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport) {
+    public BestPpn(String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport) {
         this.ppn = ppn;
         this.destination = destination;
         this.typeSupport = typeSupport;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, List<String> logs) {
+    public BestPpn(String ppn, DESTINATION_TOPIC destination, List<String> logs) {
         this.ppn = ppn;
         this.destination = destination;
         this.logs = logs;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, List<String> logs) {
+    public BestPpn(String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, List<String> logs) {
         this.ppn = ppn;
         this.destination = destination;
         this.typeSupport = typeSupport;

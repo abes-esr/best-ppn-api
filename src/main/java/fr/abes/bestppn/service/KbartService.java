@@ -2,7 +2,7 @@ package fr.abes.bestppn.service;
 
 import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.dto.kafka.PpnDto;
+import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
@@ -59,13 +59,13 @@ public class KbartService {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
         if (ligneFromKafka.isBestPpnEmpty()) {
             log.info(ligneFromKafka.toString());
-            PpnDto ppnDto = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
-            switch (ppnDto.getDestination()) {
+            BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
+            switch (bestPpn.getDestination()) {
                 case BEST_PPN_BACON -> {
-                    ligneFromKafka.setBestPpn(ppnDto.getPpn());
+                    ligneFromKafka.setBestPpn(bestPpn.getPpn());
                     executionReportService.addNbBestPpnFind();
                 }
-                case PRINT_PPN_SUDOC -> ppnToCreate.add(getLigneKbartImprime(ppnDto, ligneFromKafka));
+                case PRINT_PPN_SUDOC -> ppnToCreate.add(getLigneKbartImprime(bestPpn, ligneFromKafka));
                 case NO_PPN_FOUND_SUDOC -> {
                     if (ligneFromKafka.getPublicationType().equals("monograph")) {
                         ppnFromKbartToCreate.add(ligneFromKafka);
@@ -95,9 +95,9 @@ public class KbartService {
         ppnFromKbartToCreate.clear();
     }
 
-    private static LigneKbartImprime getLigneKbartImprime(PpnDto ppnDto, LigneKbartDto ligneFromKafka) {
+    private static LigneKbartImprime getLigneKbartImprime(BestPpn bestPpn, LigneKbartDto ligneFromKafka) {
         return LigneKbartImprime.newBuilder()
-                .setPpn(ppnDto.getPpn())
+                .setPpn(bestPpn.getPpn())
                 .setPublicationTitle(ligneFromKafka.getPublicationTitle())
                 .setPrintIdentifier(ligneFromKafka.getPrintIdentifier())
                 .setOnlineIdentifier(ligneFromKafka.getOnlineIdentifier())
