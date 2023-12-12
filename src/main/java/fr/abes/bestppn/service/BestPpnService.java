@@ -11,6 +11,7 @@ import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.utils.*;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Getter
@@ -49,6 +47,10 @@ public class BestPpnService {
 
     private final CheckUrlService checkUrlService;
 
+    private List<String> kbartLineLogs;
+
+    @Setter
+    private Boolean sendLogs;
 
     public BestPpnService(WsService service, NoticeService noticeService, TopicProducer topicProducer, CheckUrlService checkUrlService) {
         this.service = service;
@@ -57,18 +59,22 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public PpnDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka, boolean sendErrors) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
+    public PpnDto getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka, boolean sendLogs) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
 
+        kbartLineLogs = new ArrayList<>();
+        this.sendLogs = sendLogs;
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
 
         if (!kbart.getPublicationType().isEmpty()) {
             provider = kbart.getPublicationType().equals(PUBLICATION_TYPE.serial.toString()) ? "" : provider;
             if (kbart.getOnlineIdentifier() != null && !kbart.getOnlineIdentifier().isEmpty()) {
+                if (sendLogs) kbartLineLogs.add("paramètres en entrée : type : " + kbart.getPublicationType() + " / id : " + kbart.getOnlineIdentifier() + " / provider : " + provider);
                 log.debug("paramètres en entrée : type : " + kbart.getPublicationType() + " / id : " + kbart.getOnlineIdentifier() + " / provider : " + provider);
                 feedPpnListFromOnline(kbart, provider, ppnElecScoredList, ppnPrintResultList);
             }
             if (kbart.getPrintIdentifier() != null && !kbart.getPrintIdentifier().isEmpty()) {
+                if (sendLogs) kbartLineLogs.add("paramètres en entrée : type : " + kbart.getPublicationType() + " / id : " + kbart.getPrintIdentifier() + " / provider : " + provider);
                 log.debug("paramètres en entrée : type : " + kbart.getPublicationType() + " / id : " + kbart.getPrintIdentifier() + " / provider : " + provider);
                 feedPpnListFromPrint(kbart, provider, ppnElecScoredList, ppnPrintResultList);
             }
@@ -82,10 +88,11 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
         }
 
-        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka, sendErrors);
+        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
+        if (sendLogs) kbartLineLogs.add("Entrée dans onlineId2Ppn");
         log.debug("Entrée dans onlineId2Ppn");
         try {
             setScoreToEveryPpnFromResultWS(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider), kbart.getTitleUrl(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList);
@@ -95,6 +102,7 @@ public class BestPpnService {
     }
 
     private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
+        if (sendLogs) kbartLineLogs.add("Entrée dans printId2Ppn");
         log.debug("Entrée dans printId2Ppn");
         try {
             ResultWsSudocDto resultCallWs = service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider);
@@ -114,14 +122,17 @@ public class BestPpnService {
     private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException {
         ResultDat2PpnWebDto resultDat2PpnWeb = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
+            if (sendLogs) kbartLineLogs.add("Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle());
         } else if (ppnElecScoredList.isEmpty() && !kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
+            if (sendLogs) kbartLineLogs.add("Appel dat2ppn :  date_monograph_published_print : " + kbart.getAnneeFromDate_monograph_published_print() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             log.debug("Appel dat2ppn :  date_monograph_published_print : " + kbart.getAnneeFromDate_monograph_published_print() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle());
         }
         if(resultDat2PpnWeb != null && !resultDat2PpnWeb.getPpns().isEmpty()) {
             for (String ppn : resultDat2PpnWeb.getPpns()) {
+                if (sendLogs) kbartLineLogs.add("résultat : ppn " + ppn);
                 log.debug("résultat : ppn " + ppn);
                 NoticeXml notice = noticeService.getNoticeByPpn(ppn);
                 if (notice.isNoticeElectronique()) {
@@ -140,6 +151,7 @@ public class BestPpnService {
             if(ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)){
                 setScoreToPpnElect(scoreDoi2Ppn,ppnElecScoredList,nbPpnElec,ppn);
             } else {
+                if (sendLogs) kbartLineLogs.add("PPN Imprimé : " + ppn);
                 log.info("PPN Imprimé : " + ppn);
                 ppnPrintResultList.add(ppn.getPpn());
             }
@@ -151,11 +163,13 @@ public class BestPpnService {
             int nbPpnElec = (int) resultCallWs.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if(ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
+                    if (sendLogs) kbartLineLogs.add("PPN Imprimé : " + ppn);
                     log.info("PPN Imprimé : " + ppn);
                     ppnPrintResultList.add(ppn.getPpn());
                 } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)){
                     setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn);
                 } else {
+                    if (sendLogs) kbartLineLogs.add("Le PPN " + ppn + " n'a pas de provider trouvé");
                     log.error("Le PPN " + ppn + " n'a pas de provider trouvé");
                 }
             }
@@ -169,19 +183,21 @@ public class BestPpnService {
         } else {
             ppnElecScoredList.put(ppn.getPpn(), (score / nbPpnElec));
         }
+        if (sendLogs) kbartLineLogs.add("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
         log.info("PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public PpnDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced, boolean sendErrors) throws BestPpnException {
+    public PpnDto getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         return switch (ppnElecScore.size()) {
             case 0 -> {
-                log.info("Aucun ppn électronique trouvé." + kbart);
+                if (sendLogs) kbartLineLogs.add("Aucun ppn électronique trouvé. " + kbart);
+                log.info("Aucun ppn électronique trouvé. " + kbart);
                 yield switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         kbart.setErrorType("Aucun ppn trouvé");
-                        if(sendErrors) {
-                            yield new PpnDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, "Aucun ppn électronique trouvé.");
+                        if(sendLogs) {
+                            yield new PpnDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, kbartLineLogs);
                         } else {
                             yield new PpnDto(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC);
                         }
@@ -189,8 +205,9 @@ public class BestPpnService {
 
                     case 1 -> {
                         kbart.setErrorType("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
-                        if(sendErrors) {
-                            yield new PpnDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, "Ppn imprimé trouvé à la place d'un ppn électronique : " + ppnPrintResultList.stream().toList().get(0));
+                        if(sendLogs) {
+                            kbartLineLogs.add("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
+                            yield new PpnDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, kbartLineLogs);
                         } else {
                             yield new PpnDto(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME);
                         }
@@ -202,8 +219,9 @@ public class BestPpnService {
                         // vérification du forçage
                         if (isForced) {
                             log.error(errorString);
-                            if (sendErrors) {
-                                yield new PpnDto("",DESTINATION_TOPIC.BEST_PPN_BACON, "Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                            if (sendLogs) {
+                                kbartLineLogs.add("Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.");
+                                yield new PpnDto("",DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
                             } else {
                                 yield new PpnDto("",DESTINATION_TOPIC.BEST_PPN_BACON);
                             }
@@ -213,7 +231,13 @@ public class BestPpnService {
                     }
                 };
             }
-            case 1 -> new PpnDto(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE);
+            case 1 -> {
+                if (sendLogs) {
+                    yield new PpnDto(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE, kbartLineLogs);
+                } else {
+                    yield new PpnDto(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE);
+                }
+            }
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
@@ -222,8 +246,9 @@ public class BestPpnService {
                 // vérification du forçage
                 if (isForced) {
                     log.error(errorString);
-                    if (sendErrors) {
-                        yield new PpnDto("", DESTINATION_TOPIC.BEST_PPN_BACON, errorString);
+                    if (sendLogs) {
+                        kbartLineLogs.add(errorString);
+                        yield new PpnDto("", DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
                     } else {
                         yield new PpnDto("", DESTINATION_TOPIC.BEST_PPN_BACON);
                     }

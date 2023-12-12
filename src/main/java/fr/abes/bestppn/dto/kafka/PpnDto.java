@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +24,7 @@ public class PpnDto {
     private DESTINATION_TOPIC destination;
 
     @Nullable
-    private String log;
+    private List<String> logs;
 
     public PpnDto (String ppn, DESTINATION_TOPIC destination) {
         this.ppn = ppn;
@@ -35,16 +37,16 @@ public class PpnDto {
         this.typeSupport = typeSupport;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, String log) {
+    public PpnDto (String ppn, DESTINATION_TOPIC destination, List<String> logs) {
         this.ppn = ppn;
         this.destination = destination;
-        this.log = log;
+        this.logs = logs;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, String log) {
+    public PpnDto (String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, List<String> logs) {
         this.ppn = ppn;
         this.destination = destination;
         this.typeSupport = typeSupport;
-        this.log = log;
+        this.logs = logs;
     }
 }

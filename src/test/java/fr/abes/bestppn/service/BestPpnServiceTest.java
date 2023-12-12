@@ -629,7 +629,8 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000001", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false, false);
+        bestPpnService.setSendLogs(false);
+        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
         Assertions.assertEquals("100000001", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -643,7 +644,8 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false, false);
+        bestPpnService.setSendLogs(false);
+        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
         Assertions.assertEquals("100000002", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -657,7 +659,8 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true, false);
+        bestPpnService.setSendLogs(false);
+        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
         Assertions.assertEquals("", result.getPpn());
     }
 
@@ -672,7 +675,8 @@ class BestPpnServiceTest {
         ppnPrintResultList.add("100000001");
         ppnPrintResultList.add("100000002");
 
-        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true, false);
+        bestPpnService.setSendLogs(false);
+        PpnDto result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
         Assertions.assertEquals("", result.getPpn());
     }
 

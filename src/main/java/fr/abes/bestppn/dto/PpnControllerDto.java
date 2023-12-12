@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,15 +23,15 @@ public class PpnControllerDto {
 
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String log;
+    private List<String> logs;
 
-    public PpnControllerDto (String ppn, TYPE_SUPPORT typeSupport, String log) {
+    public PpnControllerDto (String ppn, TYPE_SUPPORT typeSupport, List<String> logs) {
         this.ppn = ppn;
         this.typeSupport = typeSupport;
-        this.log = log;
+        this.logs = logs;
     }
 
-    public  PpnControllerDto (String log) {
-        this.log = log;
+    public  PpnControllerDto (List<String> logs) {
+        this.logs = logs;
     }
 }

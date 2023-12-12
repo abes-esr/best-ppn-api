@@ -17,6 +17,8 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Tag(name = "Calcul du meilleur PPN", description = "API de calcul du meilleur PPN pour une ligne tsv")
 @CrossOrigin(origins = "*")
@@ -44,7 +46,7 @@ public class BestPpnController {
                                         @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "titleUrl", required = false) String titleUrl,
                                         @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
                                         @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force,
-                                        @RequestParam(name = "log", required = false) Boolean errors) throws IOException {
+                                        @RequestParam(name = "log", required = false) Boolean log) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublicationType(publicationType);
@@ -56,13 +58,15 @@ public class BestPpnController {
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
             boolean injectKafka = (force != null) ? force : false;
-            boolean sendErrors = (errors != null) ? errors : false;
-            PpnDto ppnDto = service.getBestPpn(ligneKbartDto, provider, injectKafka, sendErrors);
-            return new PpnControllerDto(ppnDto.getPpn(), ppnDto.getTypeSupport(), ppnDto.getLog());
+            boolean sendLog = (log != null) ? log : false;
+            PpnDto ppnDto = service.getBestPpn(ligneKbartDto, provider, injectKafka, sendLog);
+            return new PpnControllerDto(ppnDto.getPpn(), ppnDto.getTypeSupport(), ppnDto.getLogs());
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
         } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {
-            return new PpnControllerDto(e.getMessage());
+            List<String> logs = new ArrayList<>();
+            logs.add(e.getMessage());
+            return new PpnControllerDto(logs);
         }
     }
 }
