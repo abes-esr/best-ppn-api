@@ -21,15 +21,15 @@ public class PpnControllerDto {
 
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String error;
+    private String log;
 
-    public PpnControllerDto (String ppn, TYPE_SUPPORT typeSupport, String error) {
+    public PpnControllerDto (String ppn, TYPE_SUPPORT typeSupport, String log) {
         this.ppn = ppn;
         this.typeSupport = typeSupport;
-        this.error = error;
+        this.log = log;
     }
 
-    public  PpnControllerDto (String error) {
-        this.error = error;
+    public  PpnControllerDto (String log) {
+        this.log = log;
     }
 }

@@ -44,7 +44,7 @@ public class BestPpnController {
                                         @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "titleUrl", required = false) String titleUrl,
                                         @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
                                         @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force,
-                                        @RequestParam(name = "errors", required = false) Boolean errors) throws IOException {
+                                        @RequestParam(name = "log", required = false) Boolean errors) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
             ligneKbartDto.setPublicationType(publicationType);
@@ -58,7 +58,7 @@ public class BestPpnController {
             boolean injectKafka = (force != null) ? force : false;
             boolean sendErrors = (errors != null) ? errors : false;
             PpnDto ppnDto = service.getBestPpn(ligneKbartDto, provider, injectKafka, sendErrors);
-            return new PpnControllerDto(ppnDto.getPpn(), ppnDto.getTypeSupport(), ppnDto.getError());
+            return new PpnControllerDto(ppnDto.getPpn(), ppnDto.getTypeSupport(), ppnDto.getLog());
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
         } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {

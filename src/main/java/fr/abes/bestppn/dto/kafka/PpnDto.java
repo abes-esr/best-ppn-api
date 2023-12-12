@@ -22,7 +22,7 @@ public class PpnDto {
     private DESTINATION_TOPIC destination;
 
     @Nullable
-    private String error;
+    private String log;
 
     public PpnDto (String ppn, DESTINATION_TOPIC destination) {
         this.ppn = ppn;
@@ -35,16 +35,16 @@ public class PpnDto {
         this.typeSupport = typeSupport;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, String error) {
+    public PpnDto (String ppn, DESTINATION_TOPIC destination, String log) {
         this.ppn = ppn;
         this.destination = destination;
-        this.error = error;
+        this.log = log;
     }
 
-    public PpnDto (String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, String error) {
+    public PpnDto (String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, String log) {
         this.ppn = ppn;
         this.destination = destination;
         this.typeSupport = typeSupport;
-        this.error = error;
+        this.log = log;
     }
 }
