@@ -30,11 +30,7 @@ public class KbartService {
 
     private final TopicProducer producer;
 
-    private final EmailService serviceMail;
-
     private final ProviderService providerService;
-
-    private final ExecutionReportService executionReportService;
 
     @Getter
     private final List<LigneKbartDto> kbartToSend = Collections.synchronizedList(new ArrayList<>());
@@ -46,12 +42,10 @@ public class KbartService {
     private final List<LigneKbartDto> ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
 
 
-    public KbartService(BestPpnService service, TopicProducer producer, EmailService serviceMail, ProviderService providerService, ExecutionReportService executionReportService) {
+    public KbartService(BestPpnService service, TopicProducer producer, ProviderService providerService) {
         this.service = service;
         this.producer = producer;
-        this.serviceMail = serviceMail;
         this.providerService = providerService;
-        this.executionReportService = executionReportService;
     }
 
     @Transactional
@@ -61,10 +55,7 @@ public class KbartService {
             log.info(ligneFromKafka.toString());
             PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, isForced);
             switch (ppnWithDestinationDto.getDestination()) {
-                case BEST_PPN_BACON -> {
-                    ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
-                    executionReportService.addNbBestPpnFind();
-                }
+                case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
                 case PRINT_PPN_SUDOC -> ppnToCreate.add(getLigneKbartImprime(ppnWithDestinationDto, ligneFromKafka));
                 case NO_PPN_FOUND_SUDOC -> {
                     if (ligneFromKafka.getPublicationType().equals("monograph")) {
@@ -76,7 +67,6 @@ public class KbartService {
             log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
         }
         kbartToSend.add(ligneFromKafka);
-        serviceMail.addLineKbartToMailAttachment(ligneFromKafka);
     }
 
     @Transactional
@@ -125,6 +115,4 @@ public class KbartService {
                 .setAccessType(ligneFromKafka.getAccessType())
                 .build();
     }
-
-
 }

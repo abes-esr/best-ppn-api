@@ -1,8 +1,14 @@
 package fr.abes.bestppn.kafka;
 
+import fr.abes.bestppn.dto.PackageKbartDto;
+import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.entity.ExecutionReport;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,6 +18,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class KafkaWorkInProgress {
 
     private boolean isForced;
+
+    private ExecutionReport executionReport = new ExecutionReport();
+
+    private final PackageKbartDto mailAttachment;
 
     private final AtomicBoolean isOnError;
 
@@ -23,6 +33,7 @@ public class KafkaWorkInProgress {
 
     public KafkaWorkInProgress(boolean isForced) {
         this.isForced = isForced;
+        this.mailAttachment = new PackageKbartDto();
         this.isOnError = new AtomicBoolean(false);
         this.nbLignesTraitees = new AtomicInteger(0);
         this.nbActiveThreads = new AtomicInteger(0);
@@ -54,5 +65,29 @@ public class KafkaWorkInProgress {
 
     public boolean isOnError() {
         return this.isOnError.get();
+    }
+
+    public void setNbtotalLinesInExecutionReport(int nbtotalLines) {
+        this.executionReport.setNbtotalLines(nbtotalLines);
+    }
+    public void addNbBestPpnFindedInExecutionReport(){
+        executionReport.incrementNbBestPpnFind();
+    }
+
+    public void addNbLinesWithInputDataErrorsInExecutionReport(){
+        executionReport.incrementNbLinesWithInputDataErrors();
+    }
+
+    public void addNbLinesWithErrorsInExecutionReport(){
+        executionReport.incrementNbLinesWithErrorsInBestPPNSearch();
+    }
+
+    public void addLineKbartToMailAttachementWithErrorMessage(LigneKbartDto kbart, String messageError) {
+        kbart.setErrorType(messageError);
+        mailAttachment.addKbartDto(kbart);
+    }
+
+    public void addLineKbartToMailAttachment(LigneKbartDto dto) {
+        mailAttachment.addKbartDto(dto);
     }
 }

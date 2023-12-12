@@ -7,7 +7,6 @@ import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.EmailService;
-import fr.abes.bestppn.service.ExecutionReportService;
 import fr.abes.bestppn.service.KbartService;
 import fr.abes.bestppn.service.LogFileService;
 import fr.abes.bestppn.utils.Utils;
@@ -40,8 +39,6 @@ public class TopicConsumer {
 
     private final ProviderRepository providerRepository;
 
-    private final ExecutionReportService executionReportService;
-
     private final LogFileService logFileService;
 
     private final EmailService emailService;
@@ -52,12 +49,11 @@ public class TopicConsumer {
     private final Map<String, KafkaWorkInProgress> workInProgress = Collections.synchronizedMap(new HashMap<>());
 
 
-    public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, ProviderRepository providerRepository, ExecutionReportService executionReportService, LogFileService logFileService) {
+    public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, ProviderRepository providerRepository, LogFileService logFileService) {
         this.mapper = mapper;
         this.service = service;
         this.emailService = emailService;
         this.providerRepository = providerRepository;
-        this.executionReportService = executionReportService;
         this.logFileService = logFileService;
     }
 
@@ -90,35 +86,40 @@ public class TopicConsumer {
                     workInProgress.get(filename).incrementNbLignesTraitees();
                     ThreadContext.put("package", (lignesKbart.key()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced());
+                    if (!ligneKbartDto.getBestPpn().isEmpty())
+                        workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
+                    workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
                     Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == workInProgress.get(filename).getNbLignesTraitees() && workInProgress.get(filename).getSemaphore().tryAcquire()) {
-                            executionReportService.setNbtotalLines(nbLignesTotal);
+                            workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                             handleFichier(filename);
                         }
                     }
                 } catch (IOException | URISyntaxException | IllegalDoiException e) {
                     //erreurs non bloquantes, on les inscrits dans le rapport, mais on n'arrête pas le programme
                     log.error(e.getMessage());
-                    emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
-                    executionReportService.addNbLinesWithInputDataErrors();
+                    workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
+                    workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
                 } catch (BestPpnException e) {
                     if (!workInProgress.get(filename).isForced()) {
                         workInProgress.get(filename).setIsOnError(true);
                     }
                     log.error(e.getMessage());
-                    emailService.addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
-                    executionReportService.addNbLinesWithErrorsInBestPPNSearch();
+                    workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
+                    workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
                 } finally {
-                    workInProgress.get(filename).decrementThreads();
+                    //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
+                    if (workInProgress.get(filename) != null)
+                        workInProgress.get(filename).decrementThreads();
                 }
             });
         } catch (IllegalProviderException | JsonProcessingException e) {
             workInProgress.get(filename).setIsOnError(true);
             log.error(e.getMessage());
-            emailService.addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
-            executionReportService.addNbLinesWithInputDataErrors();
+            workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
+            workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
         }
     }
 
@@ -141,20 +142,16 @@ public class TopicConsumer {
                 Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
                 service.commitDatas(providerOpt, providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
-                log.info("Nombre de best ppn trouvé : " + executionReportService.getExecutionReport().getNbBestPpnFind() + "/" + executionReportService.getExecutionReport().getNbtotalLines());
-                logFileService.createExecutionReport(filename, executionReportService.getExecutionReport(), workInProgress.get(filename).isForced());
+                log.info("Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
+                logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
             }
-            emailService.sendMailWithAttachment(filename);
+            emailService.sendMailWithAttachment(filename, workInProgress.get(filename).getMailAttachment());
         } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException |
                  InterruptedException | IOException e) {
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
             log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getNbLignesTraitees());
-            emailService.clearMailAttachment();
-            executionReportService.clearExecutionReport();
-            service.clearListesKbart();
-            workInProgress.remove(filename);
-            clearSharedObjects();
+            clearSharedObjects(filename);
         }
     }
 
@@ -174,16 +171,15 @@ public class TopicConsumer {
             String fileNameFromError = error.key();
             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
                 emailService.sendProductionErrorEmail(fileNameFromError, error.value());
-                logFileService.createExecutionReport(fileNameFromError, executionReportService.getExecutionReport(), workInProgress.get(filename).isForced());
+                logFileService.createExecutionReport(fileNameFromError, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
                 workInProgress.get(filename).setIsOnError(true);
                 handleFichier(fileNameFromError);
             }
         }
     }
 
-    private void clearSharedObjects() {
-        emailService.clearMailAttachment();
-        executionReportService.clearExecutionReport();
+    private void clearSharedObjects(String filename) {
+        workInProgress.remove(filename);
         service.clearListesKbart();
     }
 }

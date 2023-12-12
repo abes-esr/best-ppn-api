@@ -82,10 +82,8 @@ public class TopicProducer {
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
         int nbLignesTotal = kbart.size();
-        int nbLignesCourant = 0;
         Iterator<LigneKbartDto> iterator = kbart.iterator();
         while (iterator.hasNext()) {
-            nbLignesCourant++;
             LigneKbartDto ligne = iterator.next();
             ligne.setIdProviderPackage(provider.getIdProviderPackage());
             ligne.setProviderPackagePackage(provider.getPackageName());
@@ -93,13 +91,9 @@ public class TopicProducer {
             ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
             LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligne, LigneKbartConnect.class);
             List<Header> headerList = new ArrayList<>();
-            headerList.add(constructHeader("filename", filename.getBytes()));
-            int finalNbLignesCourant = nbLignesCourant;
             executorService.execute(() -> {
-                if (finalNbLignesCourant == nbLignesTotal) {
-                    headerList.add(new RecordHeader("nbLinesTotal",  String.valueOf(nbLignesTotal).getBytes()));
-                }
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), "", ligneKbartConnect, headerList);
+                headerList.add(new RecordHeader("nbLinesTotal",  String.valueOf(nbLignesTotal).getBytes()));
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
                 CompletableFuture<SendResult<String, LigneKbartConnect>>  result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
                 result.whenComplete((sr, ex) -> {
                     try {
