@@ -53,4 +53,8 @@ public class ProviderService {
             return providerPackageRepository.save(providerPackage);
         }
     }
+
+    public Optional<Provider> findByProvider(String providerName) {
+        return providerRepository.findByProvider(providerName);
+    }
 }

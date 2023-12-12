@@ -126,10 +126,4 @@ public class KafkaConfig {
     public KafkaTemplate<String, String> kafkatemplateEndoftraitement(final ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
-
-    @Bean
-    public Semaphore semaphore() {
-        return new Semaphore(1);
-    }
-
 }

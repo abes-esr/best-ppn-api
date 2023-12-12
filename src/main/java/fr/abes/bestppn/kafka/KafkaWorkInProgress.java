@@ -3,16 +3,18 @@ package fr.abes.bestppn.kafka;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.entity.ExecutionReport;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/** classe permettant de suivre le déroulement d'un traitement sur un fichier donné
+ *
+ */
 @Getter
 @Setter
 public class KafkaWorkInProgress {
@@ -89,5 +91,10 @@ public class KafkaWorkInProgress {
 
     public void addLineKbartToMailAttachment(LigneKbartDto dto) {
         mailAttachment.addKbartDto(dto);
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        this.semaphore.release();
     }
 }

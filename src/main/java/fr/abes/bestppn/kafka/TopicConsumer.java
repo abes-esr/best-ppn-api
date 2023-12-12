@@ -3,9 +3,7 @@ package fr.abes.bestppn.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.entity.bacon.Provider;
 import fr.abes.bestppn.exception.*;
-import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.service.KbartService;
 import fr.abes.bestppn.service.LogFileService;
@@ -24,7 +22,6 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,8 +34,6 @@ public class TopicConsumer {
 
     private ExecutorService executorService;
 
-    private final ProviderRepository providerRepository;
-
     private final LogFileService logFileService;
 
     private final EmailService emailService;
@@ -49,11 +44,10 @@ public class TopicConsumer {
     private final Map<String, KafkaWorkInProgress> workInProgress = Collections.synchronizedMap(new HashMap<>());
 
 
-    public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, ProviderRepository providerRepository, LogFileService logFileService) {
+    public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, LogFileService logFileService) {
         this.mapper = mapper;
         this.service = service;
         this.emailService = emailService;
-        this.providerRepository = providerRepository;
         this.logFileService = logFileService;
     }
 
@@ -139,8 +133,7 @@ public class TopicConsumer {
                 workInProgress.get(filename).setIsOnError(false);
             } else {
                 String providerName = Utils.extractProvider(filename);
-                Optional<Provider> providerOpt = providerRepository.findByProvider(providerName);
-                service.commitDatas(providerOpt, providerName, filename);
+                service.commitDatas(providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
                 log.info("Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
                 logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());

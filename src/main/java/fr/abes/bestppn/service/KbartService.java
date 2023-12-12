@@ -70,7 +70,8 @@ public class KbartService {
     }
 
     @Transactional
-    public void commitDatas(Optional<Provider> providerOpt, String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
+    public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
+        Optional<Provider> providerOpt = providerService.findByProvider(providerName);
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
         producer.sendKbart(kbartToSend, provider, filename);
         producer.sendPrintNotice(ppnToCreate, filename);
