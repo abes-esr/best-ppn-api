@@ -97,7 +97,7 @@ public class TopicConsumer {
                 try {
                     this.nbActiveThreads.incrementAndGet();
                     this.nbLignesTraitees.incrementAndGet();
-                    ThreadContext.put("package", (filename + "[line : " + nbLignesTraitees.get() + "]"));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
+                    ThreadContext.put("package", (filename + ";" + nbLignesTraitees.get()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, isForced);
                     Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
