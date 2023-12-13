@@ -2,9 +2,9 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.entity.bacon.Provider;
-import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.service.ExecutionReportService;
@@ -200,9 +200,7 @@ public class TopicConsumer {
         for (Header header : headers) {
             if (header.key().equals("FileName")) {
                 nomFichier = new String(header.value());
-                if (nomFichier.contains("_FORCE")) {
-                    isForced = true;
-                }
+                isForced = nomFichier.contains("_FORCE");
             }
         }
         return nomFichier;
