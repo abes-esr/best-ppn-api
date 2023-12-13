@@ -1,6 +1,7 @@
 package fr.abes.bestppn.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,5 +34,11 @@ public class BestPpnDto {
 
     public BestPpnDto(List<String> logs) {
         this.logs = logs;
+    }
+
+    public BestPpnDto(BestPpn bestPpn) {
+        this.ppn = bestPpn.getPpn();
+        this.typeSupport = bestPpn.getTypeSupport();
+        this.logs = bestPpn.getLogs();
     }
 }

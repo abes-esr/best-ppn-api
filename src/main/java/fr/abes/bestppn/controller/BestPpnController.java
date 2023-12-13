@@ -61,7 +61,7 @@ public class BestPpnController {
             boolean isSendLog = (log != null) ? log : false;
             BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, injectKafka, isSendLog);
             if(!isSendLog) bestPpn.setLogs(null); // désactive l'envoi des logs si non demandés.
-            return new BestPpnDto(bestPpn.getPpn(), bestPpn.getTypeSupport(), bestPpn.getLogs());
+            return new BestPpnDto(bestPpn);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
         } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {

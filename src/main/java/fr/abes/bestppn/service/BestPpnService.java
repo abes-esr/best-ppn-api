@@ -146,7 +146,7 @@ public class BestPpnService {
             if(ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)){
                 setScoreToPpnElect(scoreDoi2Ppn,ppnElecScoredList,nbPpnElec,ppn);
             } else {
-                sendLog(LogLevel.DEBUG, "PPN Imprimé : " + ppn);
+                sendLog(LogLevel.INFO, "PPN Imprimé : " + ppn);
                 ppnPrintResultList.add(ppn.getPpn());
             }
         }
@@ -157,12 +157,12 @@ public class BestPpnService {
             int nbPpnElec = (int) resultCallWs.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if(ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
-                    sendLog(LogLevel.DEBUG, "PPN Imprimé : " + ppn);
+                    sendLog(LogLevel.INFO, "PPN Imprimé : " + ppn);
                     ppnPrintResultList.add(ppn.getPpn());
                 } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)){
                     setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn);
                 } else {
-                    sendLog(LogLevel.DEBUG, "Le PPN " + ppn + " n'a pas de provider trouvé");
+                    sendLog(LogLevel.ERROR, "Le PPN " + ppn + " n'a pas de provider trouvé");
                 }
             }
         }
@@ -175,7 +175,7 @@ public class BestPpnService {
         } else {
             ppnElecScoredList.put(ppn.getPpn(), (score / nbPpnElec));
         }
-        sendLog(LogLevel.DEBUG, "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
+        sendLog(LogLevel.INFO, "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
     public BestPpn getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced) throws BestPpnException {
