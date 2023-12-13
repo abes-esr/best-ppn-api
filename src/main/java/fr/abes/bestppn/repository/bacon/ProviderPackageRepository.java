@@ -1,7 +1,7 @@
 package fr.abes.bestppn.repository.bacon;
 
 import fr.abes.bestppn.configuration.BaconDbConfiguration;
-import fr.abes.bestppn.entity.bacon.ProviderPackage;
+import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

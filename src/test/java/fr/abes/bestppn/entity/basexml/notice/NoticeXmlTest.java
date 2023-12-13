@@ -1,5 +1,8 @@
 package fr.abes.bestppn.entity.basexml.notice;
 
+import fr.abes.bestppn.model.entity.basexml.notice.Datafield;
+import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
+import fr.abes.bestppn.model.entity.basexml.notice.SubField;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

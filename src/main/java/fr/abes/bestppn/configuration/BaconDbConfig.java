@@ -41,7 +41,7 @@ public class BaconDbConfig extends AbstractConfig {
     public LocalContainerEntityManagerFactoryBean baconEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(baconDataSource());
-        em.setPackagesToScan(new String[]{"fr.abes.bestppn.entity.bacon"});
+        em.setPackagesToScan(new String[]{"fr.abes.bestppn.model.entity.bacon"});
         configHibernate(em, platform, showsql, dialect, ddlAuto, generateDdl, initMode);
         return em;
     }

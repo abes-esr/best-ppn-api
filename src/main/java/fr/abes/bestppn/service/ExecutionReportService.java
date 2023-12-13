@@ -1,6 +1,6 @@
 package fr.abes.bestppn.service;
 
-import fr.abes.bestppn.entity.ExecutionReport;
+import fr.abes.bestppn.model.entity.ExecutionReport;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 

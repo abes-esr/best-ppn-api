@@ -1,4 +1,4 @@
-package fr.abes.bestppn.entity;
+package fr.abes.bestppn.model.entity;
 
 import lombok.Data;
 

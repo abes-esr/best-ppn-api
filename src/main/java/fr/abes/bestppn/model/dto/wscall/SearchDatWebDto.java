@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.wscall;
+package fr.abes.bestppn.model.dto.wscall;
 
 import lombok.Getter;
 import lombok.Setter;

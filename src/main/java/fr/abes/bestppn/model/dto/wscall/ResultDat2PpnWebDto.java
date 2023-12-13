@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.wscall;
+package fr.abes.bestppn.model.dto.wscall;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
