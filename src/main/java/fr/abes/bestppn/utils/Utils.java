@@ -1,9 +1,11 @@
 package fr.abes.bestppn.utils;
 
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.exception.IllegalProviderException;
+import io.netty.handler.logging.LogLevel;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +16,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class Utils {
 
     public static String extractDomainFromUrl(String url) throws URISyntaxException {
