@@ -62,7 +62,7 @@ public class EmailService {
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
