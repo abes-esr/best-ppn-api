@@ -141,9 +141,9 @@ public class TopicConsumer {
             }
         } while (this.nbActiveThreads.get() > 1);
         try {
+            service.finishLogFile(filename, isOnError.get());
             if (isOnError.get()) {
                 log.warn("isOnError à true");
-                service.finishLogFile(filename);
                 isOnError.set(false);
             } else {
                 String providerName = Utils.extractProvider(filename);

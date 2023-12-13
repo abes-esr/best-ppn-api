@@ -3,9 +3,9 @@ package fr.abes.bestppn.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.LigneKbartConnect;
 import fr.abes.LigneKbartImprime;
+import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
-import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.utils.UtilsMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -209,11 +209,12 @@ public class TopicProducer {
     /**
      * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
      */
-    public void sendEndOfTraitmentReport(String filename) {
+    public void sendEndOfTraitmentReport(String filename, boolean isOnError) {
         List<Header> headerList = new ArrayList<>();
         headerList.add(new RecordHeader("FileName", filename.getBytes(StandardCharsets.UTF_8)));
         try {
-            ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", "OK", headerList);
+            String message = isOnError ? "KO" : "OK";
+            ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", message, headerList);
             kafkatemplateEndoftraitement.send(record);
             log.info("End of traitment report sent.");
         } catch (Exception e) {

@@ -1,15 +1,15 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.model.BestPpn;
-import fr.abes.bestppn.model.entity.bacon.Provider;
-import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.kafka.TopicProducer;
+import fr.abes.bestppn.model.BestPpn;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.entity.bacon.Provider;
+import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -88,8 +88,8 @@ public class KbartService {
         clearListesKbart();
     }
 
-    public void finishLogFile(String filename){
-        producer.sendEndOfTraitmentReport(filename);
+    public void finishLogFile(String filename, boolean isOnError){
+        producer.sendEndOfTraitmentReport(filename, isOnError);
     }
 
     public void clearListesKbart() {
