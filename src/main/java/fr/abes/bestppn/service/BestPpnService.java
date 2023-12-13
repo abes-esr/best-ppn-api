@@ -227,7 +227,7 @@ public class BestPpnService {
 
     public void sendLog(LogLevel level, String message) {
         if (isSendLogs) {
-            kbartLineLogs.add(message);
+            if (level.equals(LogLevel.INFO) || level.equals(LogLevel.ERROR)) kbartLineLogs.add(message);
         }
         switch (level) {
             case DEBUG -> log.debug(message);
