@@ -1,6 +1,6 @@
-package fr.abes.bestppn.entity;
+package fr.abes.bestppn.model.entity;
 
-import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
+import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

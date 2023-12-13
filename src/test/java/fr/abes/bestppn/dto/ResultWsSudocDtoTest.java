@@ -1,7 +1,7 @@
 package fr.abes.bestppn.dto;
 
-import fr.abes.bestppn.dto.wscall.PpnWithTypeDto;
-import fr.abes.bestppn.dto.wscall.ResultWsSudocDto;
+import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
+import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

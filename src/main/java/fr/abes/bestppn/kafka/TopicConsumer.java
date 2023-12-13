@@ -2,8 +2,8 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.entity.bacon.Provider;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.EmailService;
