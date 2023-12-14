@@ -9,18 +9,15 @@ import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.exception.IllegalPackageException;
+import fr.abes.bestppn.kafka.KafkaWorkInProgress;
 import fr.abes.bestppn.kafka.TopicProducer;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -32,59 +29,47 @@ public class KbartService {
 
     private final ProviderService providerService;
 
-    @Getter
-    private final List<LigneKbartDto> kbartToSend = Collections.synchronizedList(new ArrayList<>());
-
-    @Getter
-    private final List<LigneKbartImprime> ppnToCreate = Collections.synchronizedList(new ArrayList<>());
-
-    @Getter
-    private final List<LigneKbartDto> ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
+    private final Map<String, KafkaWorkInProgress> workInProgress;
 
 
-    public KbartService(BestPpnService service, TopicProducer producer, ProviderService providerService) {
+    public KbartService(BestPpnService service, TopicProducer producer, ProviderService providerService, Map<String, KafkaWorkInProgress> workInProgress) {
         this.service = service;
         this.producer = producer;
         this.providerService = providerService;
+        this.workInProgress = workInProgress;
     }
 
     @Transactional
-    public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, String filename) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
         if (ligneFromKafka.isBestPpnEmpty()) {
             log.info(ligneFromKafka.toString());
             PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, isForced);
             switch (ppnWithDestinationDto.getDestination()) {
                 case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
-                case PRINT_PPN_SUDOC -> ppnToCreate.add(getLigneKbartImprime(ppnWithDestinationDto, ligneFromKafka));
+                case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(ppnWithDestinationDto, ligneFromKafka));
                 case NO_PPN_FOUND_SUDOC -> {
                     if (ligneFromKafka.getPublicationType().equals("monograph")) {
-                        ppnFromKbartToCreate.add(ligneFromKafka);
+                        workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
                     }
                 }
             }
         } else {
             log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
         }
-        kbartToSend.add(ligneFromKafka);
+        workInProgress.get(filename).addKbartToSend(ligneFromKafka);
     }
 
     @Transactional
     public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
         Optional<Provider> providerOpt = providerService.findByProvider(providerName);
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
-        producer.sendKbart(kbartToSend, provider, filename);
-        producer.sendPrintNotice(ppnToCreate, filename);
-        producer.sendPpnExNihilo(ppnFromKbartToCreate, provider, filename);
-        clearListesKbart();
+        producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
+        producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
+        producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
         producer.sendEndOfTraitmentReport(filename);
     }
 
-    public void clearListesKbart() {
-        kbartToSend.clear();
-        ppnToCreate.clear();
-        ppnFromKbartToCreate.clear();
-    }
 
     private static LigneKbartImprime getLigneKbartImprime(PpnWithDestinationDto ppnWithDestinationDto, LigneKbartDto ligneFromKafka) {
         return LigneKbartImprime.newBuilder()

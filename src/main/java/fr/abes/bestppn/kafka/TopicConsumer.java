@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -38,17 +36,18 @@ public class TopicConsumer {
 
     private final EmailService emailService;
 
+    private final Map<String, KafkaWorkInProgress> workInProgress;
+
     @Value("${spring.kafka.concurrency.nbThread}")
     private int nbThread;
 
-    private final Map<String, KafkaWorkInProgress> workInProgress = Collections.synchronizedMap(new HashMap<>());
 
-
-    public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, LogFileService logFileService) {
+    public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, LogFileService logFileService, Map<String, KafkaWorkInProgress> workInProgress) {
         this.mapper = mapper;
         this.service = service;
         this.emailService = emailService;
         this.logFileService = logFileService;
+        this.workInProgress = workInProgress;
     }
 
 
@@ -79,7 +78,7 @@ public class TopicConsumer {
                     workInProgress.get(filename).incrementThreads();
                     workInProgress.get(filename).incrementNbLignesTraitees();
                     ThreadContext.put("package", (lignesKbart.key()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
-                    service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced());
+                    service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), filename);
                     if (!ligneKbartDto.getBestPpn().isEmpty())
                         workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                     workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
@@ -144,7 +143,7 @@ public class TopicConsumer {
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
             log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getNbLignesTraitees());
-            clearSharedObjects(filename);
+            workInProgress.remove(filename);
         }
     }
 
@@ -169,10 +168,5 @@ public class TopicConsumer {
                 handleFichier(fileNameFromError);
             }
         }
-    }
-
-    private void clearSharedObjects(String filename) {
-        workInProgress.remove(filename);
-        service.clearListesKbart();
     }
 }

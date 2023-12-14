@@ -1,5 +1,6 @@
 package fr.abes.bestppn.kafka;
 
+import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.dto.PackageKbartDto;
 import fr.abes.bestppn.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.entity.ExecutionReport;
@@ -8,6 +9,9 @@ import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,6 +37,12 @@ public class KafkaWorkInProgress {
 
     private final Semaphore semaphore;
 
+    private final List<LigneKbartDto> kbartToSend;
+
+    private final List<LigneKbartImprime> ppnToCreate;
+
+    private final List<LigneKbartDto> ppnFromKbartToCreate;
+
     public KafkaWorkInProgress(boolean isForced) {
         this.isForced = isForced;
         this.mailAttachment = new PackageKbartDto();
@@ -40,6 +50,9 @@ public class KafkaWorkInProgress {
         this.nbLignesTraitees = new AtomicInteger(0);
         this.nbActiveThreads = new AtomicInteger(0);
         this.semaphore = new Semaphore(1);
+        this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
+        this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
+        this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void incrementThreads() {
@@ -96,5 +109,17 @@ public class KafkaWorkInProgress {
     @PreDestroy
     public void onDestroy() {
         this.semaphore.release();
+    }
+
+    public void addPpnToCreate(LigneKbartImprime ligneKbartImprime) {
+        this.ppnToCreate.add(ligneKbartImprime);
+    }
+
+    public void addPpnFromKbartToCreate(LigneKbartDto ligneFromKafka) {
+        this.ppnFromKbartToCreate.add(ligneFromKafka);
+    }
+
+    public void addKbartToSend(LigneKbartDto ligneFromKafka) {
+        this.kbartToSend.add(ligneFromKafka);
     }
 }

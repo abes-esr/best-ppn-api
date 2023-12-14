@@ -2,6 +2,7 @@ package fr.abes.bestppn.configuration;
 
 import fr.abes.LigneKbartConnect;
 import fr.abes.LigneKbartImprime;
+import fr.abes.bestppn.kafka.KafkaWorkInProgress;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -16,6 +17,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -125,5 +127,10 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String, String> kafkatemplateEndoftraitement(final ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public Map<String, KafkaWorkInProgress> kafkaWorkInProgress() {
+        return Collections.synchronizedMap(new HashMap<>());
     }
 }

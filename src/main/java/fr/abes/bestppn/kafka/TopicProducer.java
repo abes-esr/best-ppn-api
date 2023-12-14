@@ -81,6 +81,7 @@ public class TopicProducer {
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+        Integer nbLigneTotal = kbart.size();
         Iterator<LigneKbartDto> iterator = kbart.iterator();
         while (iterator.hasNext()) {
             LigneKbartDto ligne = iterator.next();
@@ -91,7 +92,7 @@ public class TopicProducer {
             LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligne, LigneKbartConnect.class);
             List<Header> headerList = new ArrayList<>();
             executorService.execute(() -> {
-                headerList.add(new RecordHeader("nbLinesTotal",  String.valueOf(kbart.size()).getBytes()));
+                headerList.add(new RecordHeader("nbLinesTotal",  String.valueOf(nbLigneTotal).getBytes()));
                 ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
                 CompletableFuture<SendResult<String, LigneKbartConnect>>  result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
                 result.whenComplete((sr, ex) -> {
