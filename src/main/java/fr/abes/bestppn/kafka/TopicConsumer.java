@@ -83,23 +83,25 @@ public class TopicConsumer {
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
      *
-     * @param lignesKbart message kafka récupéré par le Consumer Kafka
+     * @param ligneKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
-    public void kbartFromkafkaListener(ConsumerRecord<String, String> lignesKbart) {
-        log.warn("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
+    public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
+        log.warn("Paquet reçu : Partition : " + ligneKbart.partition() + " / offset " + ligneKbart.offset() + " / value : " + ligneKbart.value());
         try {
             //traitement de chaque ligne kbart
-            this.filename = extractFilenameFromHeader(lignesKbart.headers().toArray());
-            LigneKbartDto ligneKbartDto = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
+            this.filename = extractFilenameFromHeader(ligneKbart.headers().toArray());
+
+            LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(filename);
             executorService.execute(() -> {
                 try {
                     this.nbActiveThreads.incrementAndGet();
                     this.nbLignesTraitees.incrementAndGet();
-                    ThreadContext.put("package", (filename + ";" + nbLignesTraitees.get()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
+                    String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
+                    ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, isForced);
-                    Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
+                    Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == nbLignesTraitees.get() && semaphore.tryAcquire()) {
@@ -141,9 +143,8 @@ public class TopicConsumer {
             }
         } while (this.nbActiveThreads.get() > 1);
         try {
-            service.finishLogFile(filename, isOnError.get());
             if (isOnError.get()) {
-                log.warn("isOnError à true");
+                log.debug("isOnError à true");
                 isOnError.set(false);
             } else {
                 String providerName = Utils.extractProvider(filename);
@@ -159,6 +160,7 @@ public class TopicConsumer {
             emailService.sendProductionErrorEmail(this.filename, e.getMessage());
         } finally {
             log.info("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
+            service.finishLogFile(filename, isOnError.get());
             emailService.clearMailAttachment();
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
