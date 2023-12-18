@@ -158,7 +158,7 @@ public class TopicConsumer {
             } catch (InterruptedException e) {
                 log.warn("Erreur de sleep sur attente fin de traitement");
             }
-        } while (workInProgress.get(filename).getNbActiveThreads() != 0);
+        } while (workInProgress.get(filename) != null && workInProgress.get(filename).getNbActiveThreads() != 0);
         if (workInProgress.containsKey(filename)) {
             String fileNameFromError = error.key();
             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
