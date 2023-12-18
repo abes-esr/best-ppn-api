@@ -1,9 +1,9 @@
 package fr.abes.bestppn.kafka;
 
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.dto.PackageKbartDto;
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.entity.ExecutionReport;
+import fr.abes.bestppn.model.dto.PackageKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.entity.ExecutionReport;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;

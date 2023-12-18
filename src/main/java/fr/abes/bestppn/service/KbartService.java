@@ -44,17 +44,10 @@ public class KbartService {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
         if (ligneFromKafka.isBestPpnEmpty()) {
             log.info(ligneFromKafka.toString());
-            PpnWithDestinationDto ppnWithDestinationDto = service.getBestPpn(ligneFromKafka, providerName, isForced);
-            switch (ppnWithDestinationDto.getDestination()) {
-                case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(ppnWithDestinationDto.getPpn());
-                case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(ppnWithDestinationDto, ligneFromKafka));
             BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
             switch (bestPpn.getDestination()) {
-                case BEST_PPN_BACON -> {
-                    ligneFromKafka.setBestPpn(bestPpn.getPpn());
-                    executionReportService.addNbBestPpnFind();
-                }
-                case PRINT_PPN_SUDOC -> ppnToCreate.add(getLigneKbartImprime(bestPpn, ligneFromKafka));
+                case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
+                case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
                 case NO_PPN_FOUND_SUDOC -> {
                     if (ligneFromKafka.getPublicationType().equals("monograph")) {
                         workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
