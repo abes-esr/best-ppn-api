@@ -2,9 +2,8 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.service.KbartService;
 import fr.abes.bestppn.service.LogFileService;
@@ -80,7 +79,7 @@ public class TopicConsumer {
                     workInProgress.get(filename).incrementNbLignesTraitees();
                     ThreadContext.put("package", (lignesKbart.key()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), filename);
-                    if (!ligneKbartDto.getBestPpn().isEmpty())
+                    if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
                         workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                     workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
                     Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
