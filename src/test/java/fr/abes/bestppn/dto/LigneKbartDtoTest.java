@@ -1,6 +1,6 @@
 package fr.abes.bestppn.dto;
 
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

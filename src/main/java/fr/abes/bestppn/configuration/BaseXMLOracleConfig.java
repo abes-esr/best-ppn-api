@@ -46,7 +46,7 @@ public class BaseXMLOracleConfig {
 				= new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(baseXmlDataSource());
 		em.setPackagesToScan(
-				"fr.abes.bestppn.entity.basexml");
+				"fr.abes.bestppn.model.entity.basexml");
 		configHibernate(em, platform, showsql, dialect, ddlAuto, generateDdl, initMode);
 		return em;
 	}

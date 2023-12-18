@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.wscall;
+package fr.abes.bestppn.model.dto.wscall;
 
 import fr.abes.bestppn.utils.TYPE_DOCUMENT;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;

@@ -1,8 +1,8 @@
 package fr.abes.bestppn.service;
 
-import fr.abes.bestppn.entity.basexml.notice.Datafield;
-import fr.abes.bestppn.entity.basexml.notice.NoticeXml;
-import fr.abes.bestppn.entity.basexml.notice.SubField;
+import fr.abes.bestppn.model.entity.basexml.notice.Datafield;
+import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
+import fr.abes.bestppn.model.entity.basexml.notice.SubField;
 import fr.abes.bestppn.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

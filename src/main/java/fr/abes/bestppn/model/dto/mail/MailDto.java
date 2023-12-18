@@ -1,4 +1,4 @@
-package fr.abes.bestppn.dto.mail;
+package fr.abes.bestppn.model.dto.mail;
 
 import lombok.Getter;
 import lombok.Setter;

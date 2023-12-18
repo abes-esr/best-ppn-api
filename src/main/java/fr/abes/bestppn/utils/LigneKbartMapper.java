@@ -1,7 +1,7 @@
 package fr.abes.bestppn.utils;
 
 import fr.abes.LigneKbartConnect;
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 import org.springframework.context.annotation.Bean;

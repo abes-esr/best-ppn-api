@@ -1,6 +1,6 @@
 package fr.abes.bestppn.utils;
 
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalPackageException;
 import org.junit.jupiter.api.Assertions;

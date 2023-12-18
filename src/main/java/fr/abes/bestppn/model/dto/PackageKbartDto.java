@@ -1,6 +1,6 @@
-package fr.abes.bestppn.dto;
+package fr.abes.bestppn.model.dto;
 
-import fr.abes.bestppn.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
