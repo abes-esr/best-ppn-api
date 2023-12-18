@@ -160,12 +160,10 @@ public class TopicConsumer {
             emailService.sendProductionErrorEmail(this.filename, e.getMessage());
         } finally {
             log.info("Traitement terminé pour fichier " + this.filename + " / nb lignes " + nbLignesTraitees);
-            service.finishLogFile(filename, isOnError.get());
             emailService.clearMailAttachment();
             executionReportService.clearExecutionReport();
             service.clearListesKbart();
             nbLignesTraitees = new AtomicInteger(0);
-            clearSharedObjects();
             semaphore.release();
         }
     }
@@ -189,12 +187,6 @@ public class TopicConsumer {
                 handleFichier();
             }
         }
-    }
-
-    private void clearSharedObjects() {
-        emailService.clearMailAttachment();
-        executionReportService.clearExecutionReport();
-        service.clearListesKbart();
     }
 
     private String extractFilenameFromHeader(Header[] headers) {

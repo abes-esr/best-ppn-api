@@ -88,10 +88,6 @@ public class KbartService {
         clearListesKbart();
     }
 
-    public void finishLogFile(String filename, boolean isOnError){
-        producer.sendEndOfTraitmentReport(filename, isOnError);
-    }
-
     public void clearListesKbart() {
         kbartToSend.clear();
         ppnToCreate.clear();

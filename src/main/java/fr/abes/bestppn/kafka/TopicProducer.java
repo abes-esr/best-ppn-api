@@ -22,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -83,24 +86,23 @@ public class TopicProducer {
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
         int nbLignesTotal = kbart.size();
         int nbLignesCourant = 0;
-        Iterator<LigneKbartDto> iterator = kbart.iterator();
-        while (iterator.hasNext()) {
+        for (LigneKbartDto ligneKbartDto : kbart) {
             nbLignesCourant++;
-            LigneKbartDto ligne = iterator.next();
-            ligne.setIdProviderPackage(provider.getIdProviderPackage());
-            ligne.setProviderPackagePackage(provider.getPackageName());
-            ligne.setProviderPackageDateP(provider.getDateP());
-            ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
-            LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligne, LigneKbartConnect.class);
+            ligneKbartDto.setIdProviderPackage(provider.getIdProviderPackage());
+            ligneKbartDto.setProviderPackagePackage(provider.getPackageName());
+            ligneKbartDto.setProviderPackageDateP(provider.getDateP());
+            ligneKbartDto.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
+            LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligneKbartDto, LigneKbartConnect.class);
             List<Header> headerList = new ArrayList<>();
             headerList.add(constructHeader("filename", filename.getBytes()));
             int finalNbLignesCourant = nbLignesCourant;
             executorService.execute(() -> {
                 if (finalNbLignesCourant == nbLignesTotal) {
-                    headerList.add(new RecordHeader("nbLinesTotal",  String.valueOf(nbLignesTotal).getBytes()));
+                    headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLignesTotal).getBytes()));
                 }
                 ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), "", ligneKbartConnect, headerList);
-                CompletableFuture<SendResult<String, LigneKbartConnect>>  result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
+                CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
+                assert result != null;
                 result.whenComplete((sr, ex) -> {
                     try {
                         logEnvoi(result.get(), record);
@@ -204,22 +206,5 @@ public class TopicProducer {
                 return value;
             }
         };
-    }
-
-    /**
-     * Envoie un message de fin de traitement sur le topic kafka endOfTraitment_kbart2kafka
-     */
-    public void sendEndOfTraitmentReport(String filename, boolean isOnError) {
-        List<Header> headerList = new ArrayList<>();
-        headerList.add(new RecordHeader("FileName", filename.getBytes(StandardCharsets.UTF_8)));
-        try {
-            String message = isOnError ? "KO" : "OK";
-            ProducerRecord<String, String> record = new ProducerRecord<>(topicEndOfTraitment, null, "", message, headerList);
-            kafkatemplateEndoftraitement.send(record);
-            log.info("End of traitment report sent.");
-        } catch (Exception e) {
-            String message = "Error sending message to topic " + topicEndOfTraitment;
-            throw new RuntimeException(message, e);
-        }
     }
 }
