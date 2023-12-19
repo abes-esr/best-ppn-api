@@ -4,10 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.exception.*;
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.model.entity.bacon.Provider;
-import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.service.KbartService;
 import fr.abes.bestppn.service.LogFileService;
@@ -71,13 +67,13 @@ public class TopicConsumer {
         String filename = ligneKbart.key();
         try {
             //traitement de chaque ligne kbart
-            if (!this.workInProgress.containsKey(lignesKbart.key())) {
+            if (!this.workInProgress.containsKey(ligneKbart.key())) {
                 //nouveau fichier trouvé dans le topic, on initialise les variables partagées
                 workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE")));
             }
 
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
-            String providerName = Utils.extractProvider(lignesKbart.key());
+            String providerName = Utils.extractProvider(ligneKbart.key());
             executorService.execute(() -> {
                 try {
                     workInProgress.get(filename).incrementThreads();
@@ -88,7 +84,7 @@ public class TopicConsumer {
                     if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
                         workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                     workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
-                    Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
+                    Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == workInProgress.get(filename).getNbLignesTraitees() && workInProgress.get(filename).getSemaphore().tryAcquire()) {
