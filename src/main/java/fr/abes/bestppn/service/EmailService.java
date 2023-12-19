@@ -42,18 +42,9 @@ public class EmailService {
     @Value("${spring.profiles.active}")
     private String env;
 
-    private final PackageKbartDto mailAttachment = new PackageKbartDto();
 
-    public void addLineKbartToMailAttachementWithErrorMessage(LigneKbartDto kbart, String messageError) {
-        kbart.setErrorType(messageError);
-        mailAttachment.addKbartDto(kbart);
-    }
 
-    public void addLineKbartToMailAttachment(LigneKbartDto dto) {
-        mailAttachment.addKbartDto(dto);
-    }
-
-    public void sendMailWithAttachment(String packageName) {
+    public void sendMailWithAttachment(String packageName, PackageKbartDto mailAttachment) {
         try {
             //  Création du chemin d'accès pour le fichier .csv
             Path csvPath = Path.of("rapport_" + packageName + ".csv");
@@ -62,7 +53,7 @@ public class EmailService {
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
@@ -180,10 +171,6 @@ public class EmailService {
             log.error("Erreur lors du la création du mail. " + e);
         }
         return json;
-    }
-
-    public void clearMailAttachment() {
-        mailAttachment.clearKbartDto();
     }
 
     public void sendProductionErrorEmail(String packageName, String message) {
