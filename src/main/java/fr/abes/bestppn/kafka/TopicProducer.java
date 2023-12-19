@@ -84,23 +84,17 @@ public class TopicProducer {
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
-        int nbLignesTotal = kbart.size();
-        int nbLignesCourant = 0;
+        Integer nbLigneTotal = kbart.size();
         for (LigneKbartDto ligneKbartDto : kbart) {
-            nbLignesCourant++;
             ligneKbartDto.setIdProviderPackage(provider.getIdProviderPackage());
             ligneKbartDto.setProviderPackagePackage(provider.getPackageName());
             ligneKbartDto.setProviderPackageDateP(provider.getDateP());
             ligneKbartDto.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
             LigneKbartConnect ligneKbartConnect = utilsMapper.map(ligneKbartDto, LigneKbartConnect.class);
             List<Header> headerList = new ArrayList<>();
-            headerList.add(constructHeader("filename", filename.getBytes()));
-            int finalNbLignesCourant = nbLignesCourant;
             executorService.execute(() -> {
-                if (finalNbLignesCourant == nbLignesTotal) {
-                    headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLignesTotal).getBytes()));
-                }
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), "", ligneKbartConnect, headerList);
+                headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLigneTotal).getBytes()));
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
                 CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
                 assert result != null;
                 result.whenComplete((sr, ex) -> {
