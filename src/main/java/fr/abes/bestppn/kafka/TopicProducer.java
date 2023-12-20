@@ -96,7 +96,7 @@ public class TopicProducer {
                 headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLigneTotal).getBytes()));
                 ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
                 CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
-                assert result != null;
+                assert result != null : "Result est null, donc exception";
                 result.whenComplete((sr, ex) -> {
                     try {
                         logEnvoi(result.get(), record);
