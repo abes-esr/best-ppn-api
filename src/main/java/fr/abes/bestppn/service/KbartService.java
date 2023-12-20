@@ -1,23 +1,25 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.model.BestPpn;
-import fr.abes.bestppn.model.entity.bacon.Provider;
-import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.kafka.KafkaWorkInProgress;
 import fr.abes.bestppn.kafka.TopicProducer;
+import fr.abes.bestppn.model.BestPpn;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.entity.bacon.Provider;
+import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -45,7 +47,7 @@ public class KbartService {
         if (ligneFromKafka.isBestPpnEmpty()) {
             log.info(ligneFromKafka.toString());
             BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
-            switch (bestPpn.getDestination()) {
+            switch (Objects.requireNonNull(bestPpn.getDestination())) {
                 case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
                 case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
                 case NO_PPN_FOUND_SUDOC -> {
@@ -67,9 +69,7 @@ public class KbartService {
         producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
         producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
         producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
-        producer.sendEndOfTraitmentReport(filename);
     }
-
 
     private static LigneKbartImprime getLigneKbartImprime(BestPpn bestPpn, LigneKbartDto ligneFromKafka) {
         return LigneKbartImprime.newBuilder()

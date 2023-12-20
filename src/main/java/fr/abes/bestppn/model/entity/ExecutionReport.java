@@ -1,12 +1,13 @@
 package fr.abes.bestppn.model.entity;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ExecutionReport {
-    @Getter
+    @Getter @Setter
     private int nbtotalLines;
 
     private AtomicInteger nbBestPpnFind;
@@ -21,11 +22,6 @@ public class ExecutionReport {
         nbLinesWithErrorsInBestPPNSearch = new AtomicInteger(0);
         nbtotalLines = 0;
     }
-
-    public void setNbtotalLines(int nbtotalLines) {
-        this.nbtotalLines = nbtotalLines;
-    }
-
     public int getNbBestPpnFind() {
         return nbBestPpnFind.get();
     }

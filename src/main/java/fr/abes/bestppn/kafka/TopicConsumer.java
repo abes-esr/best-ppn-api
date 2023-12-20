@@ -59,30 +59,32 @@ public class TopicConsumer {
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
      *
-     * @param lignesKbart message kafka récupéré par le Consumer Kafka
+     * @param ligneKbart message kafka récupéré par le Consumer Kafka
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
-    public void kbartFromkafkaListener(ConsumerRecord<String, String> lignesKbart) {
-        log.warn("Paquet reçu : Partition : " + lignesKbart.partition() + " / offset " + lignesKbart.offset() + " / value : " + lignesKbart.value());
-        String filename = lignesKbart.key();
+    public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
+        log.warn("Paquet reçu : Partition : " + ligneKbart.partition() + " / offset " + ligneKbart.offset() + " / value : " + ligneKbart.value());
+        String filename = ligneKbart.key();
         try {
             //traitement de chaque ligne kbart
-            if (!this.workInProgress.containsKey(lignesKbart.key())) {
+            if (!this.workInProgress.containsKey(ligneKbart.key())) {
                 //nouveau fichier trouvé dans le topic, on initialise les variables partagées
-                workInProgress.put(filename, new KafkaWorkInProgress(lignesKbart.key().contains("_FORCE")));
+                workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE")));
             }
-            LigneKbartDto ligneKbartDto = mapper.readValue(lignesKbart.value(), LigneKbartDto.class);
-            String providerName = Utils.extractProvider(lignesKbart.key());
+
+            LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
+            String providerName = Utils.extractProvider(ligneKbart.key());
             executorService.execute(() -> {
                 try {
                     workInProgress.get(filename).incrementThreads();
                     workInProgress.get(filename).incrementNbLignesTraitees();
-                    ThreadContext.put("package", (lignesKbart.key()));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
+                    String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
+                    ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), filename);
                     if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
                         workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                     workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
-                    Header lastHeader = lignesKbart.headers().lastHeader("nbLinesTotal");
+                    Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == workInProgress.get(filename).getNbLignesTraitees() && workInProgress.get(filename).getSemaphore().tryAcquire()) {
@@ -129,6 +131,7 @@ public class TopicConsumer {
         } while (workInProgress.get(filename).getNbActiveThreads() > 1);
         try {
             if (workInProgress.get(filename).isOnError()) {
+                log.debug("isOnError à true");
                 workInProgress.get(filename).setIsOnError(false);
             } else {
                 String providerName = Utils.extractProvider(filename);
