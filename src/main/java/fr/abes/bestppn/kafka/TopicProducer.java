@@ -52,6 +52,9 @@ public class TopicProducer {
     @Value("${topic.name.target.ppnFromKbart}")
     private String topicKbartPpnToCreate;
 
+    @Value("${topic.name.target.kbart.bypass.toload}")
+    private String topicKbartBypassToload;
+
     private KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect;
 
     private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
@@ -84,6 +87,20 @@ public class TopicProducer {
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+        sendToTopic(kbart, provider, filename, topicKbart);
+    }
+
+    /**
+     * Méthode d'nvoi d'une ligne kbart vers topic kafka si option bypass activée
+     * @param kbart     : ligne kbart à envoyer
+     * @param provider  : provider
+     * @param filename  : nom du fichier du traitement en cours
+     */
+    public void sendBypassToLoad(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+        sendToTopic(kbart, provider, filename, topicKbartBypassToload);
+    }
+
+    private void sendToTopic(List<LigneKbartDto> kbart, ProviderPackage provider, String filename, String destinationTopic) {
         Integer nbLigneTotal = kbart.size();
         for (LigneKbartDto ligneKbartDto : kbart) {
             ligneKbartDto.setIdProviderPackage(provider.getIdProviderPackage());
@@ -94,7 +111,7 @@ public class TopicProducer {
             List<Header> headerList = new ArrayList<>();
             executorService.execute(() -> {
                 headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLigneTotal).getBytes()));
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
                 CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
                 assert result != null : "Result est null, donc exception";
                 result.whenComplete((sr, ex) -> {
@@ -107,7 +124,6 @@ public class TopicProducer {
             });
         }
     }
-
 
     /**
      * Méthode d'envoi d'une ligne kbart pour création d'une notice à partir de la version imprimée
