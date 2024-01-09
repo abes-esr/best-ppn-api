@@ -10,7 +10,9 @@ public class SearchDatWebDto {
     private String auteur;
     private String titre;
     private Boolean isCheckProviderInNotice = true;
-    public SearchDatWebDto(String titre) {
+    private String providerName;
+    public SearchDatWebDto(String titre, String providerName) {
         this.titre = titre;
+        this.providerName = providerName;
     }
 }

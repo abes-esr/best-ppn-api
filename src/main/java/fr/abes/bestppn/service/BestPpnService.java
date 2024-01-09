@@ -85,7 +85,7 @@ public class BestPpnService {
         }
 
         if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty()) {
-            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList);
+            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
         }
 
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka);
@@ -117,14 +117,14 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException {
+    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName) throws IOException {
         ResultDat2PpnWebDto resultDat2PpnWeb = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
             sendLog(LogLevel.DEBUG, "Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
-            resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle());
+            resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         } else if (ppnElecScoredList.isEmpty() && !kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
             sendLog(LogLevel.DEBUG, "Appel dat2ppn :  date_monograph_published_print : " + kbart.getAnneeFromDate_monograph_published_print() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
-            resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle());
+            resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         }
         if(resultDat2PpnWeb != null && !resultDat2PpnWeb.getPpns().isEmpty()) {
             for (String ppn : resultDat2PpnWeb.getPpns()) {
