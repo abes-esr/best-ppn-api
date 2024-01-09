@@ -118,11 +118,11 @@ public class EmailService {
         //  Création du l'adresse du ws d'envoi de mails
         HttpPost mail = new HttpPost(this.url + "htmlMail/");
 
-       /* try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(mail);
         } catch (IOException e) {
             log.error("Erreur lors de l'envoi du mail. " + e);
-        }*/
+        }
     }
 
     protected void sendMailWithFile(String requestJson, File f) {
@@ -148,11 +148,11 @@ public class EmailService {
         HttpEntity multipart = builder.build();
         uploadFile.setEntity(multipart);
 
-       /* try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(uploadFile);
         } catch (IOException e) {
             log.error("Erreur lors de l'envoi du mail. " + e.getMessage());
-        }*/
+        }
     }
 
     protected String mailToJSON(String to, String subject, String text) {
