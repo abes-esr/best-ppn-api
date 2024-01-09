@@ -94,9 +94,7 @@ public class WsService {
     private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException{
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
-            result.setUrl(setUrlWithParams(provider, url, id, type));
             result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
-            result.setUrl(setUrlWithParams(provider, url, id, type));
         } catch (RestClientException ex) {
             log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
             throw ex;
@@ -108,6 +106,8 @@ public class WsService {
             }
         } catch (JsonProcessingException ex) {
             throw new RestClientException(ex.getMessage());
+        } finally {
+            result.setUrl(setUrlWithParams(provider, url, id, type));
         }
         return result;
     }
