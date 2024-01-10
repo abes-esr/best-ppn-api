@@ -24,6 +24,8 @@ public class KafkaWorkInProgress {
 
     private boolean isForced;
 
+    private boolean isBypassed;
+
     private ExecutionReport executionReport = new ExecutionReport();
 
     private final PackageKbartDto mailAttachment;
@@ -42,8 +44,9 @@ public class KafkaWorkInProgress {
 
     private final List<LigneKbartDto> ppnFromKbartToCreate;
 
-    public KafkaWorkInProgress(boolean isForced) {
+    public KafkaWorkInProgress(boolean isForced, boolean isBypassed) {
         this.isForced = isForced;
+        this.isBypassed = isBypassed;
         this.mailAttachment = new PackageKbartDto();
         this.isOnError = new AtomicBoolean(false);
         this.nbLignesTraitees = new AtomicInteger(0);

@@ -21,7 +21,6 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +50,9 @@ public class TopicProducer {
 
     @Value("${topic.name.target.ppnFromKbart}")
     private String topicKbartPpnToCreate;
+
+    @Value("${topic.name.target.kbart.bypass.toload}")
+    private String topicKbartBypassToload;
 
     private KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect;
 
@@ -84,6 +86,20 @@ public class TopicProducer {
      */
     @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+        sendToTopic(kbart, provider, filename, topicKbart);
+    }
+
+    /**
+     * Méthode d'nvoi d'une ligne kbart vers topic kafka si option bypass activée
+     * @param kbart     : ligne kbart à envoyer
+     * @param provider  : provider
+     * @param filename  : nom du fichier du traitement en cours
+     */
+    public void sendBypassToLoad(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
+        sendToTopic(kbart, provider, filename, topicKbartBypassToload);
+    }
+
+    private void sendToTopic(List<LigneKbartDto> kbart, ProviderPackage provider, String filename, String destinationTopic) {
         Integer nbLigneTotal = kbart.size();
         for (LigneKbartDto ligneKbartDto : kbart) {
             ligneKbartDto.setIdProviderPackage(provider.getIdProviderPackage());
@@ -94,7 +110,7 @@ public class TopicProducer {
             List<Header> headerList = new ArrayList<>();
             executorService.execute(() -> {
                 headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLigneTotal).getBytes()));
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topicKbart, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
                 CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
                 assert result != null : "Result est null, donc exception";
                 result.whenComplete((sr, ex) -> {
@@ -108,7 +124,6 @@ public class TopicProducer {
         }
     }
 
-
     /**
      * Méthode d'envoi d'une ligne kbart pour création d'une notice à partir de la version imprimée
      *
@@ -118,9 +133,7 @@ public class TopicProducer {
     @Transactional(transactionManager = "kafkaTransactionManagerKbartImprime")
     public void sendPrintNotice(List<LigneKbartImprime> ligneKbartImprimes, String filename) {
         for (LigneKbartImprime ppnToCreate : ligneKbartImprimes) {
-            List<Header> headerList = new ArrayList<>();
-            headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
-            sendNoticeImprime(ppnToCreate, topicNoticeImprimee, headerList);
+            sendNoticeImprime(ppnToCreate, topicNoticeImprimee, filename);
         }
         if (!ligneKbartImprimes.isEmpty())
             log.debug("message envoyé vers {}", topicNoticeImprimee);
@@ -139,9 +152,7 @@ public class TopicProducer {
             ligne.setProviderPackagePackage(provider.getPackageName());
             ligne.setProviderPackageDateP(provider.getDateP());
             ligne.setProviderPackageIdtProvider(provider.getProviderIdtProvider());
-            List<Header> headerList = new ArrayList<>();
-            headerList.add(constructHeader("filename", filename.getBytes(StandardCharsets.US_ASCII)));
-            sendObject(ligne, topicKbartPpnToCreate, headerList);
+            sendNoticeExNihilo(ligne, topicKbartPpnToCreate, filename);
         }
         if (!ppnFromKbartToCreate.isEmpty())
             log.debug("message envoyé vers {}", topicKbartPpnToCreate);
@@ -151,12 +162,12 @@ public class TopicProducer {
      * Méthode envoyant un objet de notice imprimé sur un topic Kafka
      * @param ligneKbartDto : ligne contenant la ligne kbart, et le provider
      * @param topic : topic d'envoi de la ligne
-     * @param header : header kafka de la ligne
+     * @param key : clé kafka de la ligne correspondant au nom de fichier
      */
-    private void sendObject(LigneKbartDto ligneKbartDto, String topic, List<Header> header) {
+    private void sendNoticeExNihilo(LigneKbartDto ligneKbartDto, String topic, String key) {
         LigneKbartConnect ligne = utilsMapper.map(ligneKbartDto, LigneKbartConnect.class);
         try {
-            ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, "", ligne, header);
+            ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, key, ligne);
             final SendResult<String, LigneKbartConnect> result = kafkaTemplateConnect.send(record).get();
             logEnvoi(result, record);
         } catch (Exception e) {
@@ -169,11 +180,11 @@ public class TopicProducer {
      * Méthode envoyant un objet de notice imprimé sur un topic Kafka
      * @param ligne : ligne contenant la ligne kbart, le ppn de la notice imprimée et le provider
      * @param topic : topic d'envoi de la ligne
-     * @param header : header kafka de la ligne
+     * @param key : clé kafka de la ligne correspondant au nom du fichier
      */
-    private void sendNoticeImprime(LigneKbartImprime ligne, String topic, List<Header> header) {
+    private void sendNoticeImprime(LigneKbartImprime ligne, String topic, String key) {
         try {
-            ProducerRecord<String, LigneKbartImprime> record = new ProducerRecord<>(topic, null, "", ligne, header);
+            ProducerRecord<String, LigneKbartImprime> record = new ProducerRecord<>(topic, null, key, ligne);
             final SendResult<String, LigneKbartImprime> result = kafkaTemplateImprime.send(record).get();
             logEnvoi(result, record);
         } catch (Exception e) {

@@ -17,6 +17,8 @@ public class ResultWsSudocDto {
 
     private List<String> erreurs = new ArrayList<>();
 
+    private String url;
+
     public ResultWsSudocDto getPpnWithTypeElectronique() {
         ResultWsSudocDto result = new ResultWsSudocDto();
         List<PpnWithTypeDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).toList());
@@ -43,5 +45,10 @@ public class ResultWsSudocDto {
         result.setPpns(ppnsRacines);
         result.setErreurs(this.erreurs);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "url : " + url + " / ppn(s) : " + ppns + " / erreur(s) : " + erreurs;
     }
 }
