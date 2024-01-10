@@ -134,7 +134,7 @@ public class BestPpnService {
                     if (checkUrlService.checkUrlInNotice(ppn, kbart.getTitleUrl())) {
                         ppnElecScoredList.put(ppn, scoreDat2Ppn);
                     } else {
-                        // TODO voir avec Michael quoi faire ici
+                        sendLog(LogLevel.ERROR, "Le PPN " + ppn + " n'a pas de provider trouvé");
                     }
                 } else if (notice.isNoticeImprimee()) {
                     ppnPrintResultList.add(ppn);
