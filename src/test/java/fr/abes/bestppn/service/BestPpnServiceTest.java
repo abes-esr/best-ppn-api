@@ -384,14 +384,14 @@ class BestPpnServiceTest {
         Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
         Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticeElec);
         Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
-        Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
+        Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
 
         //  Appel de la méthode
         BestPpn result = bestPpnService.getBestPpn(kbart, provider, false, false);
 
         //  Vérification
-        Assertions.assertEquals("300000001", result.getPpn());
-        Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
+        Assertions.assertEquals("300000002", result.getPpn());
+        Assertions.assertEquals(DESTINATION_TOPIC.PRINT_PPN_SUDOC, result.getDestination());
     }
 
     @Test
