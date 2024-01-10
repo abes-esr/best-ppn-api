@@ -117,7 +117,7 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName) throws IOException {
+    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName) throws IOException, URISyntaxException {
         ResultDat2PpnWebDto resultDat2PpnWeb = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
             sendLog(LogLevel.DEBUG, "Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
@@ -131,7 +131,11 @@ public class BestPpnService {
                 sendLog(LogLevel.DEBUG, "résultat : ppn " + ppn);
                 NoticeXml notice = noticeService.getNoticeByPpn(ppn);
                 if (notice.isNoticeElectronique()) {
-                    ppnElecScoredList.put(ppn, scoreDat2Ppn);
+                    if (checkUrlService.checkUrlInNotice(ppn, kbart.getTitleUrl())) {
+                        ppnElecScoredList.put(ppn, scoreDat2Ppn);
+                    } else {
+                        // TODO voir avec Michael quoi faire ici
+                    }
                 } else if (notice.isNoticeImprimee()) {
                     ppnPrintResultList.add(ppn);
                 }
