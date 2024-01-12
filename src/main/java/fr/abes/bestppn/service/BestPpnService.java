@@ -115,6 +115,10 @@ public class BestPpnService {
             if (resultWithTypeElectronique != null && !resultWithTypeImprime.getPpns().isEmpty()) {
                 setScoreToEveryPpnFromResultWS(resultWithTypeImprime, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList);
             }
+            ResultWsSudocDto resultWithTypeAutre = resultCallWs.getPpnWithTypeAutre().changePpnWithTypeAutreToTypeElectronique();
+            if (resultWithTypeElectronique != null && !resultWithTypeAutre.getPpns().isEmpty()) {
+                setScoreToEveryPpnFromResultWS(resultWithTypeAutre, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList);
+            }
         } catch (RestClientException ex) {
             throw new BestPpnException(ex.getMessage());
         }

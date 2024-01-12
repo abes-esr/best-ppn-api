@@ -35,6 +35,22 @@ public class ResultWsSudocDto {
         return result;
     }
 
+    public ResultWsSudocDto getPpnWithTypeAutre() {
+        ResultWsSudocDto result = new ResultWsSudocDto();
+        List<PpnWithTypeDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.AUTRE)).toList());
+        result.setPpns(ppnsSorted);
+        result.setErreurs(this.erreurs);
+        return result;
+    }
+
+    public ResultWsSudocDto changePpnWithTypeAutreToTypeElectronique() {
+        ResultWsSudocDto result = new ResultWsSudocDto();
+        List<PpnWithTypeDto> ppnsRacines = new ArrayList<>();
+        this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.AUTRE)).forEach(ppnWithTypeDto -> ppnsRacines.add(new PpnWithTypeDto(ppnWithTypeDto.getPpn(), TYPE_SUPPORT.ELECTRONIQUE, ppnWithTypeDto.getTypeDocument(), ppnWithTypeDto.getProviderPresent())));
+        result.setPpns(ppnsRacines);
+        return result;
+    }
+
     public ResultWsSudocDto getPpnRacineWithErrorType() {
         ResultWsSudocDto result = new ResultWsSudocDto();
         List<PpnWithTypeDto> ppnsRacines = new ArrayList<>();
