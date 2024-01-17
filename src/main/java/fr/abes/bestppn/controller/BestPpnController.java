@@ -45,7 +45,7 @@ public class BestPpnController {
                               @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
                               @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "title_url", required = false) String titleUrl,
                               @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
-                              @RequestParam(name = "first_author", required = false) String firstAuthor, @RequestParam(name = "force", required = false) Boolean force,
+                              @RequestParam(name = "first_author", required = false) String firstAuthor,
                               @RequestParam(name = "log", required = false) Boolean log) throws IOException {
         try {
             LigneKbartDto ligneKbartDto = new LigneKbartDto();
@@ -57,9 +57,8 @@ public class BestPpnController {
             ligneKbartDto.setDateMonographPublishedPrint((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
-            boolean injectKafka = (force != null) ? force : false;
             boolean isSendLog = (log != null) ? log : false;
-            BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, injectKafka, isSendLog);
+            BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, true, isSendLog);
             if(!isSendLog) bestPpn.setLogs(null); // désactive l'envoi des logs si non demandés.
             return new BestPpnDto(bestPpn);
         } catch (URISyntaxException e) {

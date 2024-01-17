@@ -42,33 +42,40 @@ public class KbartService {
     }
 
     @Transactional
-    public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, String filename) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, Boolean isBypassed, String filename) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
-        if (ligneFromKafka.isBestPpnEmpty()) {
-            log.info(ligneFromKafka.toString());
-            BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
-            switch (Objects.requireNonNull(bestPpn.getDestination())) {
-                case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
-                case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
-                case NO_PPN_FOUND_SUDOC -> {
-                    if (ligneFromKafka.getPublicationType().equals("monograph")) {
-                        workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
+        if (!isBypassed) {
+            if (ligneFromKafka.isBestPpnEmpty()) {
+                log.info(ligneFromKafka.toString());
+                BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
+                switch (Objects.requireNonNull(bestPpn.getDestination())) {
+                    case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
+                    case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
+                    case NO_PPN_FOUND_SUDOC -> {
+                        if (ligneFromKafka.getPublicationType().equals("monograph")) {
+                            workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
+                        }
                     }
                 }
+            } else {
+                log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
             }
-        } else {
-            log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
         }
         workInProgress.get(filename).addKbartToSend(ligneFromKafka);
     }
 
     @Transactional
-    public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
+    public void commitDatas(String providerName, String filename, Boolean isBypassed) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
         Optional<Provider> providerOpt = providerService.findByProvider(providerName);
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
-        producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
-        producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
-        producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
+        if (!isBypassed) {
+            producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
+            producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
+            producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
+        } else {
+            workInProgress.get(filename).setBypassed(isBypassed);
+            producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
+        }
     }
 
     private static LigneKbartImprime getLigneKbartImprime(BestPpn bestPpn, LigneKbartDto ligneFromKafka) {

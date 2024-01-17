@@ -69,7 +69,7 @@ public class TopicConsumer {
             //traitement de chaque ligne kbart
             if (!this.workInProgress.containsKey(ligneKbart.key())) {
                 //nouveau fichier trouvé dans le topic, on initialise les variables partagées
-                workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE")));
+                workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
             }
 
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
@@ -80,7 +80,7 @@ public class TopicConsumer {
                     workInProgress.get(filename).incrementNbLignesTraitees();
                     String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
                     ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
-                    service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), filename);
+                    service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
                     if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
                         workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                     workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
@@ -135,7 +135,7 @@ public class TopicConsumer {
                 workInProgress.get(filename).setIsOnError(false);
             } else {
                 String providerName = Utils.extractProvider(filename);
-                service.commitDatas(providerName, filename);
+                service.commitDatas(providerName, filename, workInProgress.get(filename).isBypassed());
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
                 log.info("Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
                 logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());

@@ -106,6 +106,8 @@ public class WsService {
             }
         } catch (JsonProcessingException ex) {
             throw new RestClientException(ex.getMessage());
+        } finally {
+            result.setUrl(setUrlWithParams(provider, url, id, type));
         }
         return result;
     }
@@ -118,7 +120,9 @@ public class WsService {
         if (date != null && !date.isEmpty()) {
             searchDatWebDto.setDate(Integer.valueOf(date));
         }
-        return mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);
+        ResultDat2PpnWebDto result = mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);
+        result.setUrl(urlDat2Ppn + "/" + mapper.writeValueAsString(searchDatWebDto));
+        return result;
     }
 
     public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException {
@@ -128,11 +132,20 @@ public class WsService {
         ResultWsSudocDto result;
         try {
             result = mapper.readValue(getCall(urlDoi2Ppn, params), ResultWsSudocDto.class);
+            result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
         } catch (RestClientException ex) {
             log.error("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
             throw new IllegalDoiException(ex.getMessage());
         }
         return result;
+    }
+
+    private String setUrlWithParams(String provider, String url, String id, String type) {
+        if ((provider != null && !provider.isEmpty())) {
+            return url + "/" + type + "/" + id + "/" + provider;
+        } else {
+            return url + "/" + type + "/" + id;
+        }
     }
 
 }

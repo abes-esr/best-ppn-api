@@ -2,11 +2,13 @@ package fr.abes.bestppn.model.dto.wscall;
 
 import fr.abes.bestppn.utils.TYPE_DOCUMENT;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class PpnWithTypeDto {
     private String ppn;
     private TYPE_SUPPORT typeSupport;

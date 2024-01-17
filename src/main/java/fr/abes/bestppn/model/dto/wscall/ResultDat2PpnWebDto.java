@@ -17,6 +17,8 @@ public class ResultDat2PpnWebDto {
     @JsonProperty("erreurs")
     List<String> erreurs = new ArrayList<>();
 
+    private String url;
+
     public void addPpn(String ppn) {
         this.ppns.add(ppn);
     }
@@ -27,6 +29,11 @@ public class ResultDat2PpnWebDto {
 
     public void addErreur(String erreur) {
         this.erreurs.add(erreur);
+    }
+
+    @Override
+    public String toString() {
+        return "url : " + url + " / ppn(s) : " + ppns + " / erreur(s) : " + erreurs;
     }
 
 }

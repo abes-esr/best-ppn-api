@@ -78,6 +78,9 @@ public class Utils {
             if (filename.contains("_FORCE")) {
                 String tempsStr =  filename.substring(0, filename.indexOf("_FORCE"));
                 return tempsStr.substring(tempsStr.indexOf('_') + 1, tempsStr.lastIndexOf('_'));
+            } else if (filename.contains("_BYPASS")) {
+                String tempStr = filename.substring(0, filename.indexOf("_BYPASS"));
+                return tempStr.substring(tempStr.indexOf('_') + 1, tempStr.lastIndexOf('_'));
             } else {
                 return filename.substring(filename.indexOf('_') + 1, filename.lastIndexOf('_'));
             }
