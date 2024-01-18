@@ -112,8 +112,8 @@ public class WsService {
         return result;
     }
 
-    public ResultDat2PpnWebDto callDat2Ppn(String date, String author, String title) throws JsonProcessingException {
-        SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title);
+    public ResultDat2PpnWebDto callDat2Ppn(String date, String author, String title, String providerName) throws JsonProcessingException {
+        SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title, providerName);
         if (author != null && !author.isEmpty()) {
             searchDatWebDto.setAuteur(author);
         }
