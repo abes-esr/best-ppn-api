@@ -2,10 +2,10 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.model.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.dto.wscall.SearchDatWebDto;
-import fr.abes.bestppn.exception.IllegalDoiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 @Service
 @Slf4j
