@@ -2,10 +2,9 @@ package fr.abes.bestppn.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.configuration.MapperConfig;
-import fr.abes.bestppn.configuration.RestConfiguration;
-import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.ExceptionControllerHandler;
+import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.service.BestPpnService;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = {BestPpnController.class})
-@ContextConfiguration(classes = {RestConfiguration.class, MapperConfig.class})
+@ContextConfiguration(classes = {MapperConfig.class})
 public class BestPpnControllerTest {
     @Autowired
     WebApplicationContext context;
