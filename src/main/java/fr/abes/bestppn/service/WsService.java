@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 @Service
 @Slf4j
@@ -36,13 +37,11 @@ public class WsService {
     @Value("${url.doi2Ppn}")
     private String urlDoi2Ppn;
 
-    private final RestTemplate restTemplate;
     private final HttpHeaders headers;
 
     private final ObjectMapper mapper;
 
-    public WsService(ObjectMapper mapper, RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public WsService(ObjectMapper mapper) {
         this.headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         this.mapper = mapper;
@@ -51,10 +50,11 @@ public class WsService {
 
     public String postCall(String url, String requestJson) {
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-
+        RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters()
                 .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.postForObject(url, entity, String.class);
+
     }
 
     public String getRestCall(String url, String... params) throws RestClientException {
@@ -64,6 +64,7 @@ public class WsService {
             formedUrl.append(param);
         }
         log.debug(formedUrl.toString());
+        RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
@@ -80,6 +81,7 @@ public class WsService {
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
         log.debug(formedUrl.toString());
+        RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
@@ -91,7 +93,7 @@ public class WsService {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
 
-    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException{
+    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException {
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
             result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
@@ -99,8 +101,8 @@ public class WsService {
             log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
             throw ex;
         } catch (IllegalArgumentException ex) {
-            if( ex.getMessage().equals("argument \"content\" is null")) {
-                log.info("Aucuns ppn correspondant à l'identifiant "+ id);
+            if (ex.getMessage().equals("argument \"content\" is null")) {
+                log.info("Aucuns ppn correspondant à l'identifiant " + id);
             } else {
                 throw ex;
             }
