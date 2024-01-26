@@ -49,7 +49,6 @@ public class KafkaWorkInProgress {
 
     private final List<LigneKbartDto> ppnFromKbartToCreate;
 
-    private final Lock lock;
 
     public KafkaWorkInProgress(boolean isForced, boolean isBypassed) {
         this.isForced = isForced;
@@ -62,7 +61,6 @@ public class KafkaWorkInProgress {
         this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
         this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
         this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
-        this.lock = new ReentrantLock();
     }
 
     public void incrementThreads() {
