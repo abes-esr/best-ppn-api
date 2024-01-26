@@ -7,6 +7,7 @@ import fr.abes.bestppn.model.entity.ExecutionReport;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,11 +16,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** classe permettant de suivre le déroulement d'un traitement sur un fichier donné
- *
+/**
+ * classe permettant de suivre le déroulement d'un traitement sur un fichier donné
  */
 @Getter
 @Setter
+@Slf4j
 public class KafkaWorkInProgress {
 
     private boolean isForced;
@@ -43,6 +45,7 @@ public class KafkaWorkInProgress {
     private final List<LigneKbartImprime> ppnToCreate;
 
     private final List<LigneKbartDto> ppnFromKbartToCreate;
+
 
     public KafkaWorkInProgress(boolean isForced, boolean isBypassed) {
         this.isForced = isForced;
@@ -76,6 +79,7 @@ public class KafkaWorkInProgress {
     public int getNbLignesTraitees() {
         return this.nbLignesTraitees.get();
     }
+
     public void setIsOnError(boolean error) {
         this.isOnError.set(error);
     }
@@ -87,15 +91,16 @@ public class KafkaWorkInProgress {
     public void setNbtotalLinesInExecutionReport(int nbtotalLines) {
         this.executionReport.setNbtotalLines(nbtotalLines);
     }
-    public void addNbBestPpnFindedInExecutionReport(){
+
+    public void addNbBestPpnFindedInExecutionReport() {
         executionReport.incrementNbBestPpnFind();
     }
 
-    public void addNbLinesWithInputDataErrorsInExecutionReport(){
+    public void addNbLinesWithInputDataErrorsInExecutionReport() {
         executionReport.incrementNbLinesWithInputDataErrors();
     }
 
-    public void addNbLinesWithErrorsInExecutionReport(){
+    public void addNbLinesWithErrorsInExecutionReport() {
         executionReport.incrementNbLinesWithErrorsInBestPPNSearch();
     }
 
