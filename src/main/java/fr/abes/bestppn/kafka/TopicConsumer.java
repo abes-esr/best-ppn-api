@@ -78,7 +78,7 @@ public class TopicConsumer {
             workInProgress.get(filename).incrementNbLignesTraitees();
             executorService.execute(() -> {
                 try {
-                    log.warn("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
+                    log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
                     workInProgress.get(filename).incrementThreads();
                     String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
                     ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
@@ -130,7 +130,7 @@ public class TopicConsumer {
             try {
                 //ajout d'un sleep sur la durée du poll kafka pour être sur que le consumer de kbart ait lu au moins une fois
                 Thread.sleep(80);
-                log.warn(filename + " : Thread : " + workInProgress.get(filename).getNbActiveThreads());
+                log.info(filename + " : Thread : " + workInProgress.get(filename).getNbActiveThreads());
             } catch (InterruptedException e) {
                 log.warn("Erreur de sleep sur attente fin de traitement");
             }
