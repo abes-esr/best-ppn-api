@@ -2,20 +2,21 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.model.BestPpn;
-import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
-import fr.abes.bestppn.model.dto.wscall.ResultDat2PpnWebDto;
-import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
-import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
+import fr.abes.bestppn.model.BestPpn;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
+import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
+import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
+import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
+import fr.abes.bestppn.utils.TYPE_DOCUMENT;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import fr.abes.bestppn.utils.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.ThreadContext;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -347,7 +348,7 @@ class BestPpnServiceTest {
 
 
     @Test
-    @DisplayName("Test printFromPrint & 2 printFromDat ")
+    @DisplayName("Test 1 printFromDat ")
     void getBestPpnTest06() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         String provider = "";
 
@@ -364,9 +365,9 @@ class BestPpnServiceTest {
         resultPrint.setPpns(ppnWithTypePrintDto);
 
         //  Create a ResultDat2PpnWebDto
-        ResultDat2PpnWebDto resultDat2PpnWeb = new ResultDat2PpnWebDto();
-        resultDat2PpnWeb.addPpn("300000001");
-        resultDat2PpnWeb.addPpn("300000002");
+        List<PpnWithTypeDto> ppnWithTypeDat = Lists.newArrayList( new PpnWithTypeDto("300000002", TYPE_SUPPORT.IMPRIME, TYPE_DOCUMENT.MONOGRAPHIE, true));
+        ResultWsSudocDto resultDat2PpnWeb = new ResultWsSudocDto();
+        resultDat2PpnWeb.setPpns(ppnWithTypeDat);
 
         //  Create a LigneKbartDto
         LigneKbartDto kbart = new LigneKbartDto();
@@ -382,8 +383,6 @@ class BestPpnServiceTest {
         //  Mock
         Mockito.when(service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider)).thenReturn(resultElec);
         Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
-        Mockito.when(noticeService.getNoticeByPpn("300000001")).thenReturn(noticeElec);
-        Mockito.when(noticeService.getNoticeByPpn("300000002")).thenReturn(noticePrint);
         Mockito.when(service.callDat2Ppn(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(resultDat2PpnWeb);
 
         //  Appel de la méthode
@@ -605,11 +604,6 @@ class BestPpnServiceTest {
         ppnWithTypeDto3.add(ppnPrint);
         resultPrint.setPpns(ppnWithTypeDto3);
         Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
-
-        //Mock du service callDat2Ppn -> les ppn auront un score de 20
-        ResultDat2PpnWebDto resultDat2PpnWeb = new ResultDat2PpnWebDto();
-        resultDat2PpnWeb.addPpn("300000001");
-        resultDat2PpnWeb.addPpn("300000002");
 
         ThreadContext.put("package","truc_truc_2000-12-31.tsv");
         Mockito.when(checkUrlService.checkUrlInNotice(Mockito.anyString(), Mockito.anyString())).thenReturn(true);

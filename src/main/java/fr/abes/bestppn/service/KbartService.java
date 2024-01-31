@@ -65,15 +65,14 @@ public class KbartService {
     }
 
     @Transactional
-    public void commitDatas(String providerName, String filename, Boolean isBypassed) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
+    public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
         Optional<Provider> providerOpt = providerService.findByProvider(providerName);
         ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
-        if (!isBypassed) {
+        if (!workInProgress.get(filename).isBypassed()) {
             producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
             producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
             producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
         } else {
-            workInProgress.get(filename).setBypassed(isBypassed);
             producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
         }
     }
