@@ -15,7 +15,6 @@ import org.apache.kafka.common.header.Header;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -140,7 +139,7 @@ public class TopicConsumer {
                 log.error("Fichier " + filename + " : Une erreur s'est produite dans le traitement du fichier");
             } else {
                 String providerName = Utils.extractProvider(filename);
-                service.commitDatas(providerName, filename, workInProgress.get(filename).isBypassed());
+                service.commitDatas(providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
                 log.info("Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
                 logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());

@@ -3,7 +3,6 @@ package fr.abes.bestppn.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.exception.IllegalDoiException;
-import fr.abes.bestppn.model.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.dto.wscall.SearchDatWebDto;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +112,7 @@ public class WsService {
         return result;
     }
 
-    public ResultDat2PpnWebDto callDat2Ppn(String date, String author, String title, String providerName) throws JsonProcessingException {
+    public ResultWsSudocDto callDat2Ppn(String date, String author, String title, String providerName) throws JsonProcessingException {
         SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title, providerName);
         if (author != null && !author.isEmpty()) {
             searchDatWebDto.setAuteur(author);
@@ -121,7 +120,7 @@ public class WsService {
         if (date != null && !date.isEmpty()) {
             searchDatWebDto.setDate(Integer.valueOf(date));
         }
-        ResultDat2PpnWebDto result = mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultDat2PpnWebDto.class);
+        ResultWsSudocDto result = mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultWsSudocDto.class);
         result.setUrl(urlDat2Ppn + "/" + mapper.writeValueAsString(searchDatWebDto));
         return result;
     }
