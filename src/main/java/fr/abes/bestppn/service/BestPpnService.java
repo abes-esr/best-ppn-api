@@ -1,14 +1,12 @@
 package fr.abes.bestppn.service;
 
-import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
+import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
-import fr.abes.bestppn.model.dto.wscall.ResultDat2PpnWebDto;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
-import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.utils.*;
 import io.netty.handler.logging.LogLevel;
 import lombok.Getter;
@@ -126,27 +124,26 @@ public class BestPpnService {
 
     private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName) throws IOException, URISyntaxException {
         sendLog(LogLevel.INFO, "Entrée dans dat2ppn");
-        ResultDat2PpnWebDto resultDat2PpnWeb = null;
+        ResultWsSudocDto resultCallWs = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
             sendLog(LogLevel.DEBUG, "Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
-            resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
+            resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         } else if (ppnElecScoredList.isEmpty() && !kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
             sendLog(LogLevel.DEBUG, "Appel dat2ppn :  date_monograph_published_print : " + kbart.getAnneeFromDate_monograph_published_print() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
-            resultDat2PpnWeb = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
+            resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         }
-        if(resultDat2PpnWeb != null && !resultDat2PpnWeb.getPpns().isEmpty()) {
-            sendLog(LogLevel.INFO, resultDat2PpnWeb.toString());
-            for (String ppn : resultDat2PpnWeb.getPpns()) {
-                NoticeXml notice = noticeService.getNoticeByPpn(ppn);
-                if (notice.isNoticeElectronique()) {
-                    if (checkUrlService.checkUrlInNotice(ppn, kbart.getTitleUrl())) {
+        if(resultCallWs != null && !resultCallWs.getPpns().isEmpty()) {
+            sendLog(LogLevel.INFO, resultCallWs.toString());
+            for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
+                if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
+                    if (ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), kbart.getTitleUrl())) {
                         sendLog(LogLevel.INFO, "ppn : " + ppn + " / score : " + scoreDat2Ppn);
-                        ppnElecScoredList.put(ppn, scoreDat2Ppn);
+                        ppnElecScoredList.put(ppn.getPpn(), scoreDat2Ppn);
                     } else {
                         sendLog(LogLevel.ERROR, "Le PPN " + ppn + " n'a pas de provider trouvé");
                     }
-                } else if (notice.isNoticeImprimee()) {
-                    ppnPrintResultList.add(ppn);
+                } else if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
+                    ppnPrintResultList.add(ppn.getPpn());
                 }
             }
         }
