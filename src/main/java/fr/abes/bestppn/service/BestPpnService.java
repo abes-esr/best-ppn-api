@@ -140,7 +140,7 @@ public class BestPpnService {
                         sendLog(LogLevel.INFO, "ppn : " + ppn + " / score : " + scoreDat2Ppn);
                         ppnElecScoredList.put(ppn.getPpn(), scoreDat2Ppn);
                     } else {
-                        sendLog(LogLevel.ERROR, "Le PPN " + ppn + " n'a pas de provider trouvé");
+                        sendLog(LogLevel.WARN, "Le PPN " + ppn + " n'a pas de provider trouvé");
                     }
                 } else if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
                     ppnPrintResultList.add(ppn.getPpn());
@@ -174,7 +174,7 @@ public class BestPpnService {
                 } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)){
                     setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn);
                 } else {
-                    sendLog(LogLevel.ERROR, "Le PPN " + ppn + " n'a pas de provider trouvé");
+                    sendLog(LogLevel.WARN, "Le PPN " + ppn + " n'a pas de provider trouvé");
                 }
             }
         }
@@ -239,7 +239,7 @@ public class BestPpnService {
 
     public void sendLog(LogLevel level, String message) {
         if (isSendLogs) {
-            if (level.equals(LogLevel.INFO) || level.equals(LogLevel.ERROR)) kbartLineLogs.add(message);
+            if (level.equals(LogLevel.INFO) || level.equals(LogLevel.ERROR) || level.equals(LogLevel.WARN)) kbartLineLogs.add(message);
         }
         switch (level) {
             case DEBUG -> log.debug(message);
