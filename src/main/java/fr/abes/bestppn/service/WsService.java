@@ -134,8 +134,13 @@ public class WsService {
             result = mapper.readValue(getCall(urlDoi2Ppn, params), ResultWsSudocDto.class);
             result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
         } catch (RestClientException ex) {
-            log.error("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
-            throw new IllegalDoiException(ex.getMessage());
+            if (ex.getMessage().contains("Le DOI n'est pas au bon format")) {
+                log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
+                throw new IllegalDoiException(ex.getMessage());
+            } else {
+                log.warn("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
+                throw new RestClientException(ex.getMessage());
+            }
         }
         return result;
     }

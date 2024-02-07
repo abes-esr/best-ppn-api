@@ -16,6 +16,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -95,9 +96,9 @@ public class TopicConsumer {
                             }
                         }
                     }
-                } catch (IOException | URISyntaxException | IllegalDoiException e) {
-                    //erreurs non bloquantes, on les inscrits dans le rapport, mais on n'arrête pas le programme
-                    log.error(e.getMessage());
+                } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
+                    //erreurs non bloquantes, on n'arrête pas le programme
+                    log.warn(e.getMessage());
                     workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
                     workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
                 } catch (BestPpnException e) {
@@ -115,7 +116,7 @@ public class TopicConsumer {
             });
             } catch(IllegalProviderException | JsonProcessingException e){
                 workInProgress.get(filename).setIsOnError(true);
-                log.error(e.getMessage());
+                log.warn(e.getMessage());
                 workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
                 workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
             }
@@ -145,8 +146,10 @@ public class TopicConsumer {
                 logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
             }
             emailService.sendMailWithAttachment(filename, workInProgress.get(filename).getMailAttachment());
-        } catch (IllegalPackageException | IllegalDateException | IllegalProviderException | ExecutionException |
-                 InterruptedException | IOException e) {
+        } catch (ExecutionException | InterruptedException | IOException e) {
+            emailService.sendProductionErrorEmail(filename, e.getMessage());
+        } catch (IllegalPackageException | IllegalDateException | IllegalProviderException e) {
+            log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
             log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getNbLignesTraitees());
