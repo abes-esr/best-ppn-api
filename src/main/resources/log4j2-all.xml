@@ -17,15 +17,11 @@
     </Properties>
     <Appenders>
         <!-- KAFKA -->
-        <Kafka name="kafkaErrorLogAppender" topic="errorkbart2kafka" key="${ctx:package}">
+        <!--    Les levels d'erreurs pris en compte sont INFO, WARN et ERROR    -->
+        <Kafka name="kafkaErrorLogAppender" topic="bacon.logs.toload" key="${ctx:package}">
             <JSONLayout />
             <Property name="bootstrap.servers">${kafkaServer}</Property>
-            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
-        </Kafka>
-        <Kafka name="kafkaInfoLogAppender" topic="infokbart2kafka" key="${ctx:package}">
-            <JSONLayout />
-            <Property name="bootstrap.servers">${kafkaServer}</Property>
-            <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <LevelRangeFilter minLevel="INFO" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Kafka>
         <!-- CONSOLE -->
         <Console name="Console">

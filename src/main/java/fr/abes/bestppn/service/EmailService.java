@@ -113,7 +113,7 @@ public class EmailService {
         try {
             restTemplate.postForObject(url + "htmlMail/", entity, String.class); //appel du ws avec
         } catch (Exception e) {
-            log.error("Erreur dans l'envoi du mail d'erreur Sudoc" + e);
+            log.warn("Erreur dans l'envoi du mail d'erreur Sudoc" + e);
         }
         //  Création du l'adresse du ws d'envoi de mails
         HttpPost mail = new HttpPost(this.url + "htmlMail/");
@@ -121,7 +121,7 @@ public class EmailService {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(mail);
         } catch (IOException e) {
-            log.error("Erreur lors de l'envoi du mail. " + e);
+            log.warn("Erreur lors de l'envoi du mail. " + e);
         }
     }
 
@@ -141,7 +141,7 @@ public class EmailService {
                     f.getName()
             );
         } catch (FileNotFoundException e) {
-            log.error("Le fichier n'a pas été trouvé. " + e.getMessage());
+            log.warn("Le fichier n'a pas été trouvé. " + e.getMessage());
         }
 
         //  Envoi du mail
@@ -151,7 +151,7 @@ public class EmailService {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(uploadFile);
         } catch (IOException e) {
-            log.error("Erreur lors de l'envoi du mail. " + e.getMessage());
+            log.warn("Erreur lors de l'envoi du mail. " + e.getMessage());
         }
     }
 
@@ -168,7 +168,7 @@ public class EmailService {
         try {
             json = mapper.writeValueAsString(mail);
         } catch (JsonProcessingException e) {
-            log.error("Erreur lors du la création du mail. " + e);
+            log.warn("Erreur lors de la création du mail. " + e);
         }
         return json;
     }
