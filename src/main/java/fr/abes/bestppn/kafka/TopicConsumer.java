@@ -97,7 +97,7 @@ public class TopicConsumer {
                         }
                     }
                 } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
-                    //erreurs non bloquantes, on les inscrit dans le rapport, mais on n'arrête pas le programme
+                    //erreurs non bloquantes, on n'arrête pas le programme
                     log.warn(e.getMessage());
                     workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
                     workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
