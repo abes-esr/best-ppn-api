@@ -21,7 +21,7 @@
         <Kafka name="kafkaLogAppender" topic="bacon.logs.toload" key="${ctx:package}">
             <JSONLayout />
             <Property name="bootstrap.servers">${kafkaServer}</Property>
-            <LevelRangeFilter minLevel="INFO" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <LevelRangeFilter minLevel="ERROR" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </Kafka>
         <!-- CONSOLE -->
         <Console name="Console">
