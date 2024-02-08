@@ -198,13 +198,23 @@ public class BestPpnService {
                 yield switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         kbart.setErrorType("Aucun ppn trouvé");
-                        yield new BestPpn(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, kbartLineLogs);
+                        if(kbart.getPublicationType().equals("monographie")) {
+                            yield new BestPpn(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, kbartLineLogs);
+                        } else {
+                            // TODO BEST_PPN_BACON bonne destination ?
+                            yield new BestPpn(null, DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
+                        }
                     }
 
                     case 1 -> {
                         kbart.setErrorType("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
                         sendLog(LogLevel.DEBUG, "Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
-                        yield new BestPpn(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, kbartLineLogs);
+                        if(kbart.getPublicationType().equals("monographie")) {
+                            yield new BestPpn(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, kbartLineLogs);
+                        } else {
+                            // TODO BEST_PPN_BACON bonne destination ?
+                            yield new BestPpn(ppnPrintResultList.stream().toList().get(0), DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
+                        }
                     }
 
                     default -> {
