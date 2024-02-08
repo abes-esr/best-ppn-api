@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecutionReport {
     @Getter @Setter
-    private int nbtotalLines;
+    private AtomicInteger nbtotalLines;
 
     private AtomicInteger nbBestPpnFind;
 
@@ -20,8 +20,13 @@ public class ExecutionReport {
         nbBestPpnFind = new AtomicInteger(0);
         nbLinesWithInputDataErrors = new AtomicInteger(0);
         nbLinesWithErrorsInBestPPNSearch = new AtomicInteger(0);
-        nbtotalLines = 0;
+        nbtotalLines = new AtomicInteger(0);
     }
+
+    public void setNbtotalLines(int nbTotalLignes) {
+        this.nbtotalLines.set(nbTotalLignes);
+    }
+
     public int getNbBestPpnFind() {
         return nbBestPpnFind.get();
     }
@@ -35,7 +40,7 @@ public class ExecutionReport {
     }
 
     public int getNbLinesOk(){
-        return nbtotalLines - nbLinesWithErrorsInBestPPNSearch.get() - nbLinesWithInputDataErrors.get();
+        return nbtotalLines.get() - nbLinesWithErrorsInBestPPNSearch.get() - nbLinesWithInputDataErrors.get();
     }
 
     public void incrementNbBestPpnFind() {
@@ -44,13 +49,6 @@ public class ExecutionReport {
 
     public void incrementNbLinesWithInputDataErrors() {
         nbLinesWithInputDataErrors.incrementAndGet();
-    }
-
-    public void clear(){
-        nbtotalLines = 0;
-        nbBestPpnFind.set(0);
-        nbLinesWithInputDataErrors.set(0);
-        nbLinesWithErrorsInBestPPNSearch.set(0);
     }
 
     public void incrementNbLinesWithErrorsInBestPPNSearch() {
