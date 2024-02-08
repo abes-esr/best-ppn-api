@@ -18,7 +18,7 @@
     <Appenders>
         <!-- KAFKA -->
         <!--    Les levels d'erreurs pris en compte sont INFO, WARN et ERROR    -->
-        <Kafka name="kafkaErrorLogAppender" topic="bacon.logs.toload" key="${ctx:package}">
+        <Kafka name="kafkaLogAppender" topic="bacon.logs.toload" key="${ctx:package}">
             <JSONLayout />
             <Property name="bootstrap.servers">${kafkaServer}</Property>
             <LevelRangeFilter minLevel="INFO" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -131,8 +131,7 @@
     <Loggers>
         <Logger name="fr.abes.bestppn" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="kafkaErrorLogAppender"/>
-            <AppenderRef ref="kafkaInfoLogAppender"/>
+            <AppenderRef ref="kafkaLogAppender"/>
         </Logger>
         <Root level="info">
             <AppenderRef ref="Console"/>
