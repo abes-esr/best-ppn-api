@@ -75,7 +75,6 @@ public class TopicConsumer {
 
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(ligneKbart.key());
-            workInProgress.get(filename).incrementNbLignesTraitees();
             executorService.execute(() -> {
                 try {
                     log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
@@ -89,7 +88,7 @@ public class TopicConsumer {
                     Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
-                        if (nbLignesTotal == workInProgress.get(filename).getNbLignesTraitees()) {
+                        if (nbLignesTotal == workInProgress.get(filename).incrementNbLignesTraiteesAndGet()) {
                             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
                                 workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                                 handleFichier(filename);
@@ -152,7 +151,7 @@ public class TopicConsumer {
             log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getNbLignesTraitees());
+            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).incrementNbLignesTraiteesAndGet());
             workInProgress.remove(filename);
         }
     }

@@ -15,14 +15,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 @EnableKafka
@@ -132,6 +130,6 @@ public class KafkaConfig {
 
     @Bean
     public Map<String, KafkaWorkInProgress> kafkaWorkInProgress() {
-        return Collections.synchronizedMap(new HashMap<>());
+        return new ConcurrentHashMap<>();
     }
 }
