@@ -50,9 +50,12 @@ public class KbartService {
                 BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
                 switch (Objects.requireNonNull(bestPpn.getDestination())) {
                     case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
-                    case PRINT_PPN_SUDOC -> workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
+                    case PRINT_PPN_SUDOC -> {
+                        if (ligneFromKafka.getPublicationType().equals("monograph")) {
+                            workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
+                        }
+                    }
                     case NO_PPN_FOUND_SUDOC -> {
-                        // TODO vérifier la pertinence de ce contrôle sur le publicationType puisque normalement déjà effectué dans getBestPpnByScore()
                         if (ligneFromKafka.getPublicationType().equals("monograph")) {
                             workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
                         }
