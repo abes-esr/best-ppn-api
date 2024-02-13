@@ -47,7 +47,7 @@ public class CheckUrlService {
                 }
             }
         }
-        log.error("Pas de correspondance trouvée dans la notice avec l'url du provider.");
+        log.warn("Pas de correspondance trouvée dans la notice avec l'url du provider.");
         return false;
     }
 }
