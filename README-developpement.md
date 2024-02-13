@@ -1,5 +1,6 @@
 # best-ppn-api
-API permettant à la fois de lire un topic kafka de lignes kbart, de calculer le best ppn et d'envoyer les lignes vers de nouveaux topics pour traitement ultérieur (insertion dans la base de Bacon, mise à jour de notices dans le Sudoc). Elle permet, par ailleurs, d'exposer un ws permettant de calculer le best ppn pour une ligne kafka donnée.
+
+Le langage utilisé est Java, avec le framework Spring.
 
 API permettant de :
 1. lire des lignes kbart à partir d'un topic Kafka (alimenté par l'API kbart2kafka [lien github](https://github.com/abes-esr/kbart2kafka))
@@ -8,8 +9,6 @@ API permettant de :
 4. d'exposer un ws permettant de calculer le best ppn pour une ligne kafka donnée.
 
 Le fonctionnement de cette API suppose la disponibilité d'un broker Kafka.
-
-L'architecture générale du projet Convergence peut être représentée par le schéma suivant :
 
 ## Schéma de l'architecture du projet Convergence
 ![schéma de l'architecture du projet Convergence](documentation/ArchitectureConvergence.svg "schéma de l'architecture du projet Convergence")
@@ -86,15 +85,15 @@ Voir le [README.md](README.md) pour le fonctionnement général.
 Lors de l'appel à la méthode `getBestPpn()`, le paramètre `injectKafka` (correspond au paramètre `_FORCE` dans le nom de fichier) est passé automatiquement à `true`.
 
 ## Génération de l'image docker
-Vous pouvez avoir besoin de générer en local l'image docker de ``best-ppn-api`` par exemple si vous cherchez à modifier des liens entre les conteneurs docker de l'application.
+Vous pouvez avoir besoin de générer en local l'image docker de `best-ppn-api` par exemple si vous cherchez à modifier des liens entre les conteneurs docker de l'application.
 
-Pour générer l'image docker de ``best-ppn-api`` en local voici la commande à lancer :
+Pour générer l'image docker de `best-ppn-api` en local voici la commande à lancer :
 ```bash
 cd best-ppn-api/
 docker build -t abesesr/convergence:develop-best-ppn-api .
 ```
 
-Cette commande aura pour effet de générer une image docker sur votre poste en local avec le tag ``develop-best-ppn-api``. Vous pouvez alors déployer l'application en local avec docker en vous utilisant sur le [dépot ``convergence-bacon-docker``](https://github.com/abes-esr/convergence-bacon-docker) et en prenant soins de régler la variable ``BESTPPNAPI_VERSION`` sur la valeur ``develop-best-ppn-api`` (c'est sa [valeur par défaut](https://github.com/abes-esr/convergence-bacon-docker/blob/bdcd4302131eb86688ae729b0fc016d128f1ab9c/.env-dist#L9)) dans le fichier ``.env`` de votre déploiement [``convergence-bacon-docker``](https://github.com/abes-esr/convergence-bacon-docker).
+Cette commande aura pour effet de générer une image docker sur votre poste en local avec le tag `develop-best-ppn-api`. Vous pouvez alors déployer l'application en local avec docker en vous utilisant sur le Github [convergence-bacon-docker](https://github.com/abes-esr/convergence-bacon-docker) et en prenant soins de régler la variable `BESTPPNAPI_VERSION` sur la valeur `develop-best-ppn-api` dans le fichier ``.env`` de votre déploiement [``convergence-bacon-docker``](https://github.com/abes-esr/convergence-bacon-docker) ([modèle fichier .env-dist](https://github.com/abes-esr/convergence-bacon-docker/blob/bdcd4302131eb86688ae729b0fc016d128f1ab9c/.env-dist#L9)).
 
 Vous pouvez utiliser la même procédure pour générer en local les autres images docker applications composant l'architecture, la seule chose qui changera sera le nom du tag docker.
 
@@ -102,7 +101,7 @@ Cette commande suppose que vous disposez d'un environnement Docker en local : cf
 
 ## Schema registry et gestion des versions de schéma
 ### Schema registry
-Pour pouvoir utiliser le schema registry, il est nécessaire de l'installer avec Kafka. Voir le projet (insérer lien projet kafka Docker)
+Pour pouvoir utiliser le schema registry, il est nécessaire de l'installer avec Kafka. Voir le projet Github [bacon-kafka-docker](https://github.com/abes-esr/bacon-kafka-docker)
 
 ### Création du schéma
 Les éléments composant les topics dans Kafka sont des objets de type ligne Kbart. Ils sont envoyés à kafka, en utilisant un serializer de type KafkaAvroSerializer. Pour permettre aux programmes Java et à Kafka de pouvoir dialoguer et de mapper correctement les données, il est nécessaire de créer un schéma représentant l'objet à envoyer. Pour cela : 
@@ -113,35 +112,4 @@ Les éléments composant les topics dans Kafka sont des objets de type ligne Kba
 - le même schéma doit être utilisé dans toutes les sources de données qui liront le / les topics kafka contenant des objets de type ligneKbart.
 
 Pour plus d'informations sur le format Avro : cliquer [ici](https://avro.apache.org/)
-
-## Kafka connect
-Il est possible de lire le contenu d'un topic en utilisant kafka Connect. Voici la marche à suivre : 
-- installer kafka connect sur le broker kafka
-- facultatif : installer une interface utilisateur pour créer des sources de données kafka connect
-- créer une source de données kafka-connect sur un topic en particulier (via l'IHM ou un appel web service en post)
-
-Voici un exemple de configuration d'un sink kafka connect connecté à un topic et utilisant le schema registry pour effectuer le mapping topic -> table dans la base de données.
-```json
-{
-  "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
-  "connection.password": "",
-  "tasks.max": "1",
-  "max.retries": "3",
-  "value.converter.enhanced.avro.schema.support": "true",
-  "value.converter.schema.version": "n° version du schéma à utiliser pour ce topic",
-  "value.converter": "io.confluent.connect.avro.AvroConverter",
-  "dialect.name": "dialect dépendant de la bdd cible",
-  "table.name.format": "schema.table destination",
-  "topics": "topic à lire",
-  "value.converter.schema.registry.url": "inserer_url_schema_registry",
-  "connection.user": "user",
-  "auto.create": "false",
-  "connection.url": "inserer_url_jdbc_base_de_donnees",
-  "pk.fields": "champ_cle_primaire",
-  "quote.sql.identifiers": "never"
-}
-```
-
-
-
 
