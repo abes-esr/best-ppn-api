@@ -37,8 +37,6 @@ La classe `TopicConsumer.java` comporte deux `@KafkaListener` qui ont les rôles
 1. `kbartFromkafkaListener()` :
    - un objet `KafkaWorkInProgress` sera créé et placé dans la `Map<String, KafkaWorkInProgress>` pour chaque nouveau nom de fichier kbart détecté à la lecture des messages dans le topic kafka `bacon.kbart.toload`
    - lit les messages kafka à partir du topic `bacon.kbart.toload` (chaque message correspond à une ligne d'un fichier kbart lu par l'API [kbart2kafka](https://github.com/abes-esr/kbart2kafka))
-     >[!NOTE] 
-     > 
      > Le nom du fichier kbart se trouve dans la `key` du message. Le numéro de la ligne courante `nbCurrentLines` ainsi que le nombre de ligne total du fichier kbart `nbLinesTotal` sont passés dans le header du message
    - demande le calcul du best ppn pour chaque ligne. Le calcul du best ppn sera ignoré si le nom du fichier comporte la chaine de caractère `_BYPASS`
    - demande l'envoi des lignes vers de nouveaux topics
@@ -117,5 +115,5 @@ Les éléments composant les topics dans Kafka sont des objets de type ligne Kba
 - Attention ! le fichier avro contient un numéro de version du schéma, il est indispensable que la classe java, et le schéma enregistré dans le schema registry aient le même numéro de version.
 - le même schéma doit être utilisé dans toutes les sources de données qui liront le / les topics kafka contenant des objets de type ligneKbart.
 
-Pour plus d'informations sur le format Avro : cliquer [ici](https://avro.apache.org/)
+Pour plus d'informations sur le format Avro, vous pouvez consulter la documentation officielle [https://avro.apache.org/](https://avro.apache.org/)
 
