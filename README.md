@@ -33,7 +33,7 @@ La requête doit obligatoirement posséder un paramètre `provider`, mais si le 
         <logs>
             <logs>Entrée dans onlineId2Ppn</logs>
             <logs>
-                url : https://www-dev.sudoc.fr/services/onlineId2ppn/monograph/978-3-540-37798-6/SPRINGER / ppn(s) : [PpnWithTypeDto(ppn=155212915, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=true), PpnWithTypeDto(ppn=233094091, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=false)] / erreur(s) : []
+                url : https://www.sudoc.fr/services/onlineId2ppn/monograph/978-3-540-37798-6/SPRINGER / ppn(s) : [PpnWithTypeDto(ppn=155212915, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=true), PpnWithTypeDto(ppn=233094091, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=false)] / erreur(s) : []
             </logs>
             <logs>
                 PPN Electronique : PpnWithTypeDto(ppn=155212915, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=true) / score : 5
@@ -43,7 +43,7 @@ La requête doit obligatoirement posséder un paramètre `provider`, mais si le 
             </logs>
             <logs>Entrée dans doi2ppn</logs>
             <logs>
-                url : https://www-dev.sudoc.fr/services/doi2ppn?provider=SPRINGER&doi=10.1007/BFb0065764 / ppn(s) : [] / erreur(s) : []
+                url : https://www.sudoc.fr/services/doi2ppn?provider=SPRINGER&doi=10.1007/BFb0065764 / ppn(s) : [] / erreur(s) : []
             </logs>
         </logs>
     </BestPpnDto>
@@ -65,11 +65,11 @@ La requête doit obligatoirement posséder un paramètre `provider`, mais si le 
       "typeSupport": "ELECTRONIQUE",
       "logs": [
         "Entrée dans onlineId2Ppn",
-        "url : https://www-dev.sudoc.fr/services/onlineId2ppn/monograph/978-3-540-37798-6/SPRINGER / ppn(s) : [PpnWithTypeDto(ppn=155212915, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=true), PpnWithTypeDto(ppn=233094091, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=false)] / erreur(s) : []",
+        "url : https://www.sudoc.fr/services/onlineId2ppn/monograph/978-3-540-37798-6/SPRINGER / ppn(s) : [PpnWithTypeDto(ppn=155212915, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=true), PpnWithTypeDto(ppn=233094091, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=false)] / erreur(s) : []",
         "PPN Electronique : PpnWithTypeDto(ppn=155212915, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=true) / score : 5",
         "Le PPN PpnWithTypeDto(ppn=233094091, typeSupport=ELECTRONIQUE, typeDocument=MONOGRAPHIE, providerPresent=false) n'a pas de provider trouvé",
         "Entrée dans doi2ppn",
-        "url : https://www-dev.sudoc.fr/services/doi2ppn?provider=SPRINGER&doi=10.1007/BFb0065764 / ppn(s) : [] / erreur(s) : []"
+        "url : https://www.sudoc.fr/services/doi2ppn?provider=SPRINGER&doi=10.1007/BFb0065764 / ppn(s) : [] / erreur(s) : []"
       ]
     }
     ```
