@@ -2,8 +2,8 @@
 
 Vous êtes sur le README usager. Si vous souhaitez accéder au README développement, veuillez suivre ce lien : [README-developpement](README-developpement.md)
 
-API permettant de : 
-1. lire des lignes kbart à partir d'un topic Kafka (alimenté par l'API kbart2kafka [lien vers le github de kbart2kafka](https://github.com/abes-esr/kbart2kafka))
+best-ppn-api est une API permettant de : 
+1. lire des lignes kbart à partir d'un topic Kafka (alimenté par l'API kbart2kafka [lien github](https://github.com/abes-esr/kbart2kafka))
 2. calculer le best ppn pour chaque ligne et de l'inscrire sur la ligne en cours de traitement
 3. d'envoyer les lignes vers de nouveaux topics pour traitement ultérieur (insertion dans la base de Bacon, mise à jour de notices dans le Sudoc)
 4. d'exposer un web service permettant de calculer le best ppn pour une ligne kafka donnée.
