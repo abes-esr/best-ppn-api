@@ -82,7 +82,7 @@ public class BestPpnService {
             feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList);
         }
 
-        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty()) {
+        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && !kbart.getPublicationType().equals(PUBLICATION_TYPE.serial.toString())) {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
         }
 
