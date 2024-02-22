@@ -2,7 +2,7 @@
 
 Le langage utilisé est Java, avec le framework Spring.
 
-API permettant de :
+best-ppn-api est une API permettant de :
 1. lire des lignes kbart à partir d'un topic Kafka (alimenté par l'API kbart2kafka [lien github](https://github.com/abes-esr/kbart2kafka))
 2. calculer le best ppn pour chaque ligne et de l'inscrire sur la ligne en cours de traitement
 3. d'envoyer les lignes vers de nouveaux topics pour traitement ultérieur (insertion dans la base de Bacon, mise à jour de notices dans le Sudoc)
@@ -11,7 +11,7 @@ API permettant de :
 Le fonctionnement de cette API suppose la disponibilité d'un broker Kafka.
 
 ## Schéma de l'architecture du projet Convergence
-![schéma de l'architecture du projet Convergence](documentation/ArchitectureConvergence.svg "schéma de l'architecture du projet Convergence")
+![schéma de l'architecture du projet Convergence](https://raw.githubusercontent.com/abes-esr/kbart2kafka/fb60a20d84e7cf06722044559bdb18165e6e13e0/documentation/ArchitectureConvergence.svg "schéma de l'architecture du projet Convergence")
 
 ## Lire des lignes kbart
 *(class `TopicConsumer.java`)*
@@ -30,7 +30,7 @@ void initExecutor() {executor = Executors.newFixedThreadPool(nbThread);}
 
 >[!IMPORTANT] 
 > 
-> La valeur de la variable `spring.kafka.concurrency.nbThread` doit être équivalente au nombre de thread du topic `bacon.kbart.toload`.
+> La valeur de la variable `spring.kafka.concurrency.nbThread` doit être équivalente au nombre de partition du topic `bacon.kbart.toload`.
 
 
 La classe `TopicConsumer.java` comporte deux `@KafkaListener` qui ont les rôles suivants :
@@ -81,7 +81,7 @@ Après la recherche de ppn(s) terminée, la sélection du best ppn est réalisé
 *(class `TopicProducer.java`)*
 Centralise les différents `KafkaTemplate` et envoi des lignes kbart dans les topic dédiés.
 
-## Web Sevice 'bestPpn'
+## Web Service 'bestPpn'
 *(class `BestPpnController.java`)*
 
 Voir le [README.md](README.md) pour le fonctionnement général.
