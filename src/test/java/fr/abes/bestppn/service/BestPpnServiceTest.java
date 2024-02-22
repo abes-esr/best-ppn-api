@@ -373,7 +373,7 @@ class BestPpnServiceTest {
         LigneKbartDto kbart = new LigneKbartDto();
         kbart.setOnlineIdentifier("1292-8399");
         kbart.setPrintIdentifier("2-84358-095-1");
-        kbart.setPublicationType("serial");
+        kbart.setPublicationType("monograph");
         kbart.setDateMonographPublishedPrint("");
         kbart.setDateMonographPublishedOnline("DateOnline");
         kbart.setPublicationTitle("Titre");
