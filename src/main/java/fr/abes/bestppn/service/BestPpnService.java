@@ -229,10 +229,10 @@ public class BestPpnService {
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (isForced) {
-                    sendLog(LogLevel.ERROR, errorString + " [ " + kbart + " ] ");
+                    sendLog(LogLevel.ERROR, errorString + " [ " + kbart + " ]");
                     yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
                 } else {
-                    throw new BestPpnException(errorString + " [ " + kbart + " ] ");
+                    throw new BestPpnException(errorString + " [ " + kbart + " ]");
                 }
             }
         };

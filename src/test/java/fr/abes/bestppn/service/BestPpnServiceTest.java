@@ -343,7 +343,7 @@ class BestPpnServiceTest {
 
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false, false));
-        Assertions.assertEquals("Erreur : plusieurs ppn électroniques (100000001, 100000002) ont le même score. [ publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 ]" , result.getLocalizedMessage());
+        Assertions.assertEquals("Plusieurs ppn électroniques (100000001, 100000002) ont le même score. [ publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 ]" , result.getLocalizedMessage());
     }
 
 
