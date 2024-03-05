@@ -202,9 +202,10 @@ public class BestPpnService {
                     }
 
                     case 1 -> {
-                        kbart.setErrorType("Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
-                        sendLog(LogLevel.DEBUG, "Ppn imprimé trouvé : " + ppnPrintResultList.stream().toList().get(0));
-                        yield new BestPpn(ppnPrintResultList.stream().toList().get(0),DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, kbartLineLogs);
+                        String printPpn = ppnPrintResultList.stream().toList().get(0);
+                        kbart.setErrorType("Ppn imprimé trouvé : " + printPpn);
+                        sendLog(LogLevel.DEBUG, kbart.getErrorType());
+                        yield new BestPpn(printPpn,DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, kbartLineLogs);
                     }
 
                     default -> {
@@ -212,10 +213,10 @@ public class BestPpnService {
                         kbart.setErrorType(errorString);
                         // vérification du forçage
                         if (isForced) {
-                            sendLog(LogLevel.ERROR,"Erreur : plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés. [ " + kbart + " ]");
+                            sendLog(LogLevel.ERROR,errorString + " [ " + kbart + " ]");
                             yield new BestPpn("",DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
                         } else {
-                            throw new BestPpnException(errorString);
+                            throw new BestPpnException(errorString + " [ " + kbart + " ] ");
                         }
                     }
                 };
@@ -224,14 +225,14 @@ public class BestPpnService {
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
-                String errorString = "Erreur : plusieurs ppn électroniques (" + listPpn + ") ont le même score. [ " + kbart + " ]";
+                String errorString = "Plusieurs ppn électroniques (" + listPpn + ") ont le même score.";
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (isForced) {
-                    sendLog(LogLevel.ERROR, errorString);
+                    sendLog(LogLevel.ERROR, errorString + " [ " + kbart + " ]");
                     yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON, kbartLineLogs);
                 } else {
-                    throw new BestPpnException(errorString);
+                    throw new BestPpnException(errorString + " [ " + kbart + " ]");
                 }
             }
         };
