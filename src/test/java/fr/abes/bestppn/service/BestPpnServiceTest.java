@@ -343,7 +343,7 @@ class BestPpnServiceTest {
 
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false, false));
-        Assertions.assertEquals("Erreur : plusieurs ppn électroniques (100000001, 100000002) ont le même score. [ publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 ]" , result.getLocalizedMessage());
+        Assertions.assertEquals("Plusieurs ppn électroniques (100000001, 100000002) ont le même score. [ publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 ]" , result.getLocalizedMessage());
     }
 
 
@@ -373,7 +373,7 @@ class BestPpnServiceTest {
         LigneKbartDto kbart = new LigneKbartDto();
         kbart.setOnlineIdentifier("1292-8399");
         kbart.setPrintIdentifier("2-84358-095-1");
-        kbart.setPublicationType("serial");
+        kbart.setPublicationType("monograph");
         kbart.setDateMonographPublishedPrint("");
         kbart.setDateMonographPublishedOnline("DateOnline");
         kbart.setPublicationTitle("Titre");
@@ -623,8 +623,7 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000001", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false, false, Lists.newArrayList());
         Assertions.assertEquals("100000001", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -638,8 +637,7 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false, false, Lists.newArrayList());
         Assertions.assertEquals("100000002", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -653,8 +651,7 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true, false, Lists.newArrayList());
         Assertions.assertEquals("", result.getPpn());
     }
 
@@ -669,8 +666,7 @@ class BestPpnServiceTest {
         ppnPrintResultList.add("100000001");
         ppnPrintResultList.add("100000002");
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true, false, Lists.newArrayList());
         Assertions.assertEquals("", result.getPpn());
     }
 
