@@ -623,8 +623,7 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000001", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false, false, Lists.newArrayList());
         Assertions.assertEquals("100000001", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -638,8 +637,7 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false, false, Lists.newArrayList());
         Assertions.assertEquals("100000002", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -653,8 +651,7 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true, false, Lists.newArrayList());
         Assertions.assertEquals("", result.getPpn());
     }
 
@@ -669,8 +666,7 @@ class BestPpnServiceTest {
         ppnPrintResultList.add("100000001");
         ppnPrintResultList.add("100000002");
 
-        bestPpnService.setIsSendLogs(false);
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true, false, Lists.newArrayList());
         Assertions.assertEquals("", result.getPpn());
     }
 
