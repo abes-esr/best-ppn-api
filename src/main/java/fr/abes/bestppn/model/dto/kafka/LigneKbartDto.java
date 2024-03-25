@@ -114,7 +114,7 @@ public class LigneKbartDto {
     private String accessType;
     @CsvBindByName(column = "best_ppn")
     @CsvBindByPosition(position = 25)
-    @JsonProperty("best_ppn")
+    @JsonProperty("bestPpn")
     private String bestPpn;
 
     @JsonProperty("provider_package_package")
