@@ -107,8 +107,6 @@ public class TopicConsumer {
                     log.error(e.getMessage());
                     workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
                     workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 } finally {
                     //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
                     if (workInProgress.get(filename) != null)
@@ -125,7 +123,7 @@ public class TopicConsumer {
     }
 
 
-    private void handleFichier(String filename) throws InterruptedException {
+    private void handleFichier(String filename) {
         //on attend que l'ensemble des threads aient terminé de travailler avant de lancer le commit
         do {
             try {
@@ -153,14 +151,13 @@ public class TopicConsumer {
             log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            Thread.sleep(5000); // pour attendre que tous les threads de best-ppn-api aient terminé leurs traitements
             log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).incrementNbLignesTraiteesAndGet());
             workInProgress.remove(filename);
         }
     }
 
     @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "${topic.groupid.source.errors}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void errorsListener(ConsumerRecord<String, String> error) throws InterruptedException {
+    public void errorsListener(ConsumerRecord<String, String> error) {
         log.error(error.value());
         String filename = error.key();
         do {
