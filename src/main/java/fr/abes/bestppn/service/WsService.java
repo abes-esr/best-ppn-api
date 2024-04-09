@@ -107,8 +107,6 @@ public class WsService {
         } catch (RestClientException ex) {
             log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
             throw ex;
-        } catch (IllegalArgumentException ex) {
-            throw ex;
         } catch (JsonProcessingException ex) {
             throw new RestClientException(ex.getMessage());
         } finally {
