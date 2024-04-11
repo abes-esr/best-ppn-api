@@ -82,6 +82,19 @@ public class TopicConsumer {
                     String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
                     ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                     service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
+                } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
+                    //erreurs non bloquantes, on n'arrête pas le programme
+                    log.warn(e.getMessage());
+                    ligneKbartDto.setErrorType(e.getMessage());
+                    workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
+                } catch (BestPpnException e) {
+                    if (!workInProgress.get(filename).isForced()) {
+                        workInProgress.get(filename).setIsOnError(true);
+                    }
+                    log.error(e.getMessage());
+                    ligneKbartDto.setErrorType(e.getMessage());
+                    workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
+                } finally {
                     if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
                         workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                     workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
@@ -89,37 +102,24 @@ public class TopicConsumer {
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == workInProgress.get(filename).incrementNbLignesTraiteesAndGet()) {
+
                             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
                                 workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                                 handleFichier(filename);
                             }
                         }
                     }
-                } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
-                    //erreurs non bloquantes, on n'arrête pas le programme
-                    log.warn(e.getMessage());
-                    workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
-                    workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
-                } catch (BestPpnException e) {
-                    if (!workInProgress.get(filename).isForced()) {
-                        workInProgress.get(filename).setIsOnError(true);
-                    }
-                    log.error(e.getMessage());
-                    workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(ligneKbartDto, e.getMessage());
-                    workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
-                } finally {
                     //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
                     if (workInProgress.get(filename) != null)
                         workInProgress.get(filename).decrementThreads();
                 }
             });
-            } catch(IllegalProviderException | JsonProcessingException e){
-                workInProgress.get(filename).setIsOnError(true);
-                log.warn(e.getMessage());
-                workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
-                workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
-            }
-
+        } catch(IllegalProviderException | JsonProcessingException e){
+            workInProgress.get(filename).setIsOnError(true);
+            log.warn(e.getMessage());
+            workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
+            workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
+        }
     }
 
 
@@ -135,9 +135,7 @@ public class TopicConsumer {
             }
         } while (workInProgress.get(filename).getNbActiveThreads() > 1);
         try {
-            if (workInProgress.get(filename).isOnError()) {
-                log.error("Fichier " + filename + " : Une erreur s'est produite dans le traitement du fichier");
-            } else {
+            if (!workInProgress.get(filename).isOnError()) {
                 String providerName = Utils.extractProvider(filename);
                 service.commitDatas(providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
@@ -151,7 +149,7 @@ public class TopicConsumer {
             log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).incrementNbLignesTraiteesAndGet());
+            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getNbLignesTraitees());
             workInProgress.remove(filename);
         }
     }
