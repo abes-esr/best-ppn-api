@@ -51,7 +51,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public BestPpn getBestPpn(LigneKbartDto kbart, String provider, boolean injectKafka, boolean isSendLogs) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
+    public BestPpn getBestPpn(LigneKbartDto kbart, String provider, boolean isForced, boolean isSendLogs) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
         List<String> messages = new ArrayList<>();
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -76,7 +76,7 @@ public class BestPpnService {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider, isSendLogs, messages);
         }
 
-        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, injectKafka, isSendLogs, messages);
+        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, isForced, isSendLogs, messages);
     }
 
     private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
