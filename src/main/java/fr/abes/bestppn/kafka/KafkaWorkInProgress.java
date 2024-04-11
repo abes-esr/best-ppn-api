@@ -72,7 +72,7 @@ public class KafkaWorkInProgress {
         return this.nbActiveThreads.get();
     }
 
-    public int incrementNbLignesTraiteesAndGet() {
+    public int incrementnbLignesTraiteesAndGet() {
         return this.nbLignesTraitees.incrementAndGet();
     }
 
