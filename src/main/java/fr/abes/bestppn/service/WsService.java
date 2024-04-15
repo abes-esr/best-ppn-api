@@ -9,10 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -95,15 +97,16 @@ public class WsService {
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
             result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
+        } catch (HttpClientErrorException ex) {
+            if (ex.getStatusCode() == HttpStatus.BAD_REQUEST && ex.getMessage().contains("Aucune notice ne correspond à la recherche")) {
+                log.info("Aucuns ppn correspondant à l'identifiant " + id);
+            } else {
+                log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
+                throw ex;
+            }
         } catch (RestClientException ex) {
             log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
             throw ex;
-        } catch (IllegalArgumentException ex) {
-            if (ex.getMessage().equals("argument \"content\" is null")) {
-                log.info("Aucuns ppn correspondant à l'identifiant " + id);
-            } else {
-                throw ex;
-            }
         } catch (JsonProcessingException ex) {
             throw new RestClientException(ex.getMessage());
         } finally {
