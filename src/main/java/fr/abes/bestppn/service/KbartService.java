@@ -1,10 +1,7 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalDateException;
-import fr.abes.bestppn.exception.IllegalDoiException;
-import fr.abes.bestppn.exception.IllegalPackageException;
+import fr.abes.bestppn.exception.*;
 import fr.abes.bestppn.kafka.KafkaWorkInProgress;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.model.BestPpn;
@@ -71,16 +68,16 @@ public class KbartService {
     }
 
     @Transactional
-    public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException {
+    public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException, IllegalProviderException {
         Optional<Provider> providerOpt = providerService.findByProvider(providerName);
-        ProviderPackage provider = providerService.handlerProvider(providerOpt, filename, providerName);
-        if (!workInProgress.get(filename).isBypassed()) {
-            producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
-            producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
-            producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
-        } else {
-            producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
-        }
+            ProviderPackage provider = providerService.handlerProvider(providerOpt, filename);
+            if (!workInProgress.get(filename).isBypassed()) {
+                producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
+                producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
+                producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
+            } else {
+                producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
+            }
     }
 
     private static LigneKbartImprime getLigneKbartImprime(BestPpn bestPpn, LigneKbartDto ligneFromKafka) {

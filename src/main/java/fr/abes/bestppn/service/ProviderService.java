@@ -1,5 +1,6 @@
 package fr.abes.bestppn.service;
 
+import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.exception.IllegalDateException;
@@ -29,7 +30,7 @@ public class ProviderService {
         this.ligneKbartRepository = ligneKbartRepository;
     }
 
-    public ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename, String providerName) throws IllegalPackageException, IllegalDateException {
+    public ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename) throws IllegalPackageException, IllegalDateException, IllegalProviderException {
         String packageName = Utils.extractPackageName(filename);
         Date packageDate = Utils.extractDate(filename);
         if (providerOpt.isPresent()) {
@@ -45,12 +46,7 @@ public class ProviderService {
                 return providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N'));
             }
         } else {
-            //pas de provider, ni de package, on les crée tous les deux
-            Provider newProvider = new Provider(providerName);
-            Provider savedProvider = providerRepository.save(newProvider);
-            log.info("Le provider " + savedProvider.getProvider() + " a été créé.");
-            ProviderPackage providerPackage = new ProviderPackage(packageName, packageDate, savedProvider.getIdtProvider(), 'N');
-            return providerPackageRepository.save(providerPackage);
+            throw new IllegalProviderException("Provider et package inconnu impossible de lancer le traitement");
         }
     }
 
