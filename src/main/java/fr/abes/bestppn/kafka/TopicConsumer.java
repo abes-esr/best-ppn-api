@@ -120,6 +120,8 @@ public class TopicConsumer {
                 } catch (BestPpnException e) {
                     if (!workInProgress.get(filename).isForced()) {
                         workInProgress.get(filename).setIsOnError(true);
+                    } else {
+                        workInProgress.get(filename).addKbartToSend(ligneKbartDto);
                     }
                     log.error(e.getMessage());
                     ligneKbartDto.setErrorType(e.getMessage());
