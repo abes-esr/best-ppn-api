@@ -64,15 +64,13 @@ public class TopicConsumer {
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
-
         String filename = ligneKbart.key();
+        if (!this.workInProgress.containsKey(filename)) {
+            //nouveau fichier trouvé dans le topic, on initialise les variables partagées
+            workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
+        }
         try {
             //traitement de chaque ligne kbart
-            if (!this.workInProgress.containsKey(ligneKbart.key())) {
-                //nouveau fichier trouvé dans le topic, on initialise les variables partagées
-                workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
-            }
-
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(ligneKbart.key());
             executorService.execute(() -> {
@@ -90,6 +88,8 @@ public class TopicConsumer {
                 } catch (BestPpnException e) {
                     if (!workInProgress.get(filename).isForced()) {
                         workInProgress.get(filename).setIsOnError(true);
+                    } else {
+                        workInProgress.get(filename).addKbartToSend(ligneKbartDto);
                     }
                     log.error(e.getMessage());
                     ligneKbartDto.setErrorType(e.getMessage());
@@ -102,7 +102,6 @@ public class TopicConsumer {
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == workInProgress.get(filename).incrementNbLignesTraiteesAndGet()) {
-
                             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
                                 workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                                 handleFichier(filename);
@@ -120,8 +119,8 @@ public class TopicConsumer {
             workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
             workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
         }
-    }
 
+    }
 
     private void handleFichier(String filename) {
         //on attend que l'ensemble des threads aient terminé de travailler avant de lancer le commit
