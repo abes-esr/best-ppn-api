@@ -124,10 +124,10 @@ public class BestPpnService {
         if (isSendLogs) messages.add(message);
         ResultWsSudocDto resultCallWs = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
-            log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getAnneeFromDate_monograph_published_online() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
+            log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getDateMonographPublishedOnline() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         } else if (ppnElecScoredList.isEmpty() && !kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
-            log.debug("Appel dat2ppn :  date_monograph_published_print : " + kbart.getAnneeFromDate_monograph_published_print() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
+            log.debug("Appel dat2ppn :  date_monograph_published_print : " + kbart.getDateMonographPublishedPrint() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         }
         if(resultCallWs != null && !resultCallWs.getPpns().isEmpty()) {

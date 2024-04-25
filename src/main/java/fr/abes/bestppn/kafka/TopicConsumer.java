@@ -21,9 +21,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -64,15 +62,47 @@ public class TopicConsumer {
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${spring.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
-
         String filename = ligneKbart.key();
+        if (!this.workInProgress.containsKey(filename)) {
+            //nouveau fichier trouvé dans le topic, on initialise les variables partagées
+            workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
+        }
+        if (conditionOnLastMessage(filename, ligneKbart))
+            traiterMessage(ligneKbart, filename);
+        else {
+            scheduleTimeOutCheck(filename);
+        }
+    }
+
+    /**
+     *
+     * @param filename
+     * @param ligneKbart
+     * @return
+     */
+    private boolean conditionOnLastMessage(String filename, ConsumerRecord<String, String> ligneKbart) {
+        return workInProgress.get(filename).getNbLignesTraitees().get() <= Integer.parseInt(new String(ligneKbart.headers().lastHeader("nbLinesTotal").value()));
+    }
+
+    /**
+     * Méthode permettant d'effectuer certaines actions si un message n'est pas reçu au bout d'un certain temps sur un fichier donné
+     */
+    private void scheduleTimeOutCheck(String filename) {
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.schedule(() -> {
+            //si pas de message reçu dans les 5 minutes suivant la réception du message précédent, on supprime l'objet temporaire, et on lève une erreur
+            workInProgress.get(filename).setIsOnError(true);
+            log.error("Une erreur s'est produit dans le processus de traitement des messages, veuillez relancer le traitement.");
+            if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
+                handleFichier(filename);
+            }
+        }, 5, TimeUnit.SECONDS);
+
+    }
+
+    private void traiterMessage(ConsumerRecord<String, String> ligneKbart, String filename) {
         try {
             //traitement de chaque ligne kbart
-            if (!this.workInProgress.containsKey(ligneKbart.key())) {
-                //nouveau fichier trouvé dans le topic, on initialise les variables partagées
-                workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
-            }
-
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(ligneKbart.key());
             executorService.execute(() -> {
@@ -102,7 +132,6 @@ public class TopicConsumer {
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
                         if (nbLignesTotal == workInProgress.get(filename).incrementNbLignesTraiteesAndGet()) {
-
                             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
                                 workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                                 handleFichier(filename);
