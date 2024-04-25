@@ -115,6 +115,15 @@ public class WsService {
         return result;
     }
 
+    /**
+     * Appel ws dat2ppn
+     * @param date date au format YYYY à rechercher
+     * @param author auteur à rechercher
+     * @param title titre à rechercher
+     * @param providerName nom du provider
+     * @return résultat de l'appel à dat2ppn
+     * @throws JsonProcessingException erreur construction objet résultat
+     */
     public ResultWsSudocDto callDat2Ppn(String date, String author, String title, String providerName) throws JsonProcessingException {
         SearchDatWebDto searchDatWebDto = new SearchDatWebDto(title, providerName);
         if (author != null && !author.isEmpty()) {

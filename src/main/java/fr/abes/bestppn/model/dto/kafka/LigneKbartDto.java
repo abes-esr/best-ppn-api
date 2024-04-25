@@ -159,11 +159,11 @@ public class LigneKbartDto {
 
     @JsonIgnore
     public String getAnneeFromDate_monograph_published_print() {
-        return this.dateMonographPublishedPrint;
+        return this.dateMonographPublishedPrint.substring(0, 4);
     }
 
     @JsonIgnore
     public String getAnneeFromDate_monograph_published_online() {
-        return this.dateMonographPublishedOnline;
+        return this.dateMonographPublishedOnline.substring(0, 4);
     }
 }
