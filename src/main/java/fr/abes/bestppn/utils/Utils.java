@@ -1,10 +1,9 @@
 package fr.abes.bestppn.utils;
 
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.exception.IllegalProviderException;
-import io.netty.handler.logging.LogLevel;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
@@ -29,7 +28,7 @@ public class Utils {
     }
 
     public static String extractDOI(LigneKbartDto kbart) {
-        String doiPattern = "10.\\d{0,15}.\\d{0,15}.+";
+        String doiPattern = "10\\.\\d{0,15}.\\d{0,15}.+";
 
         if (kbart.getTitleUrl() != null && !kbart.getTitleUrl().isEmpty()){
             Pattern pattern = Pattern.compile(doiPattern);
