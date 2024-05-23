@@ -36,4 +36,4 @@ WORKDIR /app/
 COPY --from=build-image /build/target/*.jar /app/best-ppn-api.jar
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENTRYPOINT ["java","-jar","/app/best-ppn-api.jar"]
+ENTRYPOINT ["java","-XX:MaxRAMPercentage=95","-jar","/app/best-ppn-api.jar"]
