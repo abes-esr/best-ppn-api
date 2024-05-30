@@ -1,10 +1,10 @@
 package fr.abes.bestppn.controller;
 
-import fr.abes.bestppn.model.dto.BestPpnDto;
-import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
-import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.IllegalDoiException;
+import fr.abes.bestppn.model.BestPpn;
+import fr.abes.bestppn.model.dto.BestPpnDto;
+import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.service.BestPpnService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,6 +44,7 @@ public class BestPpnController {
     public BestPpnDto bestPpn(@RequestParam(name = "provider") String provider, @RequestParam(name = "publication_title", required = false) String publicationTitle,
                               @RequestParam(name = "publication_type") String publicationType, @RequestParam(name = "online_identifier", required = false) String onlineIdentifier,
                               @RequestParam(name = "print_identifier", required = false) String printIdentifier, @RequestParam(name = "title_url", required = false) String titleUrl,
+                              @RequestParam(name = "title_id", required = false) String titleId,
                               @RequestParam(name = "date_monograph_published_online", required = false) String dateMonographPublishedOnline, @RequestParam(name = "date_monograph_published_print", required = false) String dateMonographPublishedPrint,
                               @RequestParam(name = "first_author", required = false) String firstAuthor,
                               @RequestParam(name = "log", required = false) Boolean log) throws IOException {
@@ -54,6 +55,7 @@ public class BestPpnController {
             ligneKbartDto.setOnlineIdentifier((onlineIdentifier != null) ? onlineIdentifier : "");
             ligneKbartDto.setPrintIdentifier((printIdentifier != null) ? printIdentifier : "");
             ligneKbartDto.setTitleUrl((titleUrl != null) ? titleUrl : "");
+            ligneKbartDto.setTitleId((titleId != null) ? titleId : "");
             ligneKbartDto.setDateMonographPublishedPrint((dateMonographPublishedPrint != null) ? dateMonographPublishedPrint : "");
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
