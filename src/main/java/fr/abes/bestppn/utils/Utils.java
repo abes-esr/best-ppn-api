@@ -35,8 +35,6 @@ public class Utils {
             Matcher matcher = pattern.matcher(kbart.getTitleUrl());
             if (matcher.find()) {
                 return matcher.group(0);
-            } else {
-                return "";
             }
         }
         if (kbart.getTitleId() != null && !kbart.getTitleId().isEmpty()){
@@ -44,8 +42,6 @@ public class Utils {
             Matcher matcher = pattern.matcher(kbart.getTitleId());
             if (matcher.find()) {
                 return matcher.group(0);
-            } else {
-                return "";
             }
         }
         return "";
