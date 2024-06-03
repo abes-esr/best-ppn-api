@@ -148,6 +148,21 @@ public class EmailService {
         HttpEntity multipart = builder.build();
         uploadFile.setEntity(multipart);
 
+        RestTemplate restTemplate = new RestTemplate(); //appel ws qui envoie le mail
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestJson, headers);
+
+        restTemplate.getMessageConverters()
+                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        try {
+            restTemplate.postForObject(url + "htmlMailAttachment/", entity, String.class); //appel du ws avec
+        } catch (Exception e) {
+            log.warn("Erreur dans l'envoi du mail d'erreur Sudoc" + e);
+        }
+
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             httpClient.execute(uploadFile);
         } catch (IOException e) {
