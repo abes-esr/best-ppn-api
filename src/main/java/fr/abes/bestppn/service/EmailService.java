@@ -12,17 +12,23 @@ import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.dto.mail.MailDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +59,7 @@ public class EmailService {
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON("[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
@@ -64,9 +70,10 @@ public class EmailService {
             //  Suppression du csv temporaire
             Files.deleteIfExists(csvPath);
 
-            log.info("L'email a été correctement envoyé à " + recipient);
+
 
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
+
             throw new RuntimeException(e);
         }
     }
@@ -127,55 +134,27 @@ public class EmailService {
 
     protected void sendMailWithFile(String requestJson, File f) {
         //  Création du l'adresse du ws d'envoi de mails
-        HttpPost uploadFile = new HttpPost(this.url + "htmlMailAttachment/");
-
-        //  Création du builder
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("mail", requestJson, ContentType.APPLICATION_JSON);
 
+        builder.addTextBody("mail", requestJson, ContentType.MULTIPART_FORM_DATA);
+        builder.addBinaryBody("attachment", f);
+        HttpEntity requestEntity = builder.build();
+
+        RestTemplate restTemplate = new RestTemplate();
         try {
-            builder.addBinaryBody(
-                    "attachment",
-                    new FileInputStream(f),
-                    ContentType.APPLICATION_OCTET_STREAM,
-                    f.getName()
-            );
-        } catch (FileNotFoundException e) {
-            log.warn("Le fichier n'a pas été trouvé. " + e.getMessage());
-        }
-
-        //  Envoi du mail
-        HttpEntity multipart = builder.build();
-        uploadFile.setEntity(multipart);
-
-        RestTemplate restTemplate = new RestTemplate(); //appel ws qui envoie le mail
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-        org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestJson, headers);
-
-        restTemplate.getMessageConverters()
-                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-
-        try {
-            restTemplate.postForObject(url + "htmlMailAttachment/", entity, String.class); //appel du ws avec
+            restTemplate.postForEntity(url + "htmlMailAttachment/", requestEntity,String.class); //appel du ws avec
+            log.info("L'email a été correctement envoyé à " + recipient);
         } catch (Exception e) {
-            log.warn("Erreur dans l'envoi du mail d'erreur Sudoc" + e);
-        }
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            httpClient.execute(uploadFile);
-        } catch (IOException e) {
-            log.warn("Erreur lors de l'envoi du mail. " + e.getMessage());
+            log.warn("Erreur dans l'envoi du mail. " + e.getMessage());
         }
     }
 
-    protected String mailToJSON(String to, String subject, String text) {
+    protected String mailToJSON( String subject, String text) {
         String json = "";
         ObjectMapper mapper = new ObjectMapper();
         MailDto mail = new MailDto();
         mail.setApp("convergence");
-        mail.setTo(to.split(";"));
+        mail.setTo(this.recipient.split(";"));
         mail.setCc(new String[]{});
         mail.setCci(new String[]{});
         mail.setSubject(subject);
@@ -190,7 +169,7 @@ public class EmailService {
 
     public void sendProductionErrorEmail(String packageName, String message) {
         //  Création du mail
-        String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName, message);
+        String requestJson = mailToJSON( "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName, message);
 
         //  Envoi du message par mail
         sendMail(requestJson);
