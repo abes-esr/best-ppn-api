@@ -133,6 +133,9 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="kafkaLogAppender"/>
         </Logger>
+        <Logger name="fr.abes.bestppn.kafka.TopicProducer" level="error" additivity="false">
+            <AppenderRef ref="kafkaLogAppender"/>
+        </Logger>
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="DebugFile" />
