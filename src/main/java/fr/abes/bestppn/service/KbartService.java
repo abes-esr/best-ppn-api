@@ -44,7 +44,7 @@ public class KbartService {
         if (!isBypassed) {
             if (ligneFromKafka.isBestPpnEmpty()) {
                 log.info(ligneFromKafka.toString());
-                /*BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
+                BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
                 switch (Objects.requireNonNull(bestPpn.getDestination())) {
                     case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
                     case PRINT_PPN_SUDOC -> {
@@ -59,7 +59,7 @@ public class KbartService {
                             workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
                         }
                     }
-                }*/
+                }
             } else {
                 log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
             }
