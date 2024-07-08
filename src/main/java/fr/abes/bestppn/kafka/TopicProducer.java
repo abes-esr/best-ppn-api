@@ -84,7 +84,7 @@ public class TopicProducer {
      * @param provider : provider
      * @param filename : nom du fichier du traitement en cours
      */
-    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect", rollbackFor = {BestPpnException.class, JsonProcessingException.class})
+    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
         sendToTopic(kbart, provider, filename, topicKbart);
     }
@@ -111,7 +111,7 @@ public class TopicProducer {
             executorService.execute(() -> {
                 headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLigneTotal).getBytes()));
                 ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, new Random().nextInt(nbThread), filename, ligneKbartConnect, headerList);
-                CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.executeInTransaction(kt -> kt.send(record));
+                CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.send(record);
                 assert result != null : "Result est null, donc exception";
                 result.whenComplete((sr, ex) -> {
                     try {
