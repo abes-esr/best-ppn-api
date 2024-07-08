@@ -101,12 +101,19 @@ public class TopicConsumer {
                     Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
                     if (lastHeader != null) {
                         int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
-                        if (nbLignesTotal == workInProgress.get(filename).incrementNbLignesTraiteesAndGet()) {
+                        int nbCurrentLine = workInProgress.get(filename).incrementNbLignesTraiteesAndGet();
+                        log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
+                        if (nbLignesTotal == nbCurrentLine) {
+                            log.debug("Commit du fichier {}", filename);
                             if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
+                                log.debug("pas d'erreur dans le topic d'erreur");
                                 workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                                 handleFichier(filename);
                             }
                         }
+                    } else {
+                        String errorMsg = "Header absent de la ligne : " + ligneKbart.headers();
+                        log.error(errorMsg);
                     }
                     //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
                     if (workInProgress.get(filename) != null)
