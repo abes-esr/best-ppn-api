@@ -67,17 +67,16 @@ public class KbartService {
         workInProgress.get(filename).addKbartToSend(ligneFromKafka);
     }
 
-    @Transactional
     public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException, IllegalProviderException {
         Optional<Provider> providerOpt = providerService.findByProvider(providerName);
-            ProviderPackage provider = providerService.handlerProvider(providerOpt, filename);
-            if (!workInProgress.get(filename).isBypassed()) {
-                producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
-                producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
-                producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
-            } else {
-                producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
-            }
+        ProviderPackage provider = providerService.handlerProvider(providerOpt, filename);
+        if (!workInProgress.get(filename).isBypassed()) {
+            producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
+            producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
+            producer.sendPpnExNihilo(workInProgress.get(filename).getPpnFromKbartToCreate(), provider, filename);
+        } else {
+            producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
+        }
     }
 
     private static LigneKbartImprime getLigneKbartImprime(BestPpn bestPpn, LigneKbartDto ligneFromKafka) {
