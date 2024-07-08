@@ -1,9 +1,7 @@
 package fr.abes.bestppn.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.abes.LigneKbartConnect;
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.utils.UtilsMapper;
@@ -19,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
