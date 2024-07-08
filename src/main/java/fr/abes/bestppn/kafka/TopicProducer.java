@@ -84,7 +84,6 @@ public class TopicProducer {
      * @param provider : provider
      * @param filename : nom du fichier du traitement en cours
      */
-    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
     public void sendKbart(List<LigneKbartDto> kbart, ProviderPackage provider, String filename) {
         sendToTopic(kbart, provider, filename, topicKbart);
     }
@@ -130,7 +129,6 @@ public class TopicProducer {
      * @param ligneKbartImprimes : liste de kbart
      * @param filename           : nom du fichier à traiter
      */
-    @Transactional(transactionManager = "kafkaTransactionManagerKbartImprime")
     public void sendPrintNotice(List<LigneKbartImprime> ligneKbartImprimes, String filename) {
         Integer nbLigneTotal = ligneKbartImprimes.size();
         for (LigneKbartImprime ppnToCreate : ligneKbartImprimes) {
@@ -146,7 +144,6 @@ public class TopicProducer {
      * @param ppnFromKbartToCreate : liste de lignes kbart
      * @param filename : nom du fichier à traiter
      */
-    @Transactional(transactionManager = "kafkaTransactionManagerKbartConnect")
     public void sendPpnExNihilo(List<LigneKbartDto> ppnFromKbartToCreate, ProviderPackage provider, String filename) {
         Integer nbLigneTotal = ppnFromKbartToCreate.size();
         for (LigneKbartDto ligne : ppnFromKbartToCreate) {
