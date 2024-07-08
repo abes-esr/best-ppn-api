@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
-import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +30,6 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Value("${spring.kafka.producer.transaction-id-prefix}")
-    private String transactionIdPrefix;
 
     @Value("${spring.kafka.consumer.properties.isolation.level}")
     private String isolationLevel;
@@ -42,9 +39,6 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.auto.register.schema}")
     private boolean autoRegisterSchema;
-
-    @Value("${spring.kafka.producer.transaction-timeout}")
-    private Integer transactionTimeout;
 
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
@@ -73,11 +67,11 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
+        //props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
         props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
-        props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, transactionTimeout);
+        //props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, transactionTimeout);
         return props;
     }
 
@@ -93,13 +87,13 @@ public class KafkaConfig {
     @Bean
     public ProducerFactory<String, LigneKbartConnect> producerFactoryLigneKbartConnectWithTransaction() {
         DefaultKafkaProducerFactory<String, LigneKbartConnect> factory = new DefaultKafkaProducerFactory<>(producerConfigsWithTransaction());
-        factory.setTransactionIdPrefix(transactionIdPrefix+"connect-");
+        //factory.setTransactionIdPrefix(transactionIdPrefix+"connect-");
         return factory;
     }
     @Bean
     public ProducerFactory<String, LigneKbartImprime> producerFactoryLigneKbartImprimeWithTransaction() {
         DefaultKafkaProducerFactory<String, LigneKbartImprime> factory = new DefaultKafkaProducerFactory<>(producerConfigsWithTransaction());
-        factory.setTransactionIdPrefix(transactionIdPrefix+"print-");
+        //factory.setTransactionIdPrefix(transactionIdPrefix+"print-");
         return factory;
     }
 
@@ -108,14 +102,6 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
-    @Bean
-    public KafkaTransactionManager<String, LigneKbartConnect> kafkaTransactionManagerKbartConnect(){
-        return new KafkaTransactionManager<>(producerFactoryLigneKbartConnectWithTransaction());
-    }
-    @Bean
-    public KafkaTransactionManager<String, LigneKbartImprime> kafkaTransactionManagerKbartImprime(){
-        return new KafkaTransactionManager<>(producerFactoryLigneKbartImprimeWithTransaction());
-    }
 
     @Bean
     public KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect(final ProducerFactory producerFactoryLigneKbartConnectWithTransaction) { return new KafkaTemplate<>(producerFactoryLigneKbartConnectWithTransaction);}
