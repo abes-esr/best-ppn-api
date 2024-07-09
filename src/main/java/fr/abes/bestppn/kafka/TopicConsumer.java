@@ -8,7 +8,6 @@ import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.service.KbartService;
 import fr.abes.bestppn.service.LogFileService;
 import fr.abes.bestppn.utils.Utils;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
@@ -22,8 +21,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
@@ -31,16 +28,11 @@ public class TopicConsumer {
     private final ObjectMapper mapper;
     private final KbartService service;
 
-    private ExecutorService executorService;
-
     private final LogFileService logFileService;
 
     private final EmailService emailService;
 
     private final Map<String, KafkaWorkInProgress> workInProgress;
-
-    @Value("${spring.kafka.concurrency.nbThread}")
-    private int nbThread;
 
 
     public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, LogFileService logFileService, Map<String, KafkaWorkInProgress> workInProgress) {
@@ -51,11 +43,6 @@ public class TopicConsumer {
         this.workInProgress = workInProgress;
     }
 
-
-    @PostConstruct
-    public void initExecutor() {
-        executorService = Executors.newFixedThreadPool(nbThread);
-    }
 
     /**
      * Listener Kafka qui écoute un topic et récupère les messages dès qu'ils y arrivent.
@@ -73,54 +60,52 @@ public class TopicConsumer {
             //traitement de chaque ligne kbart
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(ligneKbart.key());
-            executorService.execute(() -> {
-                try {
-                    log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
-                    workInProgress.get(filename).incrementThreads();
-                    String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
-                    ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
-                    service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
-                } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
-                    //erreurs non bloquantes, on n'arrête pas le programme
-                    log.warn(e.getMessage());
-                    ligneKbartDto.setErrorType(e.getMessage());
-                    workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
-                } catch (BestPpnException e) {
-                    if (!workInProgress.get(filename).isForced()) {
-                        workInProgress.get(filename).setIsOnError(true);
-                    } else {
-                        workInProgress.get(filename).addKbartToSend(ligneKbartDto);
-                    }
-                    log.error(e.getMessage());
-                    ligneKbartDto.setErrorType(e.getMessage());
-                    workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
-                } finally {
-                    if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
-                        workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
-                    workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
-                    Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
-                    if (lastHeader != null) {
-                        int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
-                        int nbCurrentLine = workInProgress.get(filename).incrementNbLignesTraiteesAndGet();
-                        log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
-                        if (nbLignesTotal == nbCurrentLine) {
-                            log.debug("Commit du fichier {}", filename);
-                            if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
-                                log.debug("pas d'erreur dans le topic d'erreur");
-                                workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
-                                handleFichier(filename);
-                            }
-                        }
-                    } else {
-                        String errorMsg = "Header absent de la ligne : " + ligneKbart.headers();
-                        log.error(errorMsg);
-                    }
-                    //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
-                    if (workInProgress.get(filename) != null)
-                        workInProgress.get(filename).decrementThreads();
+            try {
+                log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
+                workInProgress.get(filename).incrementThreads();
+                String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
+                ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
+                service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
+            } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
+                //erreurs non bloquantes, on n'arrête pas le programme
+                log.warn(e.getMessage());
+                ligneKbartDto.setErrorType(e.getMessage());
+                workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
+            } catch (BestPpnException e) {
+                if (!workInProgress.get(filename).isForced()) {
+                    workInProgress.get(filename).setIsOnError(true);
+                } else {
+                    workInProgress.get(filename).addKbartToSend(ligneKbartDto);
                 }
-            });
-        } catch(IllegalProviderException | JsonProcessingException e){
+                log.error(e.getMessage());
+                ligneKbartDto.setErrorType(e.getMessage());
+                workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
+            } finally {
+                if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
+                    workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
+                workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
+                Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
+                if (lastHeader != null) {
+                    int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
+                    int nbCurrentLine = workInProgress.get(filename).incrementNbLignesTraiteesAndGet();
+                    log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
+                    if (nbLignesTotal == nbCurrentLine) {
+                        log.debug("Commit du fichier {}", filename);
+                        if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
+                            log.debug("pas d'erreur dans le topic d'erreur");
+                            workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
+                            handleFichier(filename);
+                        }
+                    }
+                } else {
+                    String errorMsg = "Header absent de la ligne : " + ligneKbart.headers();
+                    log.error(errorMsg);
+                }
+                //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
+                if (workInProgress.get(filename) != null)
+                    workInProgress.get(filename).decrementThreads();
+            }
+        } catch (IllegalProviderException | JsonProcessingException e) {
             workInProgress.get(filename).setIsOnError(true);
             log.warn(e.getMessage());
             workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
