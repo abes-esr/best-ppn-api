@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @BaconDbConfiguration
 public interface LigneKbartRepository extends JpaRepository<LigneKbart, Integer> {
-
     @Transactional
     void deleteAllByIdProviderPackage(Integer idProviderPackage);
 }

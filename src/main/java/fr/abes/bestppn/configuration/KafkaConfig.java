@@ -24,21 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 @EnableKafka
 public class KafkaConfig {
-    @Value("${spring.kafka.concurrency.nbThread}")
-    private int nbThread;
-
-    @Value("${spring.kafka.consumer.bootstrap-servers}")
+    @Value("${abes.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-
-    @Value("${spring.kafka.consumer.properties.isolation.level}")
-    private String isolationLevel;
-
-    @Value("${spring.kafka.registry.url}")
+    @Value("${abes.kafka.registry.url}")
     private String registryUrl;
 
-    @Value("${spring.kafka.auto.register.schema}")
-    private boolean autoRegisterSchema;
 
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
@@ -47,7 +38,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,("SchedulerCoordinator"+ UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
+        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         return new DefaultKafkaConsumerFactory<>(props);
     }
@@ -70,7 +61,7 @@ public class KafkaConfig {
         //props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
-        props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
+        props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, false);
         //props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, transactionTimeout);
         return props;
     }
