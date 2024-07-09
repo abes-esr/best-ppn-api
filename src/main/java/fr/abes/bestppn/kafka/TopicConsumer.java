@@ -34,9 +34,6 @@ public class TopicConsumer {
 
     private final Map<String, KafkaWorkInProgress> workInProgress;
 
-    @Value("${spring.kafka.concurrency.nbThread}")
-    private int nbThread;
-
 
     public TopicConsumer(ObjectMapper mapper, KbartService service, EmailService emailService, LogFileService logFileService, Map<String, KafkaWorkInProgress> workInProgress) {
         this.mapper = mapper;
