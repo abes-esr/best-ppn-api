@@ -38,7 +38,6 @@ public class KbartService {
         this.workInProgress = workInProgress;
     }
 
-    @Transactional
     public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, Boolean isBypassed, String filename) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
         if (!isBypassed) {

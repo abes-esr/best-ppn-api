@@ -14,6 +14,7 @@ import org.apache.kafka.common.header.Header;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -91,11 +92,8 @@ public class TopicConsumer {
                     log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
                     if (nbLignesTotal == nbCurrentLine) {
                         log.debug("Commit du fichier {}", filename);
-                        if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
-                            log.debug("pas d'erreur dans le topic d'erreur");
-                            workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
-                            handleFichier(filename);
-                        }
+                        workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
+                        handleFichier(filename);
                     }
                 } else {
                     String errorMsg = "Header absent de la ligne : " + ligneKbart.headers();
@@ -111,7 +109,6 @@ public class TopicConsumer {
             workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
             workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
         }
-
     }
 
     private void handleFichier(String filename) {
@@ -149,22 +146,12 @@ public class TopicConsumer {
     public void errorsListener(ConsumerRecord<String, String> error) {
         log.error(error.value());
         String filename = error.key();
-        do {
-            try {
-                //ajout d'un sleep sur la durée du poll kafka pour être sur que le consumer de kbart ait lu au moins une fois
-                Thread.sleep(80);
-            } catch (InterruptedException e) {
-                log.warn("Erreur de sleep sur attente fin de traitement");
-            }
-        } while (workInProgress.get(filename) != null && workInProgress.get(filename).getNbActiveThreads() != 0);
         if (workInProgress.containsKey(filename)) {
             String fileNameFromError = error.key();
-            if (workInProgress.get(filename).getSemaphore().tryAcquire()) {
-                emailService.sendProductionErrorEmail(fileNameFromError, error.value());
-                logFileService.createExecutionReport(fileNameFromError, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
-                workInProgress.get(filename).setIsOnError(true);
-                handleFichier(fileNameFromError);
-            }
+            emailService.sendProductionErrorEmail(fileNameFromError, error.value());
+            logFileService.createExecutionReport(fileNameFromError, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
+            workInProgress.get(filename).setIsOnError(true);
+            handleFichier(fileNameFromError);
         }
     }
 }

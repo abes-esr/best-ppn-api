@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class TopicProducer {
-    @Value("${spring.kafka.concurrency.nbThread}")
+    @Value("${abes.kafka.concurrency.nbThread}")
     private int nbThread;
 
     @Value("${topic.name.target.kbart}")
@@ -55,17 +55,14 @@ public class TopicProducer {
 
     private KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime;
 
-    private KafkaTemplate<String, String> kafkatemplateEndoftraitement;
-
     private ExecutorService executorService;
 
     private UtilsMapper utilsMapper;
 
     @Autowired
-    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, KafkaTemplate<String, String> kafkatemplateEndoftraitement, UtilsMapper utilsMapper) {
+    public TopicProducer(KafkaTemplate<String, LigneKbartConnect> kafkaTemplateConnect, KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime, UtilsMapper utilsMapper) {
         this.kafkaTemplateConnect = kafkaTemplateConnect;
         this.kafkaTemplateImprime = kafkaTemplateImprime;
-        this.kafkatemplateEndoftraitement = kafkatemplateEndoftraitement;
         this.utilsMapper = utilsMapper;
     }
 

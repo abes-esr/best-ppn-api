@@ -38,8 +38,6 @@ public class KafkaWorkInProgress {
 
     private final AtomicInteger nbActiveThreads;
 
-    private final Semaphore semaphore;
-
     private final List<LigneKbartDto> kbartToSend;
 
     private final List<LigneKbartImprime> ppnToCreate;
@@ -54,7 +52,6 @@ public class KafkaWorkInProgress {
         this.isOnError = new AtomicBoolean(false);
         this.nbLignesTraitees = new AtomicInteger(0);
         this.nbActiveThreads = new AtomicInteger(0);
-        this.semaphore = new Semaphore(1);
         this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
         this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
         this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
@@ -107,11 +104,6 @@ public class KafkaWorkInProgress {
 
     public void addLineKbartToMailAttachment(LigneKbartDto dto) {
         mailAttachment.addKbartDto(dto);
-    }
-
-    @PreDestroy
-    public void onDestroy() {
-        this.semaphore.release();
     }
 
     public void addPpnToCreate(LigneKbartImprime ligneKbartImprime) {
