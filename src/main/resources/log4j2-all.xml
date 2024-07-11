@@ -129,18 +129,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="fr.abes.bestppn" level="warn" additivity="false">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="kafkaLogAppender"/>
-        </Logger>
-        <Logger name="fr.abes.bestppn.kafka.TopicProducer" level="error" additivity="false">
-            <AppenderRef ref="kafkaLogAppender"/>
-        </Logger>
-        <Logger name="fr.abes.bestppn.kafka.TopicConsumer" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="kafkaLogAppender"/>
-        </Logger>
-        <Logger name="fr.abes.bestppn.service.WsService" level="debug" additivity="false">
+        <Logger name="fr.abes.bestppn" level="info" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="kafkaLogAppender"/>
         </Logger>
