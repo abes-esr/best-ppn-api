@@ -159,7 +159,7 @@ public class WsService {
 
     public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException {
         Map<String, String> params = new HashMap<>();
-        params.put("doi", doi);
+        params.put("doi", doi.toUpperCase());
         params.put("provider", provider);
         ResultWsSudocDto result;
         try {
