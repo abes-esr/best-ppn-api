@@ -10,11 +10,8 @@ import fr.abes.bestppn.service.LogFileService;
 import fr.abes.bestppn.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Header;
 import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -64,7 +61,7 @@ public class TopicConsumer {
             try {
                 log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
                 workInProgress.get(filename).incrementThreads();
-                String origineNbCurrentLine = new String(ligneKbart.headers().lastHeader("nbCurrentLines").value());
+                int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
                 ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                 service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
             } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
@@ -85,19 +82,13 @@ public class TopicConsumer {
                 if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
                     workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                 workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
-                Header lastHeader = ligneKbart.headers().lastHeader("nbLinesTotal");
-                if (lastHeader != null) {
-                    int nbLignesTotal = Integer.parseInt(new String(lastHeader.value()));
-                    int nbCurrentLine = workInProgress.get(filename).incrementNbLignesTraiteesAndGet();
-                    log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
-                    if (nbLignesTotal == nbCurrentLine) {
-                        log.debug("Commit du fichier {}", filename);
-                        workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
-                        handleFichier(filename);
-                    }
-                } else {
-                    String errorMsg = "Header absent de la ligne : " + ligneKbart.headers();
-                    log.error(errorMsg);
+                int nbLignesTotal = ligneKbartDto.getNbLinesTotal();
+                int nbCurrentLine = workInProgress.get(filename).incrementNbLignesTraiteesAndGet();
+                log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
+                if (nbLignesTotal == nbCurrentLine) {
+                    log.debug("Commit du fichier {}", filename);
+                    workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
+                    handleFichier(filename);
                 }
                 //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
                 if (workInProgress.get(filename) != null)

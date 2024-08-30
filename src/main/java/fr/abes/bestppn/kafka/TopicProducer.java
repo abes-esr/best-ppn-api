@@ -196,18 +196,4 @@ public class TopicProducer {
         log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d, headers=%s)",
                 record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset(), Stream.of(result.getProducerRecord().headers().toArray()).map(h -> h.key() + ":" + Arrays.toString(h.value())).collect(Collectors.joining(";"))));
     }
-
-    private Header constructHeader(String key, byte[] value) {
-        return new Header() {
-            @Override
-            public String key() {
-                return key;
-            }
-
-            @Override
-            public byte[] value() {
-                return value;
-            }
-        };
-    }
 }
