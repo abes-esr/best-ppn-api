@@ -56,8 +56,9 @@ public class TopicConsumer {
         String filename = extractFilenameFromKey(ligneKbart.key());
         long now = Calendar.getInstance().getTimeInMillis();
         //si on a pas reçu de message depuis plus de maxDelayBetweenMessage
-        if (this.workInProgress.get(filename).getTimestamp() + maxDelayBetweenMessage < now) {
+        if (this.workInProgress.containsKey(filename) && (this.workInProgress.get(filename).getTimestamp() + maxDelayBetweenMessage < now)) {
             workInProgress.remove(filename);
+            log.debug("détection de l'ancien lancement de fichier " + filename );
         }
         if (!this.workInProgress.containsKey(filename)) {
             //nouveau fichier trouvé dans le topic, on initialise les variables partagées
