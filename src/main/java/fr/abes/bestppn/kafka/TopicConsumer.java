@@ -11,18 +11,22 @@ import fr.abes.bestppn.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
 public class TopicConsumer {
+    @Value("${delay.max.topic}")
+    private int maxDelayBetweenMessage;
     private final ObjectMapper mapper;
     private final KbartService service;
 
@@ -50,6 +54,11 @@ public class TopicConsumer {
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${abes.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
         String filename = extractFilenameFromKey(ligneKbart.key());
+        long now = Calendar.getInstance().getTimeInMillis();
+        //si on a pas reçu de message depuis plus de maxDelayBetweenMessage
+        if (this.workInProgress.get(filename).getTimestamp() + maxDelayBetweenMessage < now) {
+            workInProgress.remove(filename);
+        }
         if (!this.workInProgress.containsKey(filename)) {
             //nouveau fichier trouvé dans le topic, on initialise les variables partagées
             workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
