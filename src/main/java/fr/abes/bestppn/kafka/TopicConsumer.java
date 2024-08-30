@@ -49,7 +49,7 @@ public class TopicConsumer {
      */
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${abes.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
-        String filename = ligneKbart.key();
+        String filename = extractFilenameFromKey(ligneKbart.key());
         if (!this.workInProgress.containsKey(filename)) {
             //nouveau fichier trouvé dans le topic, on initialise les variables partagées
             workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
@@ -136,7 +136,7 @@ public class TopicConsumer {
     @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "${topic.groupid.source.errors}", containerFactory = "kafkaKbartListenerContainerFactory")
     public void errorsListener(ConsumerRecord<String, String> error) {
         log.error(error.value());
-        String filename = error.key();
+        String filename = extractFilenameFromKey(error.key());
         if (workInProgress.containsKey(filename)) {
             String fileNameFromError = error.key();
             emailService.sendProductionErrorEmail(fileNameFromError, error.value());
@@ -144,5 +144,9 @@ public class TopicConsumer {
             workInProgress.get(filename).setIsOnError(true);
             handleFichier(fileNameFromError);
         }
+    }
+
+    private String extractFilenameFromKey (String key) {
+        return key.substring(0, key.lastIndexOf('_'));
     }
 }
