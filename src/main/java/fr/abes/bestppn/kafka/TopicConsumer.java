@@ -57,9 +57,9 @@ public class TopicConsumer {
         try {
             //traitement de chaque ligne kbart
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
-            String providerName = Utils.extractProvider(ligneKbart.key());
+            String providerName = Utils.extractProvider(filename);
             try {
-                log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + ligneKbart.key() + ";" + Thread.currentThread().getName());
+                log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
                 workInProgress.get(filename).incrementThreads();
                 int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
                 ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
@@ -138,11 +138,10 @@ public class TopicConsumer {
         log.error(error.value());
         String filename = extractFilenameFromKey(error.key());
         if (workInProgress.containsKey(filename)) {
-            String fileNameFromError = error.key();
-            emailService.sendProductionErrorEmail(fileNameFromError, error.value());
-            logFileService.createExecutionReport(fileNameFromError, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
+            emailService.sendProductionErrorEmail(filename, error.value());
+            logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
             workInProgress.get(filename).setIsOnError(true);
-            handleFichier(fileNameFromError);
+            handleFichier(filename);
         }
     }
 
