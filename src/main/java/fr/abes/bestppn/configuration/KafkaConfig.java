@@ -24,21 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 @EnableKafka
 public class KafkaConfig {
-    @Value("${spring.kafka.concurrency.nbThread}")
-    private int nbThread;
-
-    @Value("${spring.kafka.consumer.bootstrap-servers}")
+    @Value("${abes.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-
-    @Value("${spring.kafka.consumer.properties.isolation.level}")
-    private String isolationLevel;
-
-    @Value("${spring.kafka.registry.url}")
+    @Value("${abes.kafka.registry.url}")
     private String registryUrl;
 
-    @Value("${spring.kafka.auto.register.schema}")
-    private boolean autoRegisterSchema;
 
     @Bean
     public ConsumerFactory<String, String> consumerKbartFactory() {
@@ -47,8 +38,9 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,("SchedulerCoordinator"+ UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
+        props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 60000);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -67,11 +59,9 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        //props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
-        props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, autoRegisterSchema);
-        //props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, transactionTimeout);
+        props.put(KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS, false);
         return props;
     }
 

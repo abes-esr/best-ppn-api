@@ -4,15 +4,12 @@ import fr.abes.LigneKbartImprime;
 import fr.abes.bestppn.model.dto.PackageKbartDto;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.entity.ExecutionReport;
-import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,13 +35,13 @@ public class KafkaWorkInProgress {
 
     private final AtomicInteger nbActiveThreads;
 
-    private final Semaphore semaphore;
-
     private final List<LigneKbartDto> kbartToSend;
 
     private final List<LigneKbartImprime> ppnToCreate;
 
     private final List<LigneKbartDto> ppnFromKbartToCreate;
+
+    private long timestamp;
 
 
     public KafkaWorkInProgress(boolean isForced, boolean isBypassed) {
@@ -54,10 +51,10 @@ public class KafkaWorkInProgress {
         this.isOnError = new AtomicBoolean(false);
         this.nbLignesTraitees = new AtomicInteger(0);
         this.nbActiveThreads = new AtomicInteger(0);
-        this.semaphore = new Semaphore(1);
         this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
         this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
         this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
+        this.timestamp = Calendar.getInstance().getTimeInMillis();
     }
 
     public void incrementThreads() {
@@ -107,11 +104,6 @@ public class KafkaWorkInProgress {
 
     public void addLineKbartToMailAttachment(LigneKbartDto dto) {
         mailAttachment.addKbartDto(dto);
-    }
-
-    @PreDestroy
-    public void onDestroy() {
-        this.semaphore.release();
     }
 
     public void addPpnToCreate(LigneKbartImprime ligneKbartImprime) {

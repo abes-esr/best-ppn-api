@@ -12,6 +12,12 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class LigneKbartDto {
+
+    @JsonProperty("nbCurrentLines")
+    private int nbCurrentLines;
+    @JsonProperty("nbLinesTotal")
+    private int nbLinesTotal;
+
     @CsvBindByName(column = "publication_title")
     @CsvBindByPosition(position = 0)
     @JsonProperty("publication_title")

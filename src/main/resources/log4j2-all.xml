@@ -7,7 +7,7 @@
         <Property name="logFileName">${bundle:application:application.name}</Property>
         <Property name="errorFileName">${bundle:application:application.name}_error</Property>
         <Property name="debugFileName">${bundle:application:application.name}_debug</Property>
-        <Property name="kafkaServer">${env:SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS}</Property>
+        <Property name="kafkaServer">${env:ABES_KAFKA_BOOTSTRAP_SERVERS}</Property>
 
         <!-- Politique de gestion des fichiers -->
         <Property name="sizeTriggerPolicy">100 MB</Property>
@@ -129,14 +129,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="fr.abes.bestppn" level="warn" additivity="false">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="kafkaLogAppender"/>
-        </Logger>
-        <Logger name="fr.abes.bestppn.kafka.TopicProducer" level="error" additivity="false">
-            <AppenderRef ref="kafkaLogAppender"/>
-        </Logger>
-        <Logger name="fr.abes.bestppn.kafka.TopicConsumer" level="debug" additivity="false">
+        <Logger name="fr.abes.bestppn" level="info" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="kafkaLogAppender"/>
         </Logger>

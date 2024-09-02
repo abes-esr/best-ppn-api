@@ -18,9 +18,17 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
 
 @Service
 @Slf4j
@@ -41,10 +49,13 @@ public class WsService {
 
     private final ObjectMapper mapper;
 
+    private HttpClient httpClient;
+
     public WsService(ObjectMapper mapper) {
         this.headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         this.mapper = mapper;
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(5000)).build();
     }
 
 
@@ -68,7 +79,7 @@ public class WsService {
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
-    public String getCall(String url, Map<String, String> params) throws RestClientException {
+    public String getCall(String url, Map<String, String> params) throws RestClientException, ExecutionException, InterruptedException {
         StringBuilder formedUrl = new StringBuilder(url);
         if (!params.isEmpty()) {
             formedUrl.append("?");
@@ -81,8 +92,17 @@ public class WsService {
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
         log.debug(formedUrl.toString());
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(formedUrl.toString(), String.class);
+        /*RestTemplate restTemplate = new RestTemplate();
+        String result =  restTemplate.getForObject(formedUrl.toString(), String.class);*/
+        HttpRequest.Builder request = HttpRequest.newBuilder().GET().uri(URI.create(formedUrl.toString()));
+        CompletableFuture<String> result = httpClient.sendAsync(request.build(), ofString()).thenApplyAsync(res -> {
+            if (res.statusCode() != 200) {
+                throw new IllegalStateException("Invalid rest response " + res);
+            } else {
+                return res.body();
+            }
+        });
+        return result.get();
     }
 
     public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
@@ -139,13 +159,19 @@ public class WsService {
 
     public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException {
         Map<String, String> params = new HashMap<>();
-        params.put("doi", doi);
+        params.put("doi", doi.toUpperCase());
         params.put("provider", provider);
         ResultWsSudocDto result;
         try {
-            result = mapper.readValue(getCall(urlDoi2Ppn, params), ResultWsSudocDto.class);
+            String resultCall = getCall(urlDoi2Ppn, params);
+            result = mapper.readValue(resultCall, ResultWsSudocDto.class);
             result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
-        } catch (RestClientException ex) {
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
+            throw new IllegalDoiException(e.getMessage());
+        }
+
+        /*catch (RestClientException ex) {
             if (ex.getMessage().contains("Le DOI n'est pas au bon format")) {
                 log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
                 throw new IllegalDoiException(ex.getMessage());
@@ -153,7 +179,7 @@ public class WsService {
                 log.warn("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
                 throw new RestClientException(ex.getMessage());
             }
-        }
+        }*/
         return result;
     }
 

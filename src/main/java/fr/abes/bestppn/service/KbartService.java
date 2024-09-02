@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +39,6 @@ public class KbartService {
         this.workInProgress = workInProgress;
     }
 
-    @Transactional
     public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, Boolean isBypassed, String filename) throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
         if (!isBypassed) {
@@ -65,6 +65,8 @@ public class KbartService {
             }
         }
         workInProgress.get(filename).addKbartToSend(ligneFromKafka);
+        //quel que soit le résultat du calcul du best ppn on met à jour le timestamp correspondant à la consommation du message
+        workInProgress.get(filename).setTimestamp(Calendar.getInstance().getTimeInMillis());
     }
 
     public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException, IllegalProviderException {
