@@ -215,16 +215,10 @@ public class TopicProducer {
                 record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset(), Stream.of(result.getProducerRecord().headers().toArray()).map(h -> h.key() + ":" + Arrays.toString(h.value())).collect(Collectors.joining(";"))));
     }
 
-    public Integer calculatePartition(Integer nbPartitions) throws ArithmeticException {
+    public Integer calculatePartition(int nbPartitions) throws ArithmeticException {
         if (nbPartitions == 0) {
             throw new ArithmeticException("Nombre de threads = 0");
         }
-        synchronized (nbPartitions) {
-            if (lastThreadUsed.incrementAndGet() >= nbPartitions) {
-                lastThreadUsed.set(0);
-            }
-        }
-
-        return lastThreadUsed.get();
+        return lastThreadUsed.getAndIncrement() % nbPartitions;
     }
 }
