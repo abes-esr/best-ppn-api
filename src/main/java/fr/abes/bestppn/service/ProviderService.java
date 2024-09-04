@@ -1,14 +1,15 @@
 package fr.abes.bestppn.service;
 
+import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
-import fr.abes.bestppn.exception.IllegalDateException;
-import fr.abes.bestppn.exception.IllegalPackageException;
 import fr.abes.bestppn.repository.bacon.LigneKbartRepository;
 import fr.abes.bestppn.repository.bacon.ProviderPackageRepository;
 import fr.abes.bestppn.repository.bacon.ProviderRepository;
 import fr.abes.bestppn.utils.Utils;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class ProviderService {
         this.ligneKbartRepository = ligneKbartRepository;
     }
 
+    @Transactional
     public ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename) throws IllegalPackageException, IllegalDateException, IllegalProviderException {
         String packageName = Utils.extractPackageName(filename);
         Date packageDate = Utils.extractDate(filename);

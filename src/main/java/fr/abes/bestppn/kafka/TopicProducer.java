@@ -220,11 +220,11 @@ public class TopicProducer {
             throw new ArithmeticException("Nombre de threads = 0");
         }
         synchronized (nbPartitions) {
-            if (lastThreadUsed.get() >= nbPartitions) {
+            if (lastThreadUsed.incrementAndGet() >= nbPartitions) {
                 lastThreadUsed.set(0);
             }
         }
 
-        return lastThreadUsed.getAndIncrement();
+        return lastThreadUsed.get();
     }
 }
