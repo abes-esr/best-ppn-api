@@ -166,20 +166,10 @@ public class WsService {
             String resultCall = getCall(urlDoi2Ppn, params);
             result = mapper.readValue(resultCall, ResultWsSudocDto.class);
             result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
-        } catch (ExecutionException | InterruptedException e) {
-            log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
+        } catch (ExecutionException | InterruptedException | IllegalStateException e) {
+            log.warn("doi : {} / provider {} : aucun ppn ne correspond à la recherche", doi, provider);
             throw new IllegalDoiException(e.getMessage());
         }
-
-        /*catch (RestClientException ex) {
-            if (ex.getMessage().contains("Le DOI n'est pas au bon format")) {
-                log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
-                throw new IllegalDoiException(ex.getMessage());
-            } else {
-                log.warn("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
-                throw new RestClientException(ex.getMessage());
-            }
-        }*/
         return result;
     }
 
