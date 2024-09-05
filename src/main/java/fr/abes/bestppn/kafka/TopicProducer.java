@@ -173,7 +173,7 @@ public class TopicProducer {
         List<Header> headerList = new ArrayList<>();
         headerList.add(new RecordHeader("nbLinesTotal", String.valueOf(nbLignesTotal).getBytes()));
         List<LigneKbartConnect> lignesToSend = new ArrayList<>();
-        lignesKbartDto.forEach(ligne -> lignesToSend.add(utilsMapper.map(lignesKbartDto, LigneKbartConnect.class)));
+        lignesKbartDto.forEach(ligne -> lignesToSend.add(utilsMapper.map(ligne, LigneKbartConnect.class)));
         AtomicInteger index = new AtomicInteger();
         lignesToSend.forEach(ligne -> {
             try {
