@@ -166,9 +166,7 @@ public class WsService {
                 result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
             }
             else {
-                String message = "doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche";
-                log.warn(message);
-                throw new IllegalDoiException(message);
+                throw new IllegalDoiException("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
             }
         return result;
     }
