@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Getter
@@ -151,11 +152,13 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, IllegalDoiException {
+    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, IllegalDoiException, BestPpnException {
         String message = "Entrée dans doi2ppn";
         log.info(message);
         if (isSendLogs) messages.add(message);
-        ResultWsSudocDto resultWS = service.callDoi2Ppn(doi, provider);
+        ResultWsSudocDto resultWS;
+        try {
+            resultWS = service.callDoi2Ppn(doi, provider);
         log.info(resultWS.toString());
         if (isSendLogs) messages.add(resultWS.toString());
         int nbPpnElec = (int) resultWS.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
@@ -168,6 +171,10 @@ public class BestPpnService {
                 if (isSendLogs) messages.add(message);
                 ppnPrintResultList.add(ppn.getPpn());
             }
+        }
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("Erreur dans l'accès au web service doi2ppn");
+            throw new BestPpnException(e.getMessage());
         }
     }
 

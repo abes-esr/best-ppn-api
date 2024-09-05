@@ -92,8 +92,6 @@ public class WsService {
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
         log.debug(formedUrl.toString());
-        /*RestTemplate restTemplate = new RestTemplate();
-        String result =  restTemplate.getForObject(formedUrl.toString(), String.class);*/
         HttpRequest.Builder request = HttpRequest.newBuilder().GET().uri(URI.create(formedUrl.toString()));
         CompletableFuture<String> result = httpClient.sendAsync(request.build(), ofString()).thenApplyAsync(res -> {
             if (res.statusCode() != 200) {
@@ -157,19 +155,21 @@ public class WsService {
         return result;
     }
 
-    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException {
+    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException, ExecutionException, InterruptedException {
         Map<String, String> params = new HashMap<>();
         params.put("doi", doi.toUpperCase());
         params.put("provider", provider);
         ResultWsSudocDto result;
-        try {
             String resultCall = getCall(urlDoi2Ppn, params);
-            result = mapper.readValue(resultCall, ResultWsSudocDto.class);
-            result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
-        } catch (ExecutionException | InterruptedException | IllegalStateException e) {
-            log.warn("doi : {} / provider {} : aucun ppn ne correspond à la recherche", doi, provider);
-            throw new IllegalDoiException(e.getMessage());
-        }
+            if (resultCall != null) {
+                result = mapper.readValue(resultCall, ResultWsSudocDto.class);
+                result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
+            }
+            else {
+                String message = "doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche";
+                log.warn(message);
+                throw new IllegalDoiException(message);
+            }
         return result;
     }
 
