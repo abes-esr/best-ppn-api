@@ -161,7 +161,7 @@ public class WsService {
         params.put("provider", provider);
         ResultWsSudocDto result;
             String resultCall = getCall(urlDoi2Ppn, params);
-            if (resultCall != null) {
+            if (!resultCall.isEmpty()) {
                 result = mapper.readValue(resultCall, ResultWsSudocDto.class);
                 result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
             }
