@@ -92,8 +92,6 @@ public class WsService {
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
         log.debug(formedUrl.toString());
-        /*RestTemplate restTemplate = new RestTemplate();
-        String result =  restTemplate.getForObject(formedUrl.toString(), String.class);*/
         HttpRequest.Builder request = HttpRequest.newBuilder().GET().uri(URI.create(formedUrl.toString()));
         CompletableFuture<String> result = httpClient.sendAsync(request.build(), ofString()).thenApplyAsync(res -> {
             if (res.statusCode() != 200) {
@@ -157,29 +155,19 @@ public class WsService {
         return result;
     }
 
-    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException {
+    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException, ExecutionException, InterruptedException {
         Map<String, String> params = new HashMap<>();
         params.put("doi", doi.toUpperCase());
         params.put("provider", provider);
         ResultWsSudocDto result;
-        try {
             String resultCall = getCall(urlDoi2Ppn, params);
-            result = mapper.readValue(resultCall, ResultWsSudocDto.class);
-            result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
-        } catch (ExecutionException | InterruptedException e) {
-            log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
-            throw new IllegalDoiException(e.getMessage());
-        }
-
-        /*catch (RestClientException ex) {
-            if (ex.getMessage().contains("Le DOI n'est pas au bon format")) {
-                log.error("doi : {} / provider {} : n'est pas au bon format.", doi, provider);
-                throw new IllegalDoiException(ex.getMessage());
-            } else {
-                log.warn("doi : {} / provider {} : Impossible d'accéder au ws doi2ppn.", doi, provider);
-                throw new RestClientException(ex.getMessage());
+            if (!resultCall.isEmpty()) {
+                result = mapper.readValue(resultCall, ResultWsSudocDto.class);
+                result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
             }
-        }*/
+            else {
+                throw new IllegalDoiException("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
+            }
         return result;
     }
 

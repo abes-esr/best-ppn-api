@@ -14,10 +14,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -6335859415476582684L;
+  private static final long serialVersionUID = 4106167831305372180L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"LigneKbartImprime\",\"namespace\":\"fr.abes\",\"fields\":[{\"name\":\"ppn\",\"type\":\"string\"},{\"name\":\"publicationTitle\",\"type\":[\"null\",\"string\"]},{\"name\":\"printIdentifier\",\"type\":[\"null\",\"string\"]},{\"name\":\"onlineIdentifier\",\"type\":[\"null\",\"string\"]},{\"name\":\"dateFirstIssueOnline\",\"type\":[\"null\",\"string\"]},{\"name\":\"numFirstVolOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"numFirstIssueOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"dateLastIssueOnline\",\"type\":[\"null\",\"string\"]},{\"name\":\"numLastVolOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"numLastIssueOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"titleUrl\",\"type\":[\"null\",\"string\"]},{\"name\":\"firstAuthor\",\"type\":[\"null\",\"string\"]},{\"name\":\"titleId\",\"type\":[\"null\",\"string\"]},{\"name\":\"embargoInfo\",\"type\":[\"null\",\"string\"]},{\"name\":\"coverageDepth\",\"type\":[\"null\",\"string\"]},{\"name\":\"notes\",\"type\":[\"null\",\"string\"]},{\"name\":\"publisherName\",\"type\":[\"null\",\"string\"]},{\"name\":\"publicationType\",\"type\":[\"null\",\"string\"]},{\"name\":\"dateMonographPublishedPrint\",\"type\":[\"null\",\"string\"]},{\"name\":\"dateMonographPublishedOnline\",\"type\":[\"null\",\"string\"]},{\"name\":\"monographVolume\",\"type\":[\"null\",\"int\"]},{\"name\":\"monographEdition\",\"type\":[\"null\",\"string\"]},{\"name\":\"firstEditor\",\"type\":[\"null\",\"string\"]},{\"name\":\"parentPublicationTitleId\",\"type\":[\"null\",\"string\"]},{\"name\":\"precedingPublicationTitleId\",\"type\":[\"null\",\"string\"]},{\"name\":\"accessType\",\"type\":[\"null\",\"string\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"LigneKbartImprime\",\"namespace\":\"fr.abes\",\"fields\":[{\"name\":\"currentLine\",\"type\":\"int\"},{\"name\":\"totalLines\",\"type\":\"int\"},{\"name\":\"ppn\",\"type\":\"string\"},{\"name\":\"publicationTitle\",\"type\":[\"null\",\"string\"]},{\"name\":\"printIdentifier\",\"type\":[\"null\",\"string\"]},{\"name\":\"onlineIdentifier\",\"type\":[\"null\",\"string\"]},{\"name\":\"dateFirstIssueOnline\",\"type\":[\"null\",\"string\"]},{\"name\":\"numFirstVolOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"numFirstIssueOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"dateLastIssueOnline\",\"type\":[\"null\",\"string\"]},{\"name\":\"numLastVolOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"numLastIssueOnline\",\"type\":[\"null\",\"int\"]},{\"name\":\"titleUrl\",\"type\":[\"null\",\"string\"]},{\"name\":\"firstAuthor\",\"type\":[\"null\",\"string\"]},{\"name\":\"titleId\",\"type\":[\"null\",\"string\"]},{\"name\":\"embargoInfo\",\"type\":[\"null\",\"string\"]},{\"name\":\"coverageDepth\",\"type\":[\"null\",\"string\"]},{\"name\":\"notes\",\"type\":[\"null\",\"string\"]},{\"name\":\"publisherName\",\"type\":[\"null\",\"string\"]},{\"name\":\"publicationType\",\"type\":[\"null\",\"string\"]},{\"name\":\"dateMonographPublishedPrint\",\"type\":[\"null\",\"string\"]},{\"name\":\"dateMonographPublishedOnline\",\"type\":[\"null\",\"string\"]},{\"name\":\"monographVolume\",\"type\":[\"null\",\"int\"]},{\"name\":\"monographEdition\",\"type\":[\"null\",\"string\"]},{\"name\":\"firstEditor\",\"type\":[\"null\",\"string\"]},{\"name\":\"parentPublicationTitleId\",\"type\":[\"null\",\"string\"]},{\"name\":\"precedingPublicationTitleId\",\"type\":[\"null\",\"string\"]},{\"name\":\"accessType\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -73,6 +73,8 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
     return DECODER.decode(b);
   }
 
+  private int currentLine;
+  private int totalLines;
   private java.lang.CharSequence ppn;
   private java.lang.CharSequence publicationTitle;
   private java.lang.CharSequence printIdentifier;
@@ -109,6 +111,8 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
 
   /**
    * All-args constructor.
+   * @param currentLine The new value for currentLine
+   * @param totalLines The new value for totalLines
    * @param ppn The new value for ppn
    * @param publicationTitle The new value for publicationTitle
    * @param printIdentifier The new value for printIdentifier
@@ -136,7 +140,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
    * @param precedingPublicationTitleId The new value for precedingPublicationTitleId
    * @param accessType The new value for accessType
    */
-  public LigneKbartImprime(java.lang.CharSequence ppn, java.lang.CharSequence publicationTitle, java.lang.CharSequence printIdentifier, java.lang.CharSequence onlineIdentifier, java.lang.CharSequence dateFirstIssueOnline, java.lang.Integer numFirstVolOnline, java.lang.Integer numFirstIssueOnline, java.lang.CharSequence dateLastIssueOnline, java.lang.Integer numLastVolOnline, java.lang.Integer numLastIssueOnline, java.lang.CharSequence titleUrl, java.lang.CharSequence firstAuthor, java.lang.CharSequence titleId, java.lang.CharSequence embargoInfo, java.lang.CharSequence coverageDepth, java.lang.CharSequence notes, java.lang.CharSequence publisherName, java.lang.CharSequence publicationType, java.lang.CharSequence dateMonographPublishedPrint, java.lang.CharSequence dateMonographPublishedOnline, java.lang.Integer monographVolume, java.lang.CharSequence monographEdition, java.lang.CharSequence firstEditor, java.lang.CharSequence parentPublicationTitleId, java.lang.CharSequence precedingPublicationTitleId, java.lang.CharSequence accessType) {
+  public LigneKbartImprime(java.lang.Integer currentLine, java.lang.Integer totalLines, java.lang.CharSequence ppn, java.lang.CharSequence publicationTitle, java.lang.CharSequence printIdentifier, java.lang.CharSequence onlineIdentifier, java.lang.CharSequence dateFirstIssueOnline, java.lang.Integer numFirstVolOnline, java.lang.Integer numFirstIssueOnline, java.lang.CharSequence dateLastIssueOnline, java.lang.Integer numLastVolOnline, java.lang.Integer numLastIssueOnline, java.lang.CharSequence titleUrl, java.lang.CharSequence firstAuthor, java.lang.CharSequence titleId, java.lang.CharSequence embargoInfo, java.lang.CharSequence coverageDepth, java.lang.CharSequence notes, java.lang.CharSequence publisherName, java.lang.CharSequence publicationType, java.lang.CharSequence dateMonographPublishedPrint, java.lang.CharSequence dateMonographPublishedOnline, java.lang.Integer monographVolume, java.lang.CharSequence monographEdition, java.lang.CharSequence firstEditor, java.lang.CharSequence parentPublicationTitleId, java.lang.CharSequence precedingPublicationTitleId, java.lang.CharSequence accessType) {
+    this.currentLine = currentLine;
+    this.totalLines = totalLines;
     this.ppn = ppn;
     this.publicationTitle = publicationTitle;
     this.printIdentifier = printIdentifier;
@@ -175,32 +181,34 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
   @Override
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return ppn;
-    case 1: return publicationTitle;
-    case 2: return printIdentifier;
-    case 3: return onlineIdentifier;
-    case 4: return dateFirstIssueOnline;
-    case 5: return numFirstVolOnline;
-    case 6: return numFirstIssueOnline;
-    case 7: return dateLastIssueOnline;
-    case 8: return numLastVolOnline;
-    case 9: return numLastIssueOnline;
-    case 10: return titleUrl;
-    case 11: return firstAuthor;
-    case 12: return titleId;
-    case 13: return embargoInfo;
-    case 14: return coverageDepth;
-    case 15: return notes;
-    case 16: return publisherName;
-    case 17: return publicationType;
-    case 18: return dateMonographPublishedPrint;
-    case 19: return dateMonographPublishedOnline;
-    case 20: return monographVolume;
-    case 21: return monographEdition;
-    case 22: return firstEditor;
-    case 23: return parentPublicationTitleId;
-    case 24: return precedingPublicationTitleId;
-    case 25: return accessType;
+    case 0: return currentLine;
+    case 1: return totalLines;
+    case 2: return ppn;
+    case 3: return publicationTitle;
+    case 4: return printIdentifier;
+    case 5: return onlineIdentifier;
+    case 6: return dateFirstIssueOnline;
+    case 7: return numFirstVolOnline;
+    case 8: return numFirstIssueOnline;
+    case 9: return dateLastIssueOnline;
+    case 10: return numLastVolOnline;
+    case 11: return numLastIssueOnline;
+    case 12: return titleUrl;
+    case 13: return firstAuthor;
+    case 14: return titleId;
+    case 15: return embargoInfo;
+    case 16: return coverageDepth;
+    case 17: return notes;
+    case 18: return publisherName;
+    case 19: return publicationType;
+    case 20: return dateMonographPublishedPrint;
+    case 21: return dateMonographPublishedOnline;
+    case 22: return monographVolume;
+    case 23: return monographEdition;
+    case 24: return firstEditor;
+    case 25: return parentPublicationTitleId;
+    case 26: return precedingPublicationTitleId;
+    case 27: return accessType;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -210,34 +218,70 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: ppn = (java.lang.CharSequence)value$; break;
-    case 1: publicationTitle = (java.lang.CharSequence)value$; break;
-    case 2: printIdentifier = (java.lang.CharSequence)value$; break;
-    case 3: onlineIdentifier = (java.lang.CharSequence)value$; break;
-    case 4: dateFirstIssueOnline = (java.lang.CharSequence)value$; break;
-    case 5: numFirstVolOnline = (java.lang.Integer)value$; break;
-    case 6: numFirstIssueOnline = (java.lang.Integer)value$; break;
-    case 7: dateLastIssueOnline = (java.lang.CharSequence)value$; break;
-    case 8: numLastVolOnline = (java.lang.Integer)value$; break;
-    case 9: numLastIssueOnline = (java.lang.Integer)value$; break;
-    case 10: titleUrl = (java.lang.CharSequence)value$; break;
-    case 11: firstAuthor = (java.lang.CharSequence)value$; break;
-    case 12: titleId = (java.lang.CharSequence)value$; break;
-    case 13: embargoInfo = (java.lang.CharSequence)value$; break;
-    case 14: coverageDepth = (java.lang.CharSequence)value$; break;
-    case 15: notes = (java.lang.CharSequence)value$; break;
-    case 16: publisherName = (java.lang.CharSequence)value$; break;
-    case 17: publicationType = (java.lang.CharSequence)value$; break;
-    case 18: dateMonographPublishedPrint = (java.lang.CharSequence)value$; break;
-    case 19: dateMonographPublishedOnline = (java.lang.CharSequence)value$; break;
-    case 20: monographVolume = (java.lang.Integer)value$; break;
-    case 21: monographEdition = (java.lang.CharSequence)value$; break;
-    case 22: firstEditor = (java.lang.CharSequence)value$; break;
-    case 23: parentPublicationTitleId = (java.lang.CharSequence)value$; break;
-    case 24: precedingPublicationTitleId = (java.lang.CharSequence)value$; break;
-    case 25: accessType = (java.lang.CharSequence)value$; break;
+    case 0: currentLine = (java.lang.Integer)value$; break;
+    case 1: totalLines = (java.lang.Integer)value$; break;
+    case 2: ppn = (java.lang.CharSequence)value$; break;
+    case 3: publicationTitle = (java.lang.CharSequence)value$; break;
+    case 4: printIdentifier = (java.lang.CharSequence)value$; break;
+    case 5: onlineIdentifier = (java.lang.CharSequence)value$; break;
+    case 6: dateFirstIssueOnline = (java.lang.CharSequence)value$; break;
+    case 7: numFirstVolOnline = (java.lang.Integer)value$; break;
+    case 8: numFirstIssueOnline = (java.lang.Integer)value$; break;
+    case 9: dateLastIssueOnline = (java.lang.CharSequence)value$; break;
+    case 10: numLastVolOnline = (java.lang.Integer)value$; break;
+    case 11: numLastIssueOnline = (java.lang.Integer)value$; break;
+    case 12: titleUrl = (java.lang.CharSequence)value$; break;
+    case 13: firstAuthor = (java.lang.CharSequence)value$; break;
+    case 14: titleId = (java.lang.CharSequence)value$; break;
+    case 15: embargoInfo = (java.lang.CharSequence)value$; break;
+    case 16: coverageDepth = (java.lang.CharSequence)value$; break;
+    case 17: notes = (java.lang.CharSequence)value$; break;
+    case 18: publisherName = (java.lang.CharSequence)value$; break;
+    case 19: publicationType = (java.lang.CharSequence)value$; break;
+    case 20: dateMonographPublishedPrint = (java.lang.CharSequence)value$; break;
+    case 21: dateMonographPublishedOnline = (java.lang.CharSequence)value$; break;
+    case 22: monographVolume = (java.lang.Integer)value$; break;
+    case 23: monographEdition = (java.lang.CharSequence)value$; break;
+    case 24: firstEditor = (java.lang.CharSequence)value$; break;
+    case 25: parentPublicationTitleId = (java.lang.CharSequence)value$; break;
+    case 26: precedingPublicationTitleId = (java.lang.CharSequence)value$; break;
+    case 27: accessType = (java.lang.CharSequence)value$; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
+  }
+
+  /**
+   * Gets the value of the 'currentLine' field.
+   * @return The value of the 'currentLine' field.
+   */
+  public int getCurrentLine() {
+    return currentLine;
+  }
+
+
+  /**
+   * Sets the value of the 'currentLine' field.
+   * @param value the value to set.
+   */
+  public void setCurrentLine(int value) {
+    this.currentLine = value;
+  }
+
+  /**
+   * Gets the value of the 'totalLines' field.
+   * @return The value of the 'totalLines' field.
+   */
+  public int getTotalLines() {
+    return totalLines;
+  }
+
+
+  /**
+   * Sets the value of the 'totalLines' field.
+   * @param value the value to set.
+   */
+  public void setTotalLines(int value) {
+    this.totalLines = value;
   }
 
   /**
@@ -723,6 +767,8 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<LigneKbartImprime>
     implements org.apache.avro.data.RecordBuilder<LigneKbartImprime> {
 
+    private int currentLine;
+    private int totalLines;
     private java.lang.CharSequence ppn;
     private java.lang.CharSequence publicationTitle;
     private java.lang.CharSequence printIdentifier;
@@ -761,109 +807,117 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
      */
     private Builder(fr.abes.LigneKbartImprime.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.ppn)) {
-        this.ppn = data().deepCopy(fields()[0].schema(), other.ppn);
+      if (isValidValue(fields()[0], other.currentLine)) {
+        this.currentLine = data().deepCopy(fields()[0].schema(), other.currentLine);
         fieldSetFlags()[0] = other.fieldSetFlags()[0];
       }
-      if (isValidValue(fields()[1], other.publicationTitle)) {
-        this.publicationTitle = data().deepCopy(fields()[1].schema(), other.publicationTitle);
+      if (isValidValue(fields()[1], other.totalLines)) {
+        this.totalLines = data().deepCopy(fields()[1].schema(), other.totalLines);
         fieldSetFlags()[1] = other.fieldSetFlags()[1];
       }
-      if (isValidValue(fields()[2], other.printIdentifier)) {
-        this.printIdentifier = data().deepCopy(fields()[2].schema(), other.printIdentifier);
+      if (isValidValue(fields()[2], other.ppn)) {
+        this.ppn = data().deepCopy(fields()[2].schema(), other.ppn);
         fieldSetFlags()[2] = other.fieldSetFlags()[2];
       }
-      if (isValidValue(fields()[3], other.onlineIdentifier)) {
-        this.onlineIdentifier = data().deepCopy(fields()[3].schema(), other.onlineIdentifier);
+      if (isValidValue(fields()[3], other.publicationTitle)) {
+        this.publicationTitle = data().deepCopy(fields()[3].schema(), other.publicationTitle);
         fieldSetFlags()[3] = other.fieldSetFlags()[3];
       }
-      if (isValidValue(fields()[4], other.dateFirstIssueOnline)) {
-        this.dateFirstIssueOnline = data().deepCopy(fields()[4].schema(), other.dateFirstIssueOnline);
+      if (isValidValue(fields()[4], other.printIdentifier)) {
+        this.printIdentifier = data().deepCopy(fields()[4].schema(), other.printIdentifier);
         fieldSetFlags()[4] = other.fieldSetFlags()[4];
       }
-      if (isValidValue(fields()[5], other.numFirstVolOnline)) {
-        this.numFirstVolOnline = data().deepCopy(fields()[5].schema(), other.numFirstVolOnline);
+      if (isValidValue(fields()[5], other.onlineIdentifier)) {
+        this.onlineIdentifier = data().deepCopy(fields()[5].schema(), other.onlineIdentifier);
         fieldSetFlags()[5] = other.fieldSetFlags()[5];
       }
-      if (isValidValue(fields()[6], other.numFirstIssueOnline)) {
-        this.numFirstIssueOnline = data().deepCopy(fields()[6].schema(), other.numFirstIssueOnline);
+      if (isValidValue(fields()[6], other.dateFirstIssueOnline)) {
+        this.dateFirstIssueOnline = data().deepCopy(fields()[6].schema(), other.dateFirstIssueOnline);
         fieldSetFlags()[6] = other.fieldSetFlags()[6];
       }
-      if (isValidValue(fields()[7], other.dateLastIssueOnline)) {
-        this.dateLastIssueOnline = data().deepCopy(fields()[7].schema(), other.dateLastIssueOnline);
+      if (isValidValue(fields()[7], other.numFirstVolOnline)) {
+        this.numFirstVolOnline = data().deepCopy(fields()[7].schema(), other.numFirstVolOnline);
         fieldSetFlags()[7] = other.fieldSetFlags()[7];
       }
-      if (isValidValue(fields()[8], other.numLastVolOnline)) {
-        this.numLastVolOnline = data().deepCopy(fields()[8].schema(), other.numLastVolOnline);
+      if (isValidValue(fields()[8], other.numFirstIssueOnline)) {
+        this.numFirstIssueOnline = data().deepCopy(fields()[8].schema(), other.numFirstIssueOnline);
         fieldSetFlags()[8] = other.fieldSetFlags()[8];
       }
-      if (isValidValue(fields()[9], other.numLastIssueOnline)) {
-        this.numLastIssueOnline = data().deepCopy(fields()[9].schema(), other.numLastIssueOnline);
+      if (isValidValue(fields()[9], other.dateLastIssueOnline)) {
+        this.dateLastIssueOnline = data().deepCopy(fields()[9].schema(), other.dateLastIssueOnline);
         fieldSetFlags()[9] = other.fieldSetFlags()[9];
       }
-      if (isValidValue(fields()[10], other.titleUrl)) {
-        this.titleUrl = data().deepCopy(fields()[10].schema(), other.titleUrl);
+      if (isValidValue(fields()[10], other.numLastVolOnline)) {
+        this.numLastVolOnline = data().deepCopy(fields()[10].schema(), other.numLastVolOnline);
         fieldSetFlags()[10] = other.fieldSetFlags()[10];
       }
-      if (isValidValue(fields()[11], other.firstAuthor)) {
-        this.firstAuthor = data().deepCopy(fields()[11].schema(), other.firstAuthor);
+      if (isValidValue(fields()[11], other.numLastIssueOnline)) {
+        this.numLastIssueOnline = data().deepCopy(fields()[11].schema(), other.numLastIssueOnline);
         fieldSetFlags()[11] = other.fieldSetFlags()[11];
       }
-      if (isValidValue(fields()[12], other.titleId)) {
-        this.titleId = data().deepCopy(fields()[12].schema(), other.titleId);
+      if (isValidValue(fields()[12], other.titleUrl)) {
+        this.titleUrl = data().deepCopy(fields()[12].schema(), other.titleUrl);
         fieldSetFlags()[12] = other.fieldSetFlags()[12];
       }
-      if (isValidValue(fields()[13], other.embargoInfo)) {
-        this.embargoInfo = data().deepCopy(fields()[13].schema(), other.embargoInfo);
+      if (isValidValue(fields()[13], other.firstAuthor)) {
+        this.firstAuthor = data().deepCopy(fields()[13].schema(), other.firstAuthor);
         fieldSetFlags()[13] = other.fieldSetFlags()[13];
       }
-      if (isValidValue(fields()[14], other.coverageDepth)) {
-        this.coverageDepth = data().deepCopy(fields()[14].schema(), other.coverageDepth);
+      if (isValidValue(fields()[14], other.titleId)) {
+        this.titleId = data().deepCopy(fields()[14].schema(), other.titleId);
         fieldSetFlags()[14] = other.fieldSetFlags()[14];
       }
-      if (isValidValue(fields()[15], other.notes)) {
-        this.notes = data().deepCopy(fields()[15].schema(), other.notes);
+      if (isValidValue(fields()[15], other.embargoInfo)) {
+        this.embargoInfo = data().deepCopy(fields()[15].schema(), other.embargoInfo);
         fieldSetFlags()[15] = other.fieldSetFlags()[15];
       }
-      if (isValidValue(fields()[16], other.publisherName)) {
-        this.publisherName = data().deepCopy(fields()[16].schema(), other.publisherName);
+      if (isValidValue(fields()[16], other.coverageDepth)) {
+        this.coverageDepth = data().deepCopy(fields()[16].schema(), other.coverageDepth);
         fieldSetFlags()[16] = other.fieldSetFlags()[16];
       }
-      if (isValidValue(fields()[17], other.publicationType)) {
-        this.publicationType = data().deepCopy(fields()[17].schema(), other.publicationType);
+      if (isValidValue(fields()[17], other.notes)) {
+        this.notes = data().deepCopy(fields()[17].schema(), other.notes);
         fieldSetFlags()[17] = other.fieldSetFlags()[17];
       }
-      if (isValidValue(fields()[18], other.dateMonographPublishedPrint)) {
-        this.dateMonographPublishedPrint = data().deepCopy(fields()[18].schema(), other.dateMonographPublishedPrint);
+      if (isValidValue(fields()[18], other.publisherName)) {
+        this.publisherName = data().deepCopy(fields()[18].schema(), other.publisherName);
         fieldSetFlags()[18] = other.fieldSetFlags()[18];
       }
-      if (isValidValue(fields()[19], other.dateMonographPublishedOnline)) {
-        this.dateMonographPublishedOnline = data().deepCopy(fields()[19].schema(), other.dateMonographPublishedOnline);
+      if (isValidValue(fields()[19], other.publicationType)) {
+        this.publicationType = data().deepCopy(fields()[19].schema(), other.publicationType);
         fieldSetFlags()[19] = other.fieldSetFlags()[19];
       }
-      if (isValidValue(fields()[20], other.monographVolume)) {
-        this.monographVolume = data().deepCopy(fields()[20].schema(), other.monographVolume);
+      if (isValidValue(fields()[20], other.dateMonographPublishedPrint)) {
+        this.dateMonographPublishedPrint = data().deepCopy(fields()[20].schema(), other.dateMonographPublishedPrint);
         fieldSetFlags()[20] = other.fieldSetFlags()[20];
       }
-      if (isValidValue(fields()[21], other.monographEdition)) {
-        this.monographEdition = data().deepCopy(fields()[21].schema(), other.monographEdition);
+      if (isValidValue(fields()[21], other.dateMonographPublishedOnline)) {
+        this.dateMonographPublishedOnline = data().deepCopy(fields()[21].schema(), other.dateMonographPublishedOnline);
         fieldSetFlags()[21] = other.fieldSetFlags()[21];
       }
-      if (isValidValue(fields()[22], other.firstEditor)) {
-        this.firstEditor = data().deepCopy(fields()[22].schema(), other.firstEditor);
+      if (isValidValue(fields()[22], other.monographVolume)) {
+        this.monographVolume = data().deepCopy(fields()[22].schema(), other.monographVolume);
         fieldSetFlags()[22] = other.fieldSetFlags()[22];
       }
-      if (isValidValue(fields()[23], other.parentPublicationTitleId)) {
-        this.parentPublicationTitleId = data().deepCopy(fields()[23].schema(), other.parentPublicationTitleId);
+      if (isValidValue(fields()[23], other.monographEdition)) {
+        this.monographEdition = data().deepCopy(fields()[23].schema(), other.monographEdition);
         fieldSetFlags()[23] = other.fieldSetFlags()[23];
       }
-      if (isValidValue(fields()[24], other.precedingPublicationTitleId)) {
-        this.precedingPublicationTitleId = data().deepCopy(fields()[24].schema(), other.precedingPublicationTitleId);
+      if (isValidValue(fields()[24], other.firstEditor)) {
+        this.firstEditor = data().deepCopy(fields()[24].schema(), other.firstEditor);
         fieldSetFlags()[24] = other.fieldSetFlags()[24];
       }
-      if (isValidValue(fields()[25], other.accessType)) {
-        this.accessType = data().deepCopy(fields()[25].schema(), other.accessType);
+      if (isValidValue(fields()[25], other.parentPublicationTitleId)) {
+        this.parentPublicationTitleId = data().deepCopy(fields()[25].schema(), other.parentPublicationTitleId);
         fieldSetFlags()[25] = other.fieldSetFlags()[25];
+      }
+      if (isValidValue(fields()[26], other.precedingPublicationTitleId)) {
+        this.precedingPublicationTitleId = data().deepCopy(fields()[26].schema(), other.precedingPublicationTitleId);
+        fieldSetFlags()[26] = other.fieldSetFlags()[26];
+      }
+      if (isValidValue(fields()[27], other.accessType)) {
+        this.accessType = data().deepCopy(fields()[27].schema(), other.accessType);
+        fieldSetFlags()[27] = other.fieldSetFlags()[27];
       }
     }
 
@@ -873,110 +927,196 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
      */
     private Builder(fr.abes.LigneKbartImprime other) {
       super(SCHEMA$, MODEL$);
-      if (isValidValue(fields()[0], other.ppn)) {
-        this.ppn = data().deepCopy(fields()[0].schema(), other.ppn);
+      if (isValidValue(fields()[0], other.currentLine)) {
+        this.currentLine = data().deepCopy(fields()[0].schema(), other.currentLine);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.publicationTitle)) {
-        this.publicationTitle = data().deepCopy(fields()[1].schema(), other.publicationTitle);
+      if (isValidValue(fields()[1], other.totalLines)) {
+        this.totalLines = data().deepCopy(fields()[1].schema(), other.totalLines);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.printIdentifier)) {
-        this.printIdentifier = data().deepCopy(fields()[2].schema(), other.printIdentifier);
+      if (isValidValue(fields()[2], other.ppn)) {
+        this.ppn = data().deepCopy(fields()[2].schema(), other.ppn);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.onlineIdentifier)) {
-        this.onlineIdentifier = data().deepCopy(fields()[3].schema(), other.onlineIdentifier);
+      if (isValidValue(fields()[3], other.publicationTitle)) {
+        this.publicationTitle = data().deepCopy(fields()[3].schema(), other.publicationTitle);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.dateFirstIssueOnline)) {
-        this.dateFirstIssueOnline = data().deepCopy(fields()[4].schema(), other.dateFirstIssueOnline);
+      if (isValidValue(fields()[4], other.printIdentifier)) {
+        this.printIdentifier = data().deepCopy(fields()[4].schema(), other.printIdentifier);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.numFirstVolOnline)) {
-        this.numFirstVolOnline = data().deepCopy(fields()[5].schema(), other.numFirstVolOnline);
+      if (isValidValue(fields()[5], other.onlineIdentifier)) {
+        this.onlineIdentifier = data().deepCopy(fields()[5].schema(), other.onlineIdentifier);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.numFirstIssueOnline)) {
-        this.numFirstIssueOnline = data().deepCopy(fields()[6].schema(), other.numFirstIssueOnline);
+      if (isValidValue(fields()[6], other.dateFirstIssueOnline)) {
+        this.dateFirstIssueOnline = data().deepCopy(fields()[6].schema(), other.dateFirstIssueOnline);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.dateLastIssueOnline)) {
-        this.dateLastIssueOnline = data().deepCopy(fields()[7].schema(), other.dateLastIssueOnline);
+      if (isValidValue(fields()[7], other.numFirstVolOnline)) {
+        this.numFirstVolOnline = data().deepCopy(fields()[7].schema(), other.numFirstVolOnline);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.numLastVolOnline)) {
-        this.numLastVolOnline = data().deepCopy(fields()[8].schema(), other.numLastVolOnline);
+      if (isValidValue(fields()[8], other.numFirstIssueOnline)) {
+        this.numFirstIssueOnline = data().deepCopy(fields()[8].schema(), other.numFirstIssueOnline);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.numLastIssueOnline)) {
-        this.numLastIssueOnline = data().deepCopy(fields()[9].schema(), other.numLastIssueOnline);
+      if (isValidValue(fields()[9], other.dateLastIssueOnline)) {
+        this.dateLastIssueOnline = data().deepCopy(fields()[9].schema(), other.dateLastIssueOnline);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.titleUrl)) {
-        this.titleUrl = data().deepCopy(fields()[10].schema(), other.titleUrl);
+      if (isValidValue(fields()[10], other.numLastVolOnline)) {
+        this.numLastVolOnline = data().deepCopy(fields()[10].schema(), other.numLastVolOnline);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.firstAuthor)) {
-        this.firstAuthor = data().deepCopy(fields()[11].schema(), other.firstAuthor);
+      if (isValidValue(fields()[11], other.numLastIssueOnline)) {
+        this.numLastIssueOnline = data().deepCopy(fields()[11].schema(), other.numLastIssueOnline);
         fieldSetFlags()[11] = true;
       }
-      if (isValidValue(fields()[12], other.titleId)) {
-        this.titleId = data().deepCopy(fields()[12].schema(), other.titleId);
+      if (isValidValue(fields()[12], other.titleUrl)) {
+        this.titleUrl = data().deepCopy(fields()[12].schema(), other.titleUrl);
         fieldSetFlags()[12] = true;
       }
-      if (isValidValue(fields()[13], other.embargoInfo)) {
-        this.embargoInfo = data().deepCopy(fields()[13].schema(), other.embargoInfo);
+      if (isValidValue(fields()[13], other.firstAuthor)) {
+        this.firstAuthor = data().deepCopy(fields()[13].schema(), other.firstAuthor);
         fieldSetFlags()[13] = true;
       }
-      if (isValidValue(fields()[14], other.coverageDepth)) {
-        this.coverageDepth = data().deepCopy(fields()[14].schema(), other.coverageDepth);
+      if (isValidValue(fields()[14], other.titleId)) {
+        this.titleId = data().deepCopy(fields()[14].schema(), other.titleId);
         fieldSetFlags()[14] = true;
       }
-      if (isValidValue(fields()[15], other.notes)) {
-        this.notes = data().deepCopy(fields()[15].schema(), other.notes);
+      if (isValidValue(fields()[15], other.embargoInfo)) {
+        this.embargoInfo = data().deepCopy(fields()[15].schema(), other.embargoInfo);
         fieldSetFlags()[15] = true;
       }
-      if (isValidValue(fields()[16], other.publisherName)) {
-        this.publisherName = data().deepCopy(fields()[16].schema(), other.publisherName);
+      if (isValidValue(fields()[16], other.coverageDepth)) {
+        this.coverageDepth = data().deepCopy(fields()[16].schema(), other.coverageDepth);
         fieldSetFlags()[16] = true;
       }
-      if (isValidValue(fields()[17], other.publicationType)) {
-        this.publicationType = data().deepCopy(fields()[17].schema(), other.publicationType);
+      if (isValidValue(fields()[17], other.notes)) {
+        this.notes = data().deepCopy(fields()[17].schema(), other.notes);
         fieldSetFlags()[17] = true;
       }
-      if (isValidValue(fields()[18], other.dateMonographPublishedPrint)) {
-        this.dateMonographPublishedPrint = data().deepCopy(fields()[18].schema(), other.dateMonographPublishedPrint);
+      if (isValidValue(fields()[18], other.publisherName)) {
+        this.publisherName = data().deepCopy(fields()[18].schema(), other.publisherName);
         fieldSetFlags()[18] = true;
       }
-      if (isValidValue(fields()[19], other.dateMonographPublishedOnline)) {
-        this.dateMonographPublishedOnline = data().deepCopy(fields()[19].schema(), other.dateMonographPublishedOnline);
+      if (isValidValue(fields()[19], other.publicationType)) {
+        this.publicationType = data().deepCopy(fields()[19].schema(), other.publicationType);
         fieldSetFlags()[19] = true;
       }
-      if (isValidValue(fields()[20], other.monographVolume)) {
-        this.monographVolume = data().deepCopy(fields()[20].schema(), other.monographVolume);
+      if (isValidValue(fields()[20], other.dateMonographPublishedPrint)) {
+        this.dateMonographPublishedPrint = data().deepCopy(fields()[20].schema(), other.dateMonographPublishedPrint);
         fieldSetFlags()[20] = true;
       }
-      if (isValidValue(fields()[21], other.monographEdition)) {
-        this.monographEdition = data().deepCopy(fields()[21].schema(), other.monographEdition);
+      if (isValidValue(fields()[21], other.dateMonographPublishedOnline)) {
+        this.dateMonographPublishedOnline = data().deepCopy(fields()[21].schema(), other.dateMonographPublishedOnline);
         fieldSetFlags()[21] = true;
       }
-      if (isValidValue(fields()[22], other.firstEditor)) {
-        this.firstEditor = data().deepCopy(fields()[22].schema(), other.firstEditor);
+      if (isValidValue(fields()[22], other.monographVolume)) {
+        this.monographVolume = data().deepCopy(fields()[22].schema(), other.monographVolume);
         fieldSetFlags()[22] = true;
       }
-      if (isValidValue(fields()[23], other.parentPublicationTitleId)) {
-        this.parentPublicationTitleId = data().deepCopy(fields()[23].schema(), other.parentPublicationTitleId);
+      if (isValidValue(fields()[23], other.monographEdition)) {
+        this.monographEdition = data().deepCopy(fields()[23].schema(), other.monographEdition);
         fieldSetFlags()[23] = true;
       }
-      if (isValidValue(fields()[24], other.precedingPublicationTitleId)) {
-        this.precedingPublicationTitleId = data().deepCopy(fields()[24].schema(), other.precedingPublicationTitleId);
+      if (isValidValue(fields()[24], other.firstEditor)) {
+        this.firstEditor = data().deepCopy(fields()[24].schema(), other.firstEditor);
         fieldSetFlags()[24] = true;
       }
-      if (isValidValue(fields()[25], other.accessType)) {
-        this.accessType = data().deepCopy(fields()[25].schema(), other.accessType);
+      if (isValidValue(fields()[25], other.parentPublicationTitleId)) {
+        this.parentPublicationTitleId = data().deepCopy(fields()[25].schema(), other.parentPublicationTitleId);
         fieldSetFlags()[25] = true;
       }
+      if (isValidValue(fields()[26], other.precedingPublicationTitleId)) {
+        this.precedingPublicationTitleId = data().deepCopy(fields()[26].schema(), other.precedingPublicationTitleId);
+        fieldSetFlags()[26] = true;
+      }
+      if (isValidValue(fields()[27], other.accessType)) {
+        this.accessType = data().deepCopy(fields()[27].schema(), other.accessType);
+        fieldSetFlags()[27] = true;
+      }
+    }
+
+    /**
+      * Gets the value of the 'currentLine' field.
+      * @return The value.
+      */
+    public int getCurrentLine() {
+      return currentLine;
+    }
+
+
+    /**
+      * Sets the value of the 'currentLine' field.
+      * @param value The value of 'currentLine'.
+      * @return This builder.
+      */
+    public fr.abes.LigneKbartImprime.Builder setCurrentLine(int value) {
+      validate(fields()[0], value);
+      this.currentLine = value;
+      fieldSetFlags()[0] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'currentLine' field has been set.
+      * @return True if the 'currentLine' field has been set, false otherwise.
+      */
+    public boolean hasCurrentLine() {
+      return fieldSetFlags()[0];
+    }
+
+
+    /**
+      * Clears the value of the 'currentLine' field.
+      * @return This builder.
+      */
+    public fr.abes.LigneKbartImprime.Builder clearCurrentLine() {
+      fieldSetFlags()[0] = false;
+      return this;
+    }
+
+    /**
+      * Gets the value of the 'totalLines' field.
+      * @return The value.
+      */
+    public int getTotalLines() {
+      return totalLines;
+    }
+
+
+    /**
+      * Sets the value of the 'totalLines' field.
+      * @param value The value of 'totalLines'.
+      * @return This builder.
+      */
+    public fr.abes.LigneKbartImprime.Builder setTotalLines(int value) {
+      validate(fields()[1], value);
+      this.totalLines = value;
+      fieldSetFlags()[1] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'totalLines' field has been set.
+      * @return True if the 'totalLines' field has been set, false otherwise.
+      */
+    public boolean hasTotalLines() {
+      return fieldSetFlags()[1];
+    }
+
+
+    /**
+      * Clears the value of the 'totalLines' field.
+      * @return This builder.
+      */
+    public fr.abes.LigneKbartImprime.Builder clearTotalLines() {
+      fieldSetFlags()[1] = false;
+      return this;
     }
 
     /**
@@ -994,9 +1134,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setPpn(java.lang.CharSequence value) {
-      validate(fields()[0], value);
+      validate(fields()[2], value);
       this.ppn = value;
-      fieldSetFlags()[0] = true;
+      fieldSetFlags()[2] = true;
       return this;
     }
 
@@ -1005,7 +1145,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'ppn' field has been set, false otherwise.
       */
     public boolean hasPpn() {
-      return fieldSetFlags()[0];
+      return fieldSetFlags()[2];
     }
 
 
@@ -1015,7 +1155,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearPpn() {
       ppn = null;
-      fieldSetFlags()[0] = false;
+      fieldSetFlags()[2] = false;
       return this;
     }
 
@@ -1034,9 +1174,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setPublicationTitle(java.lang.CharSequence value) {
-      validate(fields()[1], value);
+      validate(fields()[3], value);
       this.publicationTitle = value;
-      fieldSetFlags()[1] = true;
+      fieldSetFlags()[3] = true;
       return this;
     }
 
@@ -1045,7 +1185,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'publicationTitle' field has been set, false otherwise.
       */
     public boolean hasPublicationTitle() {
-      return fieldSetFlags()[1];
+      return fieldSetFlags()[3];
     }
 
 
@@ -1055,7 +1195,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearPublicationTitle() {
       publicationTitle = null;
-      fieldSetFlags()[1] = false;
+      fieldSetFlags()[3] = false;
       return this;
     }
 
@@ -1074,9 +1214,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setPrintIdentifier(java.lang.CharSequence value) {
-      validate(fields()[2], value);
+      validate(fields()[4], value);
       this.printIdentifier = value;
-      fieldSetFlags()[2] = true;
+      fieldSetFlags()[4] = true;
       return this;
     }
 
@@ -1085,7 +1225,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'printIdentifier' field has been set, false otherwise.
       */
     public boolean hasPrintIdentifier() {
-      return fieldSetFlags()[2];
+      return fieldSetFlags()[4];
     }
 
 
@@ -1095,7 +1235,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearPrintIdentifier() {
       printIdentifier = null;
-      fieldSetFlags()[2] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -1114,9 +1254,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setOnlineIdentifier(java.lang.CharSequence value) {
-      validate(fields()[3], value);
+      validate(fields()[5], value);
       this.onlineIdentifier = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[5] = true;
       return this;
     }
 
@@ -1125,7 +1265,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'onlineIdentifier' field has been set, false otherwise.
       */
     public boolean hasOnlineIdentifier() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[5];
     }
 
 
@@ -1135,7 +1275,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearOnlineIdentifier() {
       onlineIdentifier = null;
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -1154,9 +1294,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setDateFirstIssueOnline(java.lang.CharSequence value) {
-      validate(fields()[4], value);
+      validate(fields()[6], value);
       this.dateFirstIssueOnline = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[6] = true;
       return this;
     }
 
@@ -1165,7 +1305,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'dateFirstIssueOnline' field has been set, false otherwise.
       */
     public boolean hasDateFirstIssueOnline() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[6];
     }
 
 
@@ -1175,7 +1315,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearDateFirstIssueOnline() {
       dateFirstIssueOnline = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -1194,9 +1334,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setNumFirstVolOnline(java.lang.Integer value) {
-      validate(fields()[5], value);
+      validate(fields()[7], value);
       this.numFirstVolOnline = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[7] = true;
       return this;
     }
 
@@ -1205,7 +1345,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'numFirstVolOnline' field has been set, false otherwise.
       */
     public boolean hasNumFirstVolOnline() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[7];
     }
 
 
@@ -1215,7 +1355,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearNumFirstVolOnline() {
       numFirstVolOnline = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -1234,9 +1374,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setNumFirstIssueOnline(java.lang.Integer value) {
-      validate(fields()[6], value);
+      validate(fields()[8], value);
       this.numFirstIssueOnline = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[8] = true;
       return this;
     }
 
@@ -1245,7 +1385,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'numFirstIssueOnline' field has been set, false otherwise.
       */
     public boolean hasNumFirstIssueOnline() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[8];
     }
 
 
@@ -1255,7 +1395,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearNumFirstIssueOnline() {
       numFirstIssueOnline = null;
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -1274,9 +1414,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setDateLastIssueOnline(java.lang.CharSequence value) {
-      validate(fields()[7], value);
+      validate(fields()[9], value);
       this.dateLastIssueOnline = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[9] = true;
       return this;
     }
 
@@ -1285,7 +1425,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'dateLastIssueOnline' field has been set, false otherwise.
       */
     public boolean hasDateLastIssueOnline() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[9];
     }
 
 
@@ -1295,7 +1435,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearDateLastIssueOnline() {
       dateLastIssueOnline = null;
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -1314,9 +1454,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setNumLastVolOnline(java.lang.Integer value) {
-      validate(fields()[8], value);
+      validate(fields()[10], value);
       this.numLastVolOnline = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[10] = true;
       return this;
     }
 
@@ -1325,7 +1465,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'numLastVolOnline' field has been set, false otherwise.
       */
     public boolean hasNumLastVolOnline() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[10];
     }
 
 
@@ -1335,7 +1475,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearNumLastVolOnline() {
       numLastVolOnline = null;
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -1354,9 +1494,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setNumLastIssueOnline(java.lang.Integer value) {
-      validate(fields()[9], value);
+      validate(fields()[11], value);
       this.numLastIssueOnline = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[11] = true;
       return this;
     }
 
@@ -1365,7 +1505,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'numLastIssueOnline' field has been set, false otherwise.
       */
     public boolean hasNumLastIssueOnline() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[11];
     }
 
 
@@ -1375,7 +1515,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearNumLastIssueOnline() {
       numLastIssueOnline = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[11] = false;
       return this;
     }
 
@@ -1394,9 +1534,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setTitleUrl(java.lang.CharSequence value) {
-      validate(fields()[10], value);
+      validate(fields()[12], value);
       this.titleUrl = value;
-      fieldSetFlags()[10] = true;
+      fieldSetFlags()[12] = true;
       return this;
     }
 
@@ -1405,7 +1545,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'titleUrl' field has been set, false otherwise.
       */
     public boolean hasTitleUrl() {
-      return fieldSetFlags()[10];
+      return fieldSetFlags()[12];
     }
 
 
@@ -1415,7 +1555,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearTitleUrl() {
       titleUrl = null;
-      fieldSetFlags()[10] = false;
+      fieldSetFlags()[12] = false;
       return this;
     }
 
@@ -1434,9 +1574,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setFirstAuthor(java.lang.CharSequence value) {
-      validate(fields()[11], value);
+      validate(fields()[13], value);
       this.firstAuthor = value;
-      fieldSetFlags()[11] = true;
+      fieldSetFlags()[13] = true;
       return this;
     }
 
@@ -1445,7 +1585,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'firstAuthor' field has been set, false otherwise.
       */
     public boolean hasFirstAuthor() {
-      return fieldSetFlags()[11];
+      return fieldSetFlags()[13];
     }
 
 
@@ -1455,7 +1595,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearFirstAuthor() {
       firstAuthor = null;
-      fieldSetFlags()[11] = false;
+      fieldSetFlags()[13] = false;
       return this;
     }
 
@@ -1474,9 +1614,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setTitleId(java.lang.CharSequence value) {
-      validate(fields()[12], value);
+      validate(fields()[14], value);
       this.titleId = value;
-      fieldSetFlags()[12] = true;
+      fieldSetFlags()[14] = true;
       return this;
     }
 
@@ -1485,7 +1625,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'titleId' field has been set, false otherwise.
       */
     public boolean hasTitleId() {
-      return fieldSetFlags()[12];
+      return fieldSetFlags()[14];
     }
 
 
@@ -1495,7 +1635,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearTitleId() {
       titleId = null;
-      fieldSetFlags()[12] = false;
+      fieldSetFlags()[14] = false;
       return this;
     }
 
@@ -1514,9 +1654,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setEmbargoInfo(java.lang.CharSequence value) {
-      validate(fields()[13], value);
+      validate(fields()[15], value);
       this.embargoInfo = value;
-      fieldSetFlags()[13] = true;
+      fieldSetFlags()[15] = true;
       return this;
     }
 
@@ -1525,7 +1665,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'embargoInfo' field has been set, false otherwise.
       */
     public boolean hasEmbargoInfo() {
-      return fieldSetFlags()[13];
+      return fieldSetFlags()[15];
     }
 
 
@@ -1535,7 +1675,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearEmbargoInfo() {
       embargoInfo = null;
-      fieldSetFlags()[13] = false;
+      fieldSetFlags()[15] = false;
       return this;
     }
 
@@ -1554,9 +1694,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setCoverageDepth(java.lang.CharSequence value) {
-      validate(fields()[14], value);
+      validate(fields()[16], value);
       this.coverageDepth = value;
-      fieldSetFlags()[14] = true;
+      fieldSetFlags()[16] = true;
       return this;
     }
 
@@ -1565,7 +1705,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'coverageDepth' field has been set, false otherwise.
       */
     public boolean hasCoverageDepth() {
-      return fieldSetFlags()[14];
+      return fieldSetFlags()[16];
     }
 
 
@@ -1575,7 +1715,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearCoverageDepth() {
       coverageDepth = null;
-      fieldSetFlags()[14] = false;
+      fieldSetFlags()[16] = false;
       return this;
     }
 
@@ -1594,9 +1734,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setNotes(java.lang.CharSequence value) {
-      validate(fields()[15], value);
+      validate(fields()[17], value);
       this.notes = value;
-      fieldSetFlags()[15] = true;
+      fieldSetFlags()[17] = true;
       return this;
     }
 
@@ -1605,7 +1745,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'notes' field has been set, false otherwise.
       */
     public boolean hasNotes() {
-      return fieldSetFlags()[15];
+      return fieldSetFlags()[17];
     }
 
 
@@ -1615,7 +1755,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearNotes() {
       notes = null;
-      fieldSetFlags()[15] = false;
+      fieldSetFlags()[17] = false;
       return this;
     }
 
@@ -1634,9 +1774,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setPublisherName(java.lang.CharSequence value) {
-      validate(fields()[16], value);
+      validate(fields()[18], value);
       this.publisherName = value;
-      fieldSetFlags()[16] = true;
+      fieldSetFlags()[18] = true;
       return this;
     }
 
@@ -1645,7 +1785,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'publisherName' field has been set, false otherwise.
       */
     public boolean hasPublisherName() {
-      return fieldSetFlags()[16];
+      return fieldSetFlags()[18];
     }
 
 
@@ -1655,7 +1795,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearPublisherName() {
       publisherName = null;
-      fieldSetFlags()[16] = false;
+      fieldSetFlags()[18] = false;
       return this;
     }
 
@@ -1674,9 +1814,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setPublicationType(java.lang.CharSequence value) {
-      validate(fields()[17], value);
+      validate(fields()[19], value);
       this.publicationType = value;
-      fieldSetFlags()[17] = true;
+      fieldSetFlags()[19] = true;
       return this;
     }
 
@@ -1685,7 +1825,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'publicationType' field has been set, false otherwise.
       */
     public boolean hasPublicationType() {
-      return fieldSetFlags()[17];
+      return fieldSetFlags()[19];
     }
 
 
@@ -1695,7 +1835,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearPublicationType() {
       publicationType = null;
-      fieldSetFlags()[17] = false;
+      fieldSetFlags()[19] = false;
       return this;
     }
 
@@ -1714,9 +1854,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setDateMonographPublishedPrint(java.lang.CharSequence value) {
-      validate(fields()[18], value);
+      validate(fields()[20], value);
       this.dateMonographPublishedPrint = value;
-      fieldSetFlags()[18] = true;
+      fieldSetFlags()[20] = true;
       return this;
     }
 
@@ -1725,7 +1865,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'dateMonographPublishedPrint' field has been set, false otherwise.
       */
     public boolean hasDateMonographPublishedPrint() {
-      return fieldSetFlags()[18];
+      return fieldSetFlags()[20];
     }
 
 
@@ -1735,7 +1875,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearDateMonographPublishedPrint() {
       dateMonographPublishedPrint = null;
-      fieldSetFlags()[18] = false;
+      fieldSetFlags()[20] = false;
       return this;
     }
 
@@ -1754,9 +1894,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setDateMonographPublishedOnline(java.lang.CharSequence value) {
-      validate(fields()[19], value);
+      validate(fields()[21], value);
       this.dateMonographPublishedOnline = value;
-      fieldSetFlags()[19] = true;
+      fieldSetFlags()[21] = true;
       return this;
     }
 
@@ -1765,7 +1905,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'dateMonographPublishedOnline' field has been set, false otherwise.
       */
     public boolean hasDateMonographPublishedOnline() {
-      return fieldSetFlags()[19];
+      return fieldSetFlags()[21];
     }
 
 
@@ -1775,7 +1915,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearDateMonographPublishedOnline() {
       dateMonographPublishedOnline = null;
-      fieldSetFlags()[19] = false;
+      fieldSetFlags()[21] = false;
       return this;
     }
 
@@ -1794,9 +1934,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setMonographVolume(java.lang.Integer value) {
-      validate(fields()[20], value);
+      validate(fields()[22], value);
       this.monographVolume = value;
-      fieldSetFlags()[20] = true;
+      fieldSetFlags()[22] = true;
       return this;
     }
 
@@ -1805,7 +1945,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'monographVolume' field has been set, false otherwise.
       */
     public boolean hasMonographVolume() {
-      return fieldSetFlags()[20];
+      return fieldSetFlags()[22];
     }
 
 
@@ -1815,7 +1955,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearMonographVolume() {
       monographVolume = null;
-      fieldSetFlags()[20] = false;
+      fieldSetFlags()[22] = false;
       return this;
     }
 
@@ -1834,9 +1974,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setMonographEdition(java.lang.CharSequence value) {
-      validate(fields()[21], value);
+      validate(fields()[23], value);
       this.monographEdition = value;
-      fieldSetFlags()[21] = true;
+      fieldSetFlags()[23] = true;
       return this;
     }
 
@@ -1845,7 +1985,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'monographEdition' field has been set, false otherwise.
       */
     public boolean hasMonographEdition() {
-      return fieldSetFlags()[21];
+      return fieldSetFlags()[23];
     }
 
 
@@ -1855,7 +1995,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearMonographEdition() {
       monographEdition = null;
-      fieldSetFlags()[21] = false;
+      fieldSetFlags()[23] = false;
       return this;
     }
 
@@ -1874,9 +2014,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setFirstEditor(java.lang.CharSequence value) {
-      validate(fields()[22], value);
+      validate(fields()[24], value);
       this.firstEditor = value;
-      fieldSetFlags()[22] = true;
+      fieldSetFlags()[24] = true;
       return this;
     }
 
@@ -1885,7 +2025,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'firstEditor' field has been set, false otherwise.
       */
     public boolean hasFirstEditor() {
-      return fieldSetFlags()[22];
+      return fieldSetFlags()[24];
     }
 
 
@@ -1895,7 +2035,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearFirstEditor() {
       firstEditor = null;
-      fieldSetFlags()[22] = false;
+      fieldSetFlags()[24] = false;
       return this;
     }
 
@@ -1914,9 +2054,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setParentPublicationTitleId(java.lang.CharSequence value) {
-      validate(fields()[23], value);
+      validate(fields()[25], value);
       this.parentPublicationTitleId = value;
-      fieldSetFlags()[23] = true;
+      fieldSetFlags()[25] = true;
       return this;
     }
 
@@ -1925,7 +2065,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'parentPublicationTitleId' field has been set, false otherwise.
       */
     public boolean hasParentPublicationTitleId() {
-      return fieldSetFlags()[23];
+      return fieldSetFlags()[25];
     }
 
 
@@ -1935,7 +2075,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearParentPublicationTitleId() {
       parentPublicationTitleId = null;
-      fieldSetFlags()[23] = false;
+      fieldSetFlags()[25] = false;
       return this;
     }
 
@@ -1954,9 +2094,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setPrecedingPublicationTitleId(java.lang.CharSequence value) {
-      validate(fields()[24], value);
+      validate(fields()[26], value);
       this.precedingPublicationTitleId = value;
-      fieldSetFlags()[24] = true;
+      fieldSetFlags()[26] = true;
       return this;
     }
 
@@ -1965,7 +2105,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'precedingPublicationTitleId' field has been set, false otherwise.
       */
     public boolean hasPrecedingPublicationTitleId() {
-      return fieldSetFlags()[24];
+      return fieldSetFlags()[26];
     }
 
 
@@ -1975,7 +2115,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearPrecedingPublicationTitleId() {
       precedingPublicationTitleId = null;
-      fieldSetFlags()[24] = false;
+      fieldSetFlags()[26] = false;
       return this;
     }
 
@@ -1994,9 +2134,9 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return This builder.
       */
     public fr.abes.LigneKbartImprime.Builder setAccessType(java.lang.CharSequence value) {
-      validate(fields()[25], value);
+      validate(fields()[27], value);
       this.accessType = value;
-      fieldSetFlags()[25] = true;
+      fieldSetFlags()[27] = true;
       return this;
     }
 
@@ -2005,7 +2145,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       * @return True if the 'accessType' field has been set, false otherwise.
       */
     public boolean hasAccessType() {
-      return fieldSetFlags()[25];
+      return fieldSetFlags()[27];
     }
 
 
@@ -2015,7 +2155,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       */
     public fr.abes.LigneKbartImprime.Builder clearAccessType() {
       accessType = null;
-      fieldSetFlags()[25] = false;
+      fieldSetFlags()[27] = false;
       return this;
     }
 
@@ -2024,32 +2164,34 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
     public LigneKbartImprime build() {
       try {
         LigneKbartImprime record = new LigneKbartImprime();
-        record.ppn = fieldSetFlags()[0] ? this.ppn : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.publicationTitle = fieldSetFlags()[1] ? this.publicationTitle : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.printIdentifier = fieldSetFlags()[2] ? this.printIdentifier : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.onlineIdentifier = fieldSetFlags()[3] ? this.onlineIdentifier : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.dateFirstIssueOnline = fieldSetFlags()[4] ? this.dateFirstIssueOnline : (java.lang.CharSequence) defaultValue(fields()[4]);
-        record.numFirstVolOnline = fieldSetFlags()[5] ? this.numFirstVolOnline : (java.lang.Integer) defaultValue(fields()[5]);
-        record.numFirstIssueOnline = fieldSetFlags()[6] ? this.numFirstIssueOnline : (java.lang.Integer) defaultValue(fields()[6]);
-        record.dateLastIssueOnline = fieldSetFlags()[7] ? this.dateLastIssueOnline : (java.lang.CharSequence) defaultValue(fields()[7]);
-        record.numLastVolOnline = fieldSetFlags()[8] ? this.numLastVolOnline : (java.lang.Integer) defaultValue(fields()[8]);
-        record.numLastIssueOnline = fieldSetFlags()[9] ? this.numLastIssueOnline : (java.lang.Integer) defaultValue(fields()[9]);
-        record.titleUrl = fieldSetFlags()[10] ? this.titleUrl : (java.lang.CharSequence) defaultValue(fields()[10]);
-        record.firstAuthor = fieldSetFlags()[11] ? this.firstAuthor : (java.lang.CharSequence) defaultValue(fields()[11]);
-        record.titleId = fieldSetFlags()[12] ? this.titleId : (java.lang.CharSequence) defaultValue(fields()[12]);
-        record.embargoInfo = fieldSetFlags()[13] ? this.embargoInfo : (java.lang.CharSequence) defaultValue(fields()[13]);
-        record.coverageDepth = fieldSetFlags()[14] ? this.coverageDepth : (java.lang.CharSequence) defaultValue(fields()[14]);
-        record.notes = fieldSetFlags()[15] ? this.notes : (java.lang.CharSequence) defaultValue(fields()[15]);
-        record.publisherName = fieldSetFlags()[16] ? this.publisherName : (java.lang.CharSequence) defaultValue(fields()[16]);
-        record.publicationType = fieldSetFlags()[17] ? this.publicationType : (java.lang.CharSequence) defaultValue(fields()[17]);
-        record.dateMonographPublishedPrint = fieldSetFlags()[18] ? this.dateMonographPublishedPrint : (java.lang.CharSequence) defaultValue(fields()[18]);
-        record.dateMonographPublishedOnline = fieldSetFlags()[19] ? this.dateMonographPublishedOnline : (java.lang.CharSequence) defaultValue(fields()[19]);
-        record.monographVolume = fieldSetFlags()[20] ? this.monographVolume : (java.lang.Integer) defaultValue(fields()[20]);
-        record.monographEdition = fieldSetFlags()[21] ? this.monographEdition : (java.lang.CharSequence) defaultValue(fields()[21]);
-        record.firstEditor = fieldSetFlags()[22] ? this.firstEditor : (java.lang.CharSequence) defaultValue(fields()[22]);
-        record.parentPublicationTitleId = fieldSetFlags()[23] ? this.parentPublicationTitleId : (java.lang.CharSequence) defaultValue(fields()[23]);
-        record.precedingPublicationTitleId = fieldSetFlags()[24] ? this.precedingPublicationTitleId : (java.lang.CharSequence) defaultValue(fields()[24]);
-        record.accessType = fieldSetFlags()[25] ? this.accessType : (java.lang.CharSequence) defaultValue(fields()[25]);
+        record.currentLine = fieldSetFlags()[0] ? this.currentLine : (java.lang.Integer) defaultValue(fields()[0]);
+        record.totalLines = fieldSetFlags()[1] ? this.totalLines : (java.lang.Integer) defaultValue(fields()[1]);
+        record.ppn = fieldSetFlags()[2] ? this.ppn : (java.lang.CharSequence) defaultValue(fields()[2]);
+        record.publicationTitle = fieldSetFlags()[3] ? this.publicationTitle : (java.lang.CharSequence) defaultValue(fields()[3]);
+        record.printIdentifier = fieldSetFlags()[4] ? this.printIdentifier : (java.lang.CharSequence) defaultValue(fields()[4]);
+        record.onlineIdentifier = fieldSetFlags()[5] ? this.onlineIdentifier : (java.lang.CharSequence) defaultValue(fields()[5]);
+        record.dateFirstIssueOnline = fieldSetFlags()[6] ? this.dateFirstIssueOnline : (java.lang.CharSequence) defaultValue(fields()[6]);
+        record.numFirstVolOnline = fieldSetFlags()[7] ? this.numFirstVolOnline : (java.lang.Integer) defaultValue(fields()[7]);
+        record.numFirstIssueOnline = fieldSetFlags()[8] ? this.numFirstIssueOnline : (java.lang.Integer) defaultValue(fields()[8]);
+        record.dateLastIssueOnline = fieldSetFlags()[9] ? this.dateLastIssueOnline : (java.lang.CharSequence) defaultValue(fields()[9]);
+        record.numLastVolOnline = fieldSetFlags()[10] ? this.numLastVolOnline : (java.lang.Integer) defaultValue(fields()[10]);
+        record.numLastIssueOnline = fieldSetFlags()[11] ? this.numLastIssueOnline : (java.lang.Integer) defaultValue(fields()[11]);
+        record.titleUrl = fieldSetFlags()[12] ? this.titleUrl : (java.lang.CharSequence) defaultValue(fields()[12]);
+        record.firstAuthor = fieldSetFlags()[13] ? this.firstAuthor : (java.lang.CharSequence) defaultValue(fields()[13]);
+        record.titleId = fieldSetFlags()[14] ? this.titleId : (java.lang.CharSequence) defaultValue(fields()[14]);
+        record.embargoInfo = fieldSetFlags()[15] ? this.embargoInfo : (java.lang.CharSequence) defaultValue(fields()[15]);
+        record.coverageDepth = fieldSetFlags()[16] ? this.coverageDepth : (java.lang.CharSequence) defaultValue(fields()[16]);
+        record.notes = fieldSetFlags()[17] ? this.notes : (java.lang.CharSequence) defaultValue(fields()[17]);
+        record.publisherName = fieldSetFlags()[18] ? this.publisherName : (java.lang.CharSequence) defaultValue(fields()[18]);
+        record.publicationType = fieldSetFlags()[19] ? this.publicationType : (java.lang.CharSequence) defaultValue(fields()[19]);
+        record.dateMonographPublishedPrint = fieldSetFlags()[20] ? this.dateMonographPublishedPrint : (java.lang.CharSequence) defaultValue(fields()[20]);
+        record.dateMonographPublishedOnline = fieldSetFlags()[21] ? this.dateMonographPublishedOnline : (java.lang.CharSequence) defaultValue(fields()[21]);
+        record.monographVolume = fieldSetFlags()[22] ? this.monographVolume : (java.lang.Integer) defaultValue(fields()[22]);
+        record.monographEdition = fieldSetFlags()[23] ? this.monographEdition : (java.lang.CharSequence) defaultValue(fields()[23]);
+        record.firstEditor = fieldSetFlags()[24] ? this.firstEditor : (java.lang.CharSequence) defaultValue(fields()[24]);
+        record.parentPublicationTitleId = fieldSetFlags()[25] ? this.parentPublicationTitleId : (java.lang.CharSequence) defaultValue(fields()[25]);
+        record.precedingPublicationTitleId = fieldSetFlags()[26] ? this.precedingPublicationTitleId : (java.lang.CharSequence) defaultValue(fields()[26]);
+        record.accessType = fieldSetFlags()[27] ? this.accessType : (java.lang.CharSequence) defaultValue(fields()[27]);
         return record;
       } catch (org.apache.avro.AvroMissingFieldException e) {
         throw e;
@@ -2082,6 +2224,10 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
   @Override public void customEncode(org.apache.avro.io.Encoder out)
     throws java.io.IOException
   {
+    out.writeInt(this.currentLine);
+
+    out.writeInt(this.totalLines);
+
     out.writeString(this.ppn);
 
     if (this.publicationTitle == null) {
@@ -2291,6 +2437,10 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
   {
     org.apache.avro.Schema.Field[] fieldOrder = in.readFieldOrderIfDiff();
     if (fieldOrder == null) {
+      this.currentLine = in.readInt();
+
+      this.totalLines = in.readInt();
+
       this.ppn = in.readString(this.ppn instanceof Utf8 ? (Utf8)this.ppn : null);
 
       if (in.readIndex() != 1) {
@@ -2469,13 +2619,21 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
       }
 
     } else {
-      for (int i = 0; i < 26; i++) {
+      for (int i = 0; i < 28; i++) {
         switch (fieldOrder[i].pos()) {
         case 0:
-          this.ppn = in.readString(this.ppn instanceof Utf8 ? (Utf8)this.ppn : null);
+          this.currentLine = in.readInt();
           break;
 
         case 1:
+          this.totalLines = in.readInt();
+          break;
+
+        case 2:
+          this.ppn = in.readString(this.ppn instanceof Utf8 ? (Utf8)this.ppn : null);
+          break;
+
+        case 3:
           if (in.readIndex() != 1) {
             in.readNull();
             this.publicationTitle = null;
@@ -2484,7 +2642,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 2:
+        case 4:
           if (in.readIndex() != 1) {
             in.readNull();
             this.printIdentifier = null;
@@ -2493,7 +2651,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 3:
+        case 5:
           if (in.readIndex() != 1) {
             in.readNull();
             this.onlineIdentifier = null;
@@ -2502,7 +2660,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 4:
+        case 6:
           if (in.readIndex() != 1) {
             in.readNull();
             this.dateFirstIssueOnline = null;
@@ -2511,7 +2669,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 5:
+        case 7:
           if (in.readIndex() != 1) {
             in.readNull();
             this.numFirstVolOnline = null;
@@ -2520,7 +2678,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 6:
+        case 8:
           if (in.readIndex() != 1) {
             in.readNull();
             this.numFirstIssueOnline = null;
@@ -2529,7 +2687,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 7:
+        case 9:
           if (in.readIndex() != 1) {
             in.readNull();
             this.dateLastIssueOnline = null;
@@ -2538,7 +2696,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 8:
+        case 10:
           if (in.readIndex() != 1) {
             in.readNull();
             this.numLastVolOnline = null;
@@ -2547,7 +2705,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 9:
+        case 11:
           if (in.readIndex() != 1) {
             in.readNull();
             this.numLastIssueOnline = null;
@@ -2556,7 +2714,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 10:
+        case 12:
           if (in.readIndex() != 1) {
             in.readNull();
             this.titleUrl = null;
@@ -2565,7 +2723,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 11:
+        case 13:
           if (in.readIndex() != 1) {
             in.readNull();
             this.firstAuthor = null;
@@ -2574,7 +2732,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 12:
+        case 14:
           if (in.readIndex() != 1) {
             in.readNull();
             this.titleId = null;
@@ -2583,7 +2741,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 13:
+        case 15:
           if (in.readIndex() != 1) {
             in.readNull();
             this.embargoInfo = null;
@@ -2592,7 +2750,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 14:
+        case 16:
           if (in.readIndex() != 1) {
             in.readNull();
             this.coverageDepth = null;
@@ -2601,7 +2759,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 15:
+        case 17:
           if (in.readIndex() != 1) {
             in.readNull();
             this.notes = null;
@@ -2610,7 +2768,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 16:
+        case 18:
           if (in.readIndex() != 1) {
             in.readNull();
             this.publisherName = null;
@@ -2619,7 +2777,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 17:
+        case 19:
           if (in.readIndex() != 1) {
             in.readNull();
             this.publicationType = null;
@@ -2628,7 +2786,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 18:
+        case 20:
           if (in.readIndex() != 1) {
             in.readNull();
             this.dateMonographPublishedPrint = null;
@@ -2637,7 +2795,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 19:
+        case 21:
           if (in.readIndex() != 1) {
             in.readNull();
             this.dateMonographPublishedOnline = null;
@@ -2646,7 +2804,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 20:
+        case 22:
           if (in.readIndex() != 1) {
             in.readNull();
             this.monographVolume = null;
@@ -2655,7 +2813,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 21:
+        case 23:
           if (in.readIndex() != 1) {
             in.readNull();
             this.monographEdition = null;
@@ -2664,7 +2822,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 22:
+        case 24:
           if (in.readIndex() != 1) {
             in.readNull();
             this.firstEditor = null;
@@ -2673,7 +2831,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 23:
+        case 25:
           if (in.readIndex() != 1) {
             in.readNull();
             this.parentPublicationTitleId = null;
@@ -2682,7 +2840,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 24:
+        case 26:
           if (in.readIndex() != 1) {
             in.readNull();
             this.precedingPublicationTitleId = null;
@@ -2691,7 +2849,7 @@ public class LigneKbartImprime extends org.apache.avro.specific.SpecificRecordBa
           }
           break;
 
-        case 25:
+        case 27:
           if (in.readIndex() != 1) {
             in.readNull();
             this.accessType = null;

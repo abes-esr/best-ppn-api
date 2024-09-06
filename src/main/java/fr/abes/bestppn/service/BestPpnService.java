@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Getter
@@ -68,7 +69,7 @@ public class BestPpnService {
             }
         }
         String doi = Utils.extractDOI(kbart);
-        if (!doi.isBlank()){
+        if (!doi.isBlank()) {
             feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
         }
 
@@ -130,7 +131,7 @@ public class BestPpnService {
             log.debug("Appel dat2ppn :  date_monograph_published_print : " + kbart.getDateMonographPublishedPrint() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
         }
-        if(resultCallWs != null && !resultCallWs.getPpns().isEmpty()) {
+        if (resultCallWs != null && !resultCallWs.getPpns().isEmpty()) {
             log.info(resultCallWs.toString());
             if (isSendLogs) messages.add(resultCallWs.toString());
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
@@ -151,23 +152,29 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, IllegalDoiException {
+    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, IllegalDoiException, BestPpnException {
         String message = "Entrée dans doi2ppn";
         log.info(message);
         if (isSendLogs) messages.add(message);
-        ResultWsSudocDto resultWS = service.callDoi2Ppn(doi, provider);
-        log.info(resultWS.toString());
-        if (isSendLogs) messages.add(resultWS.toString());
-        int nbPpnElec = (int) resultWS.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
-        for(PpnWithTypeDto ppn : resultWS.getPpns()){
-            if(ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)){
-                setScoreToPpnElect(scoreDoi2Ppn,ppnElecScoredList,nbPpnElec,ppn, isSendLogs, messages);
-            } else {
-                message = "PPN Imprimé : " + ppn;
-                log.info(message);
-                if (isSendLogs) messages.add(message);
-                ppnPrintResultList.add(ppn.getPpn());
+        ResultWsSudocDto resultWS;
+        try {
+            resultWS = service.callDoi2Ppn(doi, provider);
+            log.info(resultWS.toString());
+            if (isSendLogs) messages.add(resultWS.toString());
+            int nbPpnElec = (int) resultWS.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
+            for (PpnWithTypeDto ppn : resultWS.getPpns()) {
+                if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
+                    setScoreToPpnElect(scoreDoi2Ppn, ppnElecScoredList, nbPpnElec, ppn, isSendLogs, messages);
+                } else {
+                    message = "PPN Imprimé : " + ppn;
+                    log.info(message);
+                    if (isSendLogs) messages.add(message);
+                    ppnPrintResultList.add(ppn.getPpn());
+                }
             }
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("Erreur dans l'accès au web service doi2ppn");
+            throw new BestPpnException(e.getMessage());
         }
     }
 
@@ -176,12 +183,12 @@ public class BestPpnService {
         if (!resultCallWs.getPpns().isEmpty()) {
             int nbPpnElec = (int) resultCallWs.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
-                if(ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
+                if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
                     message = "PPN Imprimé : " + ppn;
                     log.info(message);
                     if (isSendLogs) messages.add(message);
                     ppnPrintResultList.add(ppn.getPpn());
-                } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)){
+                } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)) {
                     setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn, isSendLogs, messages);
                 } else {
                     message = "Le PPN " + ppn + " n'a pas de provider trouvé";
@@ -222,7 +229,7 @@ public class BestPpnService {
                         String printPpn = ppnPrintResultList.stream().toList().get(0);
                         kbart.setErrorType("Ppn imprimé trouvé : " + printPpn);
                         log.debug(kbart.getErrorType());
-                        yield new BestPpn(printPpn,DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, messages);
+                        yield new BestPpn(printPpn, DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, messages);
                     }
 
                     default -> {
@@ -233,14 +240,15 @@ public class BestPpnService {
                             message = errorString + " [ " + kbart + " ]";
                             log.error(message);
                             if (isSendLogs) messages.add(message);
-                            yield new BestPpn("",DESTINATION_TOPIC.BEST_PPN_BACON, messages);
+                            yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON, messages);
                         } else {
                             throw new BestPpnException(errorString + " [ " + kbart + " ] ");
                         }
                     }
                 };
             }
-            case 1 -> new BestPpn(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE, messages);
+            case 1 ->
+                    new BestPpn(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE, messages);
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());

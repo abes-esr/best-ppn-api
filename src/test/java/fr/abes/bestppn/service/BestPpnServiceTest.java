@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @SpringBootTest(classes = {BestPpnService.class})
 class BestPpnServiceTest {
@@ -540,7 +541,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromDoi")
-    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException, ExecutionException, InterruptedException {
         String provider = "urlProvider";
 
         //Creation d'une ligne kbart

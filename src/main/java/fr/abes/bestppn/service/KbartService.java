@@ -83,6 +83,8 @@ public class KbartService {
 
     private static LigneKbartImprime getLigneKbartImprime(BestPpn bestPpn, LigneKbartDto ligneFromKafka) {
         return LigneKbartImprime.newBuilder()
+                .setCurrentLine(ligneFromKafka.getNbCurrentLines())
+                .setTotalLines(ligneFromKafka.getNbLinesTotal())
                 .setPpn(bestPpn.getPpn())
                 .setPublicationTitle(ligneFromKafka.getPublicationTitle())
                 .setPrintIdentifier(ligneFromKafka.getPrintIdentifier())
