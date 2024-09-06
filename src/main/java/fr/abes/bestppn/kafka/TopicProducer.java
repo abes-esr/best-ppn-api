@@ -103,7 +103,7 @@ public class TopicProducer {
         }
         lignesToSend.forEach(ligneKbartConnect -> {
             executorService.execute(() -> {
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, calculatePartition(this.nbThread), filename + index.getAndIncrement(), ligneKbartConnect);
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, calculatePartition(this.nbThread), filename +"_"+ index.getAndIncrement(), ligneKbartConnect);
                 CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.send(record);
                 result.whenComplete((sr, ex) -> {
                     try {
