@@ -22,6 +22,8 @@ public class LigneKbartMapper {
             public LigneKbartConnect convert(MappingContext<LigneKbartDto, LigneKbartConnect> mappingContext) {
                 LigneKbartDto ligneKbartDto = mappingContext.getSource();
                 LigneKbartConnect ligne = new LigneKbartConnect();
+                ligne.setCURRENTLINE(ligneKbartDto.getNbCurrentLines());
+                ligne.setTOTALLINES(ligneKbartDto.getNbLinesTotal());
                 ligne.setPUBLICATIONTITLE(ligneKbartDto.getPublicationTitle());
                 ligne.setPRINTIDENTIFIER(ligneKbartDto.getPrintIdentifier());
                 ligne.setONLINEIDENTIFIER(ligneKbartDto.getOnlineIdentifier());

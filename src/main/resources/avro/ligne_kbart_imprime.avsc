@@ -4,6 +4,14 @@
   "namespace": "fr.abes",
   "fields": [
     {
+      "name": "currentLine",
+      "type": "int"
+    },
+    {
+      "name": "totalLines",
+      "type": "int"
+    },
+    {
       "name": "ppn",
       "type": "string"
     },
