@@ -3,7 +3,6 @@ package fr.abes.bestppn.service;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
@@ -81,7 +80,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 printFromOnline")
-    void getBestPpnTest01() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest01() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -133,7 +132,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 printFromOnline with no provider in notice")
-    void getBestPpnTest01_WithProviderInNoticeIsPresent() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest01_WithProviderInNoticeIsPresent() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -184,7 +183,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 elecFromPrint")
-    void getBestPpnTest02() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest02() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -242,7 +241,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test sum of scores")
-    void getBestPpnTest03() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest03() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -350,7 +349,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test 1 printFromDat ")
-    void getBestPpnTest06() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest06() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
 
         //  Create a List of PpnWithListDto for elec
@@ -396,7 +395,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test printFromPrint & 0 printFromDat ")
-    void getBestPpnTest06_NoBestPpnByDat2Ppn() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest06_NoBestPpnByDat2Ppn() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
 
         //  Create a List of PpnWithListDto for elec
@@ -438,7 +437,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromOnline & 1 printFromOnline & titleUrl is null")
-    void getBestPpnTest07() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest07() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
         PpnWithTypeDto ppnWithType1 = new PpnWithTypeDto();
@@ -490,7 +489,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 0 FromOnline & 1 elecFromPrint")
-    void getBestPpnTest08() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException {
+    void getBestPpnTest08() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create a ResultWsSudocDto for elec
         ResultWsSudocDto resultElec = new ResultWsSudocDto();
@@ -541,7 +540,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromDoi")
-    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException, IllegalDoiException, ExecutionException, InterruptedException {
+    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException, ExecutionException, InterruptedException {
         String provider = "urlProvider";
 
         //Creation d'une ligne kbart

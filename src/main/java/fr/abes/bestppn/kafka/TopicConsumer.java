@@ -74,7 +74,7 @@ public class TopicConsumer {
                 int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
                 ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                 service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
-            } catch (IOException | URISyntaxException | RestClientException | IllegalDoiException e) {
+            } catch (IOException | URISyntaxException | RestClientException e) {
                 //erreurs non bloquantes, on n'arrête pas le programme
                 log.warn(e.getMessage());
                 ligneKbartDto.setErrorType(e.getMessage());

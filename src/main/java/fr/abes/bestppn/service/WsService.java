@@ -2,7 +2,6 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.dto.wscall.SearchDatWebDto;
 import lombok.extern.slf4j.Slf4j;
