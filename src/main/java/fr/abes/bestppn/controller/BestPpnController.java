@@ -1,7 +1,6 @@
 package fr.abes.bestppn.controller;
 
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.model.dto.BestPpnDto;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
@@ -65,7 +64,7 @@ public class BestPpnController {
             return new BestPpnDto(bestPpn);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
-        } catch (BestPpnException | RestClientException | IllegalArgumentException | IllegalDoiException e) {
+        } catch (BestPpnException | RestClientException | IllegalArgumentException e) {
             List<String> logs = new ArrayList<>();
             logs.add(e.getMessage());
             return new BestPpnDto(logs);
