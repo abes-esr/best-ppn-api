@@ -2,7 +2,6 @@ package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.dto.wscall.SearchDatWebDto;
 import lombok.extern.slf4j.Slf4j;
@@ -155,18 +154,18 @@ public class WsService {
         return result;
     }
 
-    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, IllegalDoiException, ExecutionException, InterruptedException {
+    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, ExecutionException, InterruptedException {
         Map<String, String> params = new HashMap<>();
         params.put("doi", doi.toUpperCase());
         params.put("provider", provider);
-        ResultWsSudocDto result;
+        ResultWsSudocDto result = new ResultWsSudocDto();
             String resultCall = getCall(urlDoi2Ppn, params);
             if (!resultCall.isEmpty()) {
                 result = mapper.readValue(resultCall, ResultWsSudocDto.class);
                 result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
             }
             else {
-                throw new IllegalDoiException("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
+                log.info("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
             }
         return result;
     }

@@ -1,7 +1,6 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.bestppn.exception.BestPpnException;
-import fr.abes.bestppn.exception.IllegalDoiException;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
@@ -52,7 +51,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public BestPpn getBestPpn(LigneKbartDto kbart, String provider, boolean isForced, boolean isSendLogs) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException, IllegalDoiException {
+    public BestPpn getBestPpn(LigneKbartDto kbart, String provider, boolean isForced, boolean isSendLogs) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
         List<String> messages = new ArrayList<>();
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
@@ -152,7 +151,7 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, IllegalDoiException, BestPpnException {
+    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, BestPpnException {
         String message = "Entrée dans doi2ppn";
         log.info(message);
         if (isSendLogs) messages.add(message);

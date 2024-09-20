@@ -8,8 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,9 +33,8 @@ public class KafkaWorkInProgress {
 
     private final AtomicBoolean isOnError;
 
-    private final AtomicInteger nbLignesTraitees;
 
-    private final AtomicInteger nbActiveThreads;
+    private final AtomicInteger currentLine;
 
     private final List<LigneKbartDto> kbartToSend;
 
@@ -49,28 +50,11 @@ public class KafkaWorkInProgress {
         this.isBypassed = isBypassed;
         this.mailAttachment = new PackageKbartDto();
         this.isOnError = new AtomicBoolean(false);
-        this.nbLignesTraitees = new AtomicInteger(0);
-        this.nbActiveThreads = new AtomicInteger(0);
+        this.currentLine = new AtomicInteger(0);
         this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
         this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
         this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
         this.timestamp = Calendar.getInstance().getTimeInMillis();
-    }
-
-    public void incrementThreads() {
-        this.nbActiveThreads.incrementAndGet();
-    }
-
-    public void decrementThreads() {
-        this.nbActiveThreads.addAndGet(-1);
-    }
-
-    public int getNbActiveThreads() {
-        return this.nbActiveThreads.get();
-    }
-
-    public int incrementNbLignesTraiteesAndGet() {
-        return this.nbLignesTraitees.incrementAndGet();
     }
 
     public void setIsOnError(boolean error) {
@@ -114,7 +98,8 @@ public class KafkaWorkInProgress {
         this.ppnFromKbartToCreate.add(ligneFromKafka);
     }
 
-    public void addKbartToSend(LigneKbartDto ligneFromKafka) {
+    public synchronized void addKbartToSend(LigneKbartDto ligneFromKafka) {
         this.kbartToSend.add(ligneFromKafka);
+        this.currentLine.incrementAndGet();
     }
 }
