@@ -33,7 +33,8 @@ public class KafkaWorkInProgress {
 
     private final AtomicBoolean isOnError;
 
-    private final AtomicInteger nbActiveThreads;
+
+    private final AtomicInteger currentLine;
 
     private final List<LigneKbartDto> kbartToSend;
 
@@ -49,23 +50,11 @@ public class KafkaWorkInProgress {
         this.isBypassed = isBypassed;
         this.mailAttachment = new PackageKbartDto();
         this.isOnError = new AtomicBoolean(false);
-        this.nbActiveThreads = new AtomicInteger(0);
+        this.currentLine = new AtomicInteger(0);
         this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
         this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
         this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
         this.timestamp = Calendar.getInstance().getTimeInMillis();
-    }
-
-    public void incrementThreads() {
-        this.nbActiveThreads.incrementAndGet();
-    }
-
-    public void decrementThreads() {
-        this.nbActiveThreads.addAndGet(-1);
-    }
-
-    public int getNbActiveThreads() {
-        return this.nbActiveThreads.get();
     }
 
     public void setIsOnError(boolean error) {
@@ -109,7 +98,8 @@ public class KafkaWorkInProgress {
         this.ppnFromKbartToCreate.add(ligneFromKafka);
     }
 
-    public void addKbartToSend(LigneKbartDto ligneFromKafka) {
+    public synchronized void addKbartToSend(LigneKbartDto ligneFromKafka) {
         this.kbartToSend.add(ligneFromKafka);
+        this.currentLine.incrementAndGet();
     }
 }

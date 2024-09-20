@@ -70,7 +70,6 @@ public class TopicConsumer {
             String providerName = Utils.extractProvider(filename);
             try {
                 log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
-                workInProgress.get(filename).incrementThreads();
                 int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
                 ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                 service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
@@ -82,8 +81,6 @@ public class TopicConsumer {
             } catch (BestPpnException e) {
                 if (!workInProgress.get(filename).isForced()) {
                     workInProgress.get(filename).setIsOnError(true);
-                } else {
-                    workInProgress.get(filename).addKbartToSend(ligneKbartDto);
                 }
                 log.error(e.getMessage());
                 ligneKbartDto.setErrorType(e.getMessage());
@@ -93,16 +90,13 @@ public class TopicConsumer {
                     workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                 workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
                 int nbLignesTotal = ligneKbartDto.getNbLinesTotal();
-                int nbCurrentLine = workInProgress.get(filename).getKbartToSend().size();
+                int nbCurrentLine = workInProgress.get(filename).getCurrentLine().getAcquire();
                 log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
                 if (nbLignesTotal == nbCurrentLine) {
                     log.debug("Commit du fichier {}", filename);
                     workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                     handleFichier(filename);
                 }
-                //on ne décrémente pas le nb de thread si l'objet de suivi a été supprimé après la production des messages dans le second topic
-                if (workInProgress.get(filename) != null)
-                    workInProgress.get(filename).decrementThreads();
             }
         } catch (IllegalProviderException | JsonProcessingException e) {
             workInProgress.get(filename).setIsOnError(true);
@@ -113,16 +107,6 @@ public class TopicConsumer {
     }
 
     private void handleFichier(String filename) {
-        //on attend que l'ensemble des threads aient terminé de travailler avant de lancer le commit
-        do {
-            try {
-                //ajout d'un sleep sur la durée du poll kafka pour être sur que le consumer de kbart ait lu au moins une fois
-                Thread.sleep(80);
-                log.info(filename + " : Thread : " + workInProgress.get(filename).getNbActiveThreads());
-            } catch (InterruptedException e) {
-                log.warn("Erreur de sleep sur attente fin de traitement");
-            }
-        } while (workInProgress.get(filename).getNbActiveThreads() > 1);
         try {
             if (!workInProgress.get(filename).isOnError()) {
                 String providerName = Utils.extractProvider(filename);

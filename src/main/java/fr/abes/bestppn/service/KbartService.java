@@ -41,32 +41,39 @@ public class KbartService {
 
     public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, Boolean isBypassed, String filename) throws IOException, BestPpnException, URISyntaxException {
         log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
-        if (!isBypassed) {
-            if (ligneFromKafka.isBestPpnEmpty()) {
-                log.info(ligneFromKafka.toString());
-                BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
-                switch (Objects.requireNonNull(bestPpn.getDestination())) {
-                    case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
-                    case PRINT_PPN_SUDOC -> {
-                        //on ne lance la création dans le Sudoc que pour les monographie
-                        if (ligneFromKafka.getPublicationType().equals("monograph")) {
-                            workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
+        try {
+            if (!isBypassed) {
+                if (ligneFromKafka.isBestPpnEmpty()) {
+                    log.info(ligneFromKafka.toString());
+                    BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
+                    switch (Objects.requireNonNull(bestPpn.getDestination())) {
+                        case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
+                        case PRINT_PPN_SUDOC -> {
+                            //on ne lance la création dans le Sudoc que pour les monographie
+                            if (ligneFromKafka.getPublicationType().equals("monograph")) {
+                                workInProgress.get(filename).addPpnToCreate(getLigneKbartImprime(bestPpn, ligneFromKafka));
+                            }
+                        }
+                        case NO_PPN_FOUND_SUDOC -> {
+                            //on ne lance la création dans le Sudoc que pour les monographie
+                            if (ligneFromKafka.getPublicationType().equals("monograph")) {
+                                workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
+                            }
                         }
                     }
-                    case NO_PPN_FOUND_SUDOC -> {
-                        //on ne lance la création dans le Sudoc que pour les monographie
-                        if (ligneFromKafka.getPublicationType().equals("monograph")) {
-                            workInProgress.get(filename).addPpnFromKbartToCreate(ligneFromKafka);
-                        }
-                    }
+                } else {
+                    log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
                 }
-            } else {
-                log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
             }
+            workInProgress.get(filename).addKbartToSend(ligneFromKafka);
+            //quel que soit le résultat du calcul du best ppn on met à jour le timestamp correspondant à la consommation du message
+            workInProgress.get(filename).setTimestamp(Calendar.getInstance().getTimeInMillis());
+        } catch (IOException | BestPpnException | URISyntaxException ex) {
+            if (isForced) {
+                this.workInProgress.get(filename).addKbartToSend(ligneFromKafka);
+            }
+            throw ex;
         }
-        workInProgress.get(filename).addKbartToSend(ligneFromKafka);
-        //quel que soit le résultat du calcul du best ppn on met à jour le timestamp correspondant à la consommation du message
-        workInProgress.get(filename).setTimestamp(Calendar.getInstance().getTimeInMillis());
     }
 
     public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException, IllegalProviderException {
