@@ -93,7 +93,7 @@ public class TopicConsumer {
                     workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
                 workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
                 int nbLignesTotal = ligneKbartDto.getNbLinesTotal();
-                int nbCurrentLine = workInProgress.get(filename).incrementNbLignesTraiteesAndGet();
+                int nbCurrentLine = workInProgress.get(filename).getKbartToSend().size();
                 log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
                 if (nbLignesTotal == nbCurrentLine) {
                     log.debug("Commit du fichier {}", filename);
@@ -138,7 +138,7 @@ public class TopicConsumer {
             log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getNbLignesTraitees());
+            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getKbartToSend().size());
             workInProgress.remove(filename);
         }
     }
