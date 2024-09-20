@@ -71,6 +71,8 @@ public class KbartService {
         } catch (IOException | BestPpnException | URISyntaxException ex) {
             if (isForced) {
                 this.workInProgress.get(filename).addKbartToSend(ligneFromKafka);
+            } else {
+                this.workInProgress.get(filename).incrementCurrentLine();
             }
             throw ex;
         }

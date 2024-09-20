@@ -33,7 +33,6 @@ public class KafkaWorkInProgress {
 
     private final AtomicBoolean isOnError;
 
-
     private final AtomicInteger currentLine;
 
     private final List<LigneKbartDto> kbartToSend;
@@ -100,6 +99,10 @@ public class KafkaWorkInProgress {
 
     public synchronized void addKbartToSend(LigneKbartDto ligneFromKafka) {
         this.kbartToSend.add(ligneFromKafka);
+        this.currentLine.incrementAndGet();
+    }
+
+    public synchronized void incrementCurrentLine() {
         this.currentLine.incrementAndGet();
     }
 }
