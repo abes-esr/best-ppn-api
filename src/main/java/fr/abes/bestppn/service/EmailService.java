@@ -53,7 +53,7 @@ public class EmailService {
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "[KBART2BACON : Rapport BestPPN][" + getTag() + "]  " + packageName, "");
+            String requestJson = mailToJSON(this.recipient, "[KBART2BACON : Rapport BestPPN]" + getTag() + "  " + packageName, "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
@@ -175,7 +175,7 @@ public class EmailService {
 
     public void sendProductionErrorEmail(String packageName, String message) {
         //  Création du mail
-        String requestJson = mailToJSON(this.recipient, "[KBART2BACON : erreurs][" + getTag() + "] " + packageName, message);
+        String requestJson = mailToJSON(this.recipient, "[KBART2BACON : erreurs]" + getTag() + " " + packageName, message);
 
         //  Envoi du message par mail
         sendMail(requestJson);
