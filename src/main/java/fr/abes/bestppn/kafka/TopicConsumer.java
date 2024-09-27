@@ -127,18 +127,6 @@ public class TopicConsumer {
         }
     }
 
-    @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "${topic.groupid.source.errors}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void errorsListener(ConsumerRecord<String, String> error) {
-        log.error(error.value());
-        String filename = extractFilenameFromKey(error.key());
-        if (workInProgress.containsKey(filename)) {
-            emailService.sendProductionErrorEmail(filename, error.value());
-            logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
-            workInProgress.get(filename).setIsOnError(true);
-            handleFichier(filename);
-        }
-    }
-
     private String extractFilenameFromKey (String key) {
         return key.substring(0, key.lastIndexOf('_'));
     }

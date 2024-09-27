@@ -53,7 +53,7 @@ public class EmailService {
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName + ".csv", "");
+            String requestJson = mailToJSON(this.recipient, "[KBART2BACON : Rapport BestPPN][" + getTag() + "]  " + packageName, "");
 
             //  Récupération du fichier
             File file = csvPath.toFile();
@@ -175,9 +175,17 @@ public class EmailService {
 
     public void sendProductionErrorEmail(String packageName, String message) {
         //  Création du mail
-        String requestJson = mailToJSON(this.recipient, "[CONVERGENCE]["+env.toUpperCase()+"] Rapport de traitement BestPPN " + packageName, message);
+        String requestJson = mailToJSON(this.recipient, "[KBART2BACON : erreurs][" + getTag() + "] " + packageName, message);
 
         //  Envoi du message par mail
         sendMail(requestJson);
+    }
+
+    private String getTag(){
+        if(env.equalsIgnoreCase("PROD")){
+            return "";
+        } else {
+            return "[" + env.toUpperCase() + "]";
+        }
     }
 }
