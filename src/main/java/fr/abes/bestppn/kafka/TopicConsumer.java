@@ -69,7 +69,7 @@ public class TopicConsumer {
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(filename);
             try {
-                log.info("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
+                log.debug("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
                 int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
                 ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                 service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
@@ -124,18 +124,6 @@ public class TopicConsumer {
         } finally {
             log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getKbartToSend().size());
             workInProgress.remove(filename);
-        }
-    }
-
-    @KafkaListener(topics = {"${topic.name.source.kbart.errors}"}, groupId = "${topic.groupid.source.errors}", containerFactory = "kafkaKbartListenerContainerFactory")
-    public void errorsListener(ConsumerRecord<String, String> error) {
-        log.error(error.value());
-        String filename = extractFilenameFromKey(error.key());
-        if (workInProgress.containsKey(filename)) {
-            emailService.sendProductionErrorEmail(filename, error.value());
-            logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
-            workInProgress.get(filename).setIsOnError(true);
-            handleFichier(filename);
         }
     }
 
