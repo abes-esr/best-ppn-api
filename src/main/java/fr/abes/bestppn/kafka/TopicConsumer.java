@@ -118,8 +118,11 @@ public class TopicConsumer {
             emailService.sendMailWithAttachment(filename, workInProgress.get(filename).getMailAttachment());
         } catch (ExecutionException | InterruptedException | IOException e) {
             emailService.sendProductionErrorEmail(filename, e.getMessage());
-        } catch (IllegalPackageException | IllegalDateException | IllegalProviderException e) {
+        } catch (IllegalPackageException | IllegalDateException e) {
             log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
+            emailService.sendProductionErrorEmail(filename, e.getMessage());
+        } catch (IllegalProviderException e) {
+            log.error(e.getMessage());
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
             log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getKbartToSend().size());
