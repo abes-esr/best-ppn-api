@@ -1,5 +1,6 @@
 package fr.abes.bestppn.controller;
 
+import fr.abes.bestppn.configuration.CustomAppender;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.model.dto.BestPpnDto;
@@ -11,6 +12,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 
@@ -59,9 +63,14 @@ public class BestPpnController {
             ligneKbartDto.setDateMonographPublishedOnline((dateMonographPublishedOnline != null) ? dateMonographPublishedOnline : "");
             ligneKbartDto.setFirstAuthor((firstAuthor != null) ? firstAuthor : "");
             boolean isSendLog = (log != null) ? log : false;
-            BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, true, isSendLog);
-            if(!isSendLog) bestPpn.setLogs(null); // désactive l'envoi des logs si non demandés.
-            return new BestPpnDto(bestPpn);
+            BestPpn bestPpn = service.getBestPpn(ligneKbartDto, provider, true);
+            BestPpnDto result = new BestPpnDto(bestPpn);
+            LoggerContext context = (LoggerContext) LogManager.getContext(false);
+            Configuration config = context.getConfiguration();
+            CustomAppender customAppender = config.getAppender("CustomAppender");
+            if (isSendLog) result.setLogs(customAppender.getLogMessages());
+            customAppender.resetLogMessages();
+            return result;
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");
         } catch (BestPpnException | RestClientException | IllegalArgumentException e) {

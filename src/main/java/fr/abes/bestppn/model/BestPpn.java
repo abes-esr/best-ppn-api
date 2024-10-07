@@ -23,9 +23,6 @@ public class BestPpn {
     @Nullable
     private DESTINATION_TOPIC destination;
 
-    @Nullable
-    private List<String> logs;
-
     public BestPpn(String ppn, DESTINATION_TOPIC destination) {
         this.ppn = ppn;
         this.destination = destination;
@@ -40,13 +37,11 @@ public class BestPpn {
     public BestPpn(String ppn, DESTINATION_TOPIC destination, List<String> logs) {
         this.ppn = ppn;
         this.destination = destination;
-        this.logs = logs;
     }
 
     public BestPpn(String ppn, DESTINATION_TOPIC destination, TYPE_SUPPORT typeSupport, List<String> logs) {
         this.ppn = ppn;
         this.destination = destination;
         this.typeSupport = typeSupport;
-        this.logs = logs;
     }
 }
