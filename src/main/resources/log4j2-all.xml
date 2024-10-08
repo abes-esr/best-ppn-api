@@ -2,7 +2,6 @@
 <!-- Doc : http://logging.apache.org/log4j/2.x/manual/appenders.html#CustomDeleteOnRollover -->
 <Configuration>
     <Properties>
-        <!-- Les proprietes suivantes correspondent a des cles dans les fichiers application.properties -->
         <Property name="kafkaServer">${env:ABES_KAFKA_BOOTSTRAP_SERVERS}</Property>
 
     </Properties>
