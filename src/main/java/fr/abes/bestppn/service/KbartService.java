@@ -1,7 +1,10 @@
 package fr.abes.bestppn.service;
 
 import fr.abes.LigneKbartImprime;
-import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.exception.BestPpnException;
+import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalPackageException;
+import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.kafka.KafkaWorkInProgress;
 import fr.abes.bestppn.kafka.TopicProducer;
 import fr.abes.bestppn.model.BestPpn;
@@ -10,7 +13,6 @@ import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -45,7 +47,7 @@ public class KbartService {
             if (!isBypassed) {
                 if (ligneFromKafka.isBestPpnEmpty()) {
                     log.info(ligneFromKafka.toString());
-                    BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced, false);
+                    BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced);
                     switch (Objects.requireNonNull(bestPpn.getDestination())) {
                         case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
                         case PRINT_PPN_SUDOC -> {

@@ -44,6 +44,7 @@ public class BestPpnService {
 
     private final CheckUrlService checkUrlService;
 
+
     public BestPpnService(WsService service, NoticeService noticeService, TopicProducer topicProducer, CheckUrlService checkUrlService) {
         this.service = service;
         this.noticeService = noticeService;
@@ -51,8 +52,7 @@ public class BestPpnService {
         this.checkUrlService = checkUrlService;
     }
 
-    public BestPpn getBestPpn(LigneKbartDto kbart, String provider, boolean isForced, boolean isSendLogs) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
-        List<String> messages = new ArrayList<>();
+    public BestPpn getBestPpn(LigneKbartDto kbart, String provider, boolean isForced) throws IOException, BestPpnException, URISyntaxException, RestClientException, IllegalArgumentException {
         Map<String, Integer> ppnElecScoredList = new HashMap<>();
         Set<String> ppnPrintResultList = new HashSet<>();
 
@@ -60,68 +60,60 @@ public class BestPpnService {
             provider = kbart.getPublicationType().equals(PUBLICATION_TYPE.serial.toString()) ? "" : provider;
             if (kbart.getOnlineIdentifier() != null && !kbart.getOnlineIdentifier().isEmpty()) {
                 log.debug("paramètres en entrée : type : " + kbart.getPublicationType() + " / id : " + kbart.getOnlineIdentifier() + " / provider : " + provider);
-                feedPpnListFromOnline(kbart, provider, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+                feedPpnListFromOnline(kbart, provider, ppnElecScoredList, ppnPrintResultList);
             }
             if (kbart.getPrintIdentifier() != null && !kbart.getPrintIdentifier().isEmpty()) {
                 log.debug("paramètres en entrée : type : " + kbart.getPublicationType() + " / id : " + kbart.getPrintIdentifier() + " / provider : " + provider);
-                feedPpnListFromPrint(kbart, provider, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+                feedPpnListFromPrint(kbart, provider, ppnElecScoredList, ppnPrintResultList);
             }
         }
         String doi = Utils.extractDOI(kbart);
         if (!doi.isBlank()) {
-            feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+            feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList);
         }
 
         if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && !kbart.getPublicationType().equals(PUBLICATION_TYPE.serial.toString())) {
-            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider, isSendLogs, messages);
+            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
         }
 
-        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, isForced, isSendLogs, messages);
+        return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, isForced);
     }
 
-    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
-        String message = "Entrée dans onlineId2Ppn";
-        log.info(message);
-        if (isSendLogs) messages.add(message);
+    private void feedPpnListFromOnline(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
+        log.debug("Entrée dans onlineId2Ppn");
         try {
             ResultWsSudocDto result = service.callOnlineId2Ppn(kbart.getPublicationType(), kbart.getOnlineIdentifier(), provider);
             log.info(result.toString());
-            if (isSendLogs) messages.add(result.toString());
-            setScoreToEveryPpnFromResultWS(result, kbart.getTitleUrl(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+            setScoreToEveryPpnFromResultWS(result, kbart.getTitleUrl(), this.scoreOnlineId2PpnElect, ppnElecScoredList, ppnPrintResultList);
         } catch (RestClientException ex) {
             throw new BestPpnException(ex.getMessage());
         }
     }
 
-    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
-        String message = "Entrée dans printId2Ppn";
-        log.info(message);
-        if (isSendLogs) messages.add(message);
+    private void feedPpnListFromPrint(LigneKbartDto kbart, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, URISyntaxException, IllegalArgumentException, BestPpnException {
+        log.debug("Entrée dans printId2Ppn");
         try {
             ResultWsSudocDto resultCallWs = service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider);
             log.info(resultCallWs.toString());
-            if (isSendLogs) messages.add(resultCallWs.toString());
             ResultWsSudocDto resultWithTypeElectronique = resultCallWs.getPpnWithTypeElectronique();
             if (resultWithTypeElectronique != null && !resultWithTypeElectronique.getPpns().isEmpty()) {
-                setScoreToEveryPpnFromResultWS(resultWithTypeElectronique, kbart.getTitleUrl(), this.scorePrintId2PpnElect, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+                setScoreToEveryPpnFromResultWS(resultWithTypeElectronique, kbart.getTitleUrl(), this.scorePrintId2PpnElect, ppnElecScoredList, ppnPrintResultList);
             }
             ResultWsSudocDto resultWithTypeImprime = resultCallWs.getPpnWithTypeImprime();
             if (resultWithTypeElectronique != null && !resultWithTypeImprime.getPpns().isEmpty()) {
-                setScoreToEveryPpnFromResultWS(resultWithTypeImprime, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+                setScoreToEveryPpnFromResultWS(resultWithTypeImprime, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList);
             }
             ResultWsSudocDto resultWithTypeAutre = resultCallWs.getPpnWithTypeAutre().changePpnWithTypeAutreToTypeElectronique();
             if (resultWithTypeElectronique != null && !resultWithTypeAutre.getPpns().isEmpty()) {
-                setScoreToEveryPpnFromResultWS(resultWithTypeAutre, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList, isSendLogs, messages);
+                setScoreToEveryPpnFromResultWS(resultWithTypeAutre, kbart.getTitleUrl(), this.scoreErrorType, ppnElecScoredList, ppnPrintResultList);
             }
         } catch (RestClientException ex) {
             throw new BestPpnException(ex.getMessage());
         }
     }
 
-    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName, boolean isSendLogs, List<String> messages) throws IOException, URISyntaxException {
-        String message = "Entrée dans dat2ppn";
-        log.info(message);
-        if (isSendLogs) messages.add(message);
+    private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName) throws IOException, URISyntaxException {
+        log.debug("Entrée dans dat2ppn");
         ResultWsSudocDto resultCallWs = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
             log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getDateMonographPublishedOnline() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
@@ -132,17 +124,13 @@ public class BestPpnService {
         }
         if (resultCallWs != null && !resultCallWs.getPpns().isEmpty()) {
             log.info(resultCallWs.toString());
-            if (isSendLogs) messages.add(resultCallWs.toString());
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
                     if (ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), kbart.getTitleUrl())) {
-                        message = "ppn : " + ppn + " / score : " + scoreDat2Ppn;
-                        if (isSendLogs) messages.add(message);
+                        log.info("ppn : " + ppn + " / score : " + scoreDat2Ppn);
                         ppnElecScoredList.put(ppn.getPpn(), scoreDat2Ppn);
                     } else {
-                        message = "Le PPN " + ppn + " n'a pas de provider trouvé";
-                        log.warn(message);
-                        if (isSendLogs) messages.add(message);
+                        log.warn("Le PPN " + ppn + " n'a pas de provider trouvé");
                     }
                 } else if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
                     ppnPrintResultList.add(ppn.getPpn());
@@ -151,23 +139,18 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws IOException, BestPpnException {
-        String message = "Entrée dans doi2ppn";
-        log.info(message);
-        if (isSendLogs) messages.add(message);
+    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, BestPpnException {
+        log.debug("Entrée dans doi2ppn");
         ResultWsSudocDto resultWS;
         try {
             resultWS = service.callDoi2Ppn(doi, provider);
             log.info(resultWS.toString());
-            if (isSendLogs) messages.add(resultWS.toString());
             int nbPpnElec = (int) resultWS.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultWS.getPpns()) {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
-                    setScoreToPpnElect(scoreDoi2Ppn, ppnElecScoredList, nbPpnElec, ppn, isSendLogs, messages);
+                    setScoreToPpnElect(scoreDoi2Ppn, ppnElecScoredList, nbPpnElec, ppn);
                 } else {
-                    message = "PPN Imprimé : " + ppn;
-                    log.info(message);
-                    if (isSendLogs) messages.add(message);
+                    log.info("PPN Imprimé : " + ppn);
                     ppnPrintResultList.add(ppn.getPpn());
                 }
             }
@@ -177,58 +160,48 @@ public class BestPpnService {
         }
     }
 
-    private void setScoreToEveryPpnFromResultWS(ResultWsSudocDto resultCallWs, String titleUrl, int score, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isSendLogs, List<String> messages) throws URISyntaxException, IOException {
-        String message;
+    private void setScoreToEveryPpnFromResultWS(ResultWsSudocDto resultCallWs, String titleUrl, int score, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList) throws URISyntaxException, IOException {
         if (!resultCallWs.getPpns().isEmpty()) {
             int nbPpnElec = (int) resultCallWs.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
-                    message = "PPN Imprimé : " + ppn;
-                    log.info(message);
-                    if (isSendLogs) messages.add(message);
+                    log.info("PPN Imprimé : " + ppn);
                     ppnPrintResultList.add(ppn.getPpn());
                 } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)) {
-                    setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn, isSendLogs, messages);
+                    setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn);
                 } else {
-                    message = "Le PPN " + ppn + " n'a pas de provider trouvé";
-                    log.warn(message);
-                    if (isSendLogs) messages.add(message);
+                    log.warn("Le PPN " + ppn + " n'a pas de provider trouvé");
                 }
             }
         }
     }
 
-    private void setScoreToPpnElect(int score, Map<String, Integer> ppnElecScoredList, int nbPpnElec, PpnWithTypeDto ppn, boolean isSendLogs, List<String> messages) {
+    private void setScoreToPpnElect(int score, Map<String, Integer> ppnElecScoredList, int nbPpnElec, PpnWithTypeDto ppn) {
         if (!ppnElecScoredList.isEmpty() && ppnElecScoredList.containsKey(ppn.getPpn())) {
             Integer value = ppnElecScoredList.get(ppn.getPpn()) + (score / nbPpnElec);
             ppnElecScoredList.put(ppn.getPpn(), value);
         } else {
             ppnElecScoredList.put(ppn.getPpn(), (score / nbPpnElec));
         }
-        String message = "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn());
-        log.info(message);
-        if (isSendLogs) messages.add(message);
+        log.info( "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
-    public BestPpn getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced, boolean isSendLogs, List<String> messages) throws BestPpnException {
-        String message;
+    public BestPpn getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced) throws BestPpnException {
         Map<String, Integer> ppnElecScore = Utils.getMaxValuesFromMap(ppnElecResultList);
         return switch (ppnElecScore.size()) {
             case 0 -> {
-                message = "Aucun ppn électronique trouvé. " + kbart;
-                log.info(message);
-                if (isSendLogs) messages.add(message);
+                log.info("Aucun ppn électronique trouvé. " + kbart);
                 yield switch (ppnPrintResultList.size()) {
                     case 0 -> {
                         kbart.setErrorType("Aucun ppn trouvé");
-                        yield new BestPpn(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC, messages);
+                        yield new BestPpn(null, DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC);
                     }
 
                     case 1 -> {
                         String printPpn = ppnPrintResultList.stream().toList().get(0);
                         kbart.setErrorType("Ppn imprimé trouvé : " + printPpn);
                         log.debug(kbart.getErrorType());
-                        yield new BestPpn(printPpn, DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME, messages);
+                        yield new BestPpn(printPpn, DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME);
                     }
 
                     default -> {
@@ -236,10 +209,8 @@ public class BestPpnService {
                         kbart.setErrorType(errorString);
                         // vérification du forçage
                         if (isForced) {
-                            message = errorString + " [ " + kbart + " ]";
-                            log.error(message);
-                            if (isSendLogs) messages.add(message);
-                            yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON, messages);
+                            log.error(errorString + " [ " + kbart + " ]");
+                            yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON);
                         } else {
                             throw new BestPpnException(errorString + " [ " + kbart + " ] ");
                         }
@@ -247,7 +218,7 @@ public class BestPpnService {
                 };
             }
             case 1 ->
-                    new BestPpn(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE, messages);
+                    new BestPpn(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE);
 
             default -> {
                 String listPpn = String.join(", ", ppnElecScore.keySet());
@@ -255,10 +226,8 @@ public class BestPpnService {
                 kbart.setErrorType(errorString);
                 // vérification du forçage
                 if (isForced) {
-                    message = errorString + " [ " + kbart + " ]";
-                    log.error(message);
-                    if (isSendLogs) messages.add(message);
-                    yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON, messages);
+                    log.error(errorString + " [ " + kbart + " ]");
+                    yield new BestPpn("", DESTINATION_TOPIC.BEST_PPN_BACON);
                 } else {
                     throw new BestPpnException(errorString + " [ " + kbart + " ]");
                 }

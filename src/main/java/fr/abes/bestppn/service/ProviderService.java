@@ -37,7 +37,6 @@ public class ProviderService {
         Date packageDate = Utils.extractDate(filename);
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
-
             Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName,packageDate,provider.getIdtProvider());
             if( providerPackageOpt.isPresent()){
                 log.info("clear row package : " + providerPackageOpt.get());

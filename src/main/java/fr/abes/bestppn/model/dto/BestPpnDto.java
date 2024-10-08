@@ -39,6 +39,5 @@ public class BestPpnDto {
     public BestPpnDto(BestPpn bestPpn) {
         this.ppn = bestPpn.getPpn();
         this.typeSupport = bestPpn.getTypeSupport();
-        this.logs = bestPpn.getLogs();
     }
 }
