@@ -12,10 +12,12 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Plugin(name = "CustomAppender", category = "core", elementType = Appender.ELEMENT_TYPE)
 public class CustomAppender extends AbstractAppender {
-    private List<String> logMessages = new ArrayList<>();
+    private Map<Long, List<String>> logMessages = new ConcurrentHashMap<>();
 
     protected CustomAppender(String name, Filter filter) {
         super(name, filter,null);
@@ -27,14 +29,21 @@ public class CustomAppender extends AbstractAppender {
         if (event.getSource().getClassName().contains("BestPpnService")) {
             if (event.getLevel().isMoreSpecificThan(Level.INFO)) {
                 String message = event.getMessage().getFormattedMessage();
-                logMessages.add(message);
+                Long threadId = event.getThreadId();
+                if (this.logMessages.containsKey(threadId)) {
+                    logMessages.get(threadId).add(message);
+                } else {
+                    List<String> listMessage = new ArrayList<>();
+                    listMessage.add(message);
+                    logMessages.put(threadId, listMessage);
+                }
             }
         }
     }
 
     // Méthode pour accéder aux messages de log capturés
-    public List<String> getLogMessages() {
-        return logMessages;
+    public List<String> getLogMessages(Long threadId) {
+        return logMessages.get(threadId);
     }
 
     // Méthode statique pour créer l'instance de l'appender via le fichier de configuration
@@ -42,11 +51,10 @@ public class CustomAppender extends AbstractAppender {
     public static CustomAppender createAppender(
             @PluginAttribute("name") String name,
             @PluginElement("Filter") Filter filter) {
-
         return new CustomAppender(name, filter);
     }
 
     public void resetLogMessages() {
-        logMessages = new ArrayList<>();
+        logMessages = new ConcurrentHashMap<>();
     }
 }
