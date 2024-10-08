@@ -92,6 +92,7 @@ public class BestPpnControllerTest {
     @Test
     @DisplayName("test controller Ok")
     void testBestPpnControllerOk() throws Exception {
+
         Mockito.when(service.getBestPpn(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new BestPpn("1111111111", DESTINATION_TOPIC.BEST_PPN_BACON));
         this.mockMvc.perform(get("/api/v1/bestPpn?provider=cairn&publication_type=monograph&print_identifier=9781111111111&title_url=test").characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
