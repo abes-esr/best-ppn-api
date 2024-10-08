@@ -103,7 +103,7 @@ public class TopicProducer {
         }
         lignesToSend.forEach(ligneKbartConnect -> {
             executorService.execute(() -> {
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, calculatePartition(this.nbThread), filename +"_"+ index.getAndIncrement(), ligneKbartConnect);
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(destinationTopic, calculatePartition(this.nbThread), filename +";"+ index.getAndIncrement(), ligneKbartConnect);
                 CompletableFuture<SendResult<String, LigneKbartConnect>> result = kafkaTemplateConnect.send(record);
                 result.whenComplete((sr, ex) -> {
                     try {
@@ -171,7 +171,7 @@ public class TopicProducer {
         lignesKbartDto.forEach(ligne -> lignesToSend.add(utilsMapper.map(ligne, LigneKbartConnect.class)));
         lignesToSend.forEach(ligne -> {
             try {
-                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, filename + "_" + index.getAndIncrement(), ligne);
+                ProducerRecord<String, LigneKbartConnect> record = new ProducerRecord<>(topic, null, filename + ";" + index.getAndIncrement(), ligne);
                 final SendResult<String, LigneKbartConnect> result = kafkaTemplateConnect.send(record).get();
                 logEnvoi(result, record);
             } catch (Exception e) {
@@ -191,7 +191,7 @@ public class TopicProducer {
     private void sendNoticeImprime(LigneKbartImprime ligne, String topic, String filename) {
         AtomicInteger index = new AtomicInteger(0);
         try {
-            ProducerRecord<String, LigneKbartImprime> record = new ProducerRecord<>(topic, null, filename + "_" + index.getAndIncrement(), ligne);
+            ProducerRecord<String, LigneKbartImprime> record = new ProducerRecord<>(topic, null, filename + ";" + index.getAndIncrement(), ligne);
             final SendResult<String, LigneKbartImprime> result = kafkaTemplateImprime.send(record).get();
             logEnvoi(result, record);
         } catch (Exception e) {

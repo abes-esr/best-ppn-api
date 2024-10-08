@@ -2,7 +2,6 @@
 <!-- Doc : http://logging.apache.org/log4j/2.x/manual/appenders.html#CustomDeleteOnRollover -->
 <Configuration>
     <Properties>
-        <!-- Les proprietes suivantes correspondent a des cles dans les fichiers application.properties -->
         <Property name="kafkaServer">${env:ABES_KAFKA_BOOTSTRAP_SERVERS}</Property>
 
     </Properties>
@@ -14,6 +13,7 @@
             <Property name="bootstrap.servers">${kafkaServer}</Property>
             <LevelRangeFilter minLevel="ERROR" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </Kafka>
+        <CustomAppender name="CustomAppender" />
         <!-- CONSOLE -->
         <Console name="Console">
             <PatternLayout
@@ -24,6 +24,7 @@
         <Logger name="fr.abes.bestppn" level="info" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="kafkaLogAppender"/>
+            <AppenderRef ref="CustomAppender" />
         </Logger>
         <Root level="info">
             <AppenderRef ref="Console"/>
