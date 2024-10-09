@@ -83,7 +83,7 @@ public class KbartService {
     public void commitDatas(String providerName, String filename) throws IllegalPackageException, IllegalDateException, ExecutionException, InterruptedException, IOException, IllegalProviderException {
         Optional<Provider> providerOpt = providerService.findByProvider(providerName);
         if (providerOpt.isPresent()) {
-            ProviderPackage provider = providerService.handlerProvider(providerOpt, filename);
+            ProviderPackage provider = providerService.handlerProvider(providerOpt.get(), filename);
             if (!workInProgress.get(filename).isBypassed()) {
                 producer.sendKbart(workInProgress.get(filename).getKbartToSend(), provider, filename);
                 producer.sendPrintNotice(workInProgress.get(filename).getPpnToCreate(), filename);
@@ -92,7 +92,7 @@ public class KbartService {
                 producer.sendBypassToLoad(workInProgress.get(filename).getKbartToSend(), provider, filename);
             }
         } else {
-            throw new IllegalProviderException("Fichier : " + filename + " / Provider " + providerName + " inconnus");
+            throw new IllegalProviderException("Fichier : " + filename + " / Provider " + providerName + " inconnu");
         }
     }
 

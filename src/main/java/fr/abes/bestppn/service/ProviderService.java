@@ -32,22 +32,17 @@ public class ProviderService {
     }
 
     @Transactional
-    public ProviderPackage handlerProvider(Optional<Provider> providerOpt, String filename) throws IllegalPackageException, IllegalDateException, IllegalProviderException {
+    public ProviderPackage handlerProvider(Provider provider, String filename) throws IllegalPackageException, IllegalDateException {
         String packageName = Utils.extractPackageName(filename);
         Date packageDate = Utils.extractDate(filename);
-        if (providerOpt.isPresent()) {
-            Provider provider = providerOpt.get();
-            Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName,packageDate,provider.getIdtProvider());
-            if( providerPackageOpt.isPresent()){
-                log.info("clear row package : " + providerPackageOpt.get());
-                ligneKbartRepository.deleteAllByIdProviderPackage(providerPackageOpt.get().getIdProviderPackage());
-                return providerPackageOpt.get();
-            } else {
-                //pas d'info de package, on le crée
-                return providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N'));
-            }
+        Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName, packageDate, provider.getIdtProvider());
+        if (providerPackageOpt.isPresent()) {
+            log.info("clear row package : " + providerPackageOpt.get());
+            ligneKbartRepository.deleteAllByIdProviderPackage(providerPackageOpt.get().getIdProviderPackage());
+            return providerPackageOpt.get();
         } else {
-            throw new IllegalProviderException("Provider et package inconnu impossible de lancer le traitement");
+            //pas d'info de package, on le crée
+            return providerPackageRepository.save(new ProviderPackage(packageName, packageDate, provider.getIdtProvider(), 'N'));
         }
     }
 
