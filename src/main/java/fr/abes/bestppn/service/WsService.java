@@ -160,13 +160,13 @@ public class WsService {
         params.put("provider", provider);
         ResultWsSudocDto result = new ResultWsSudocDto();
         String resultCall = getCall(urlDoi2Ppn, params);
-        result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
         if (!resultCall.isEmpty()) {
             result = mapper.readValue(resultCall, ResultWsSudocDto.class);
         }
         else {
             log.info("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
         }
+        result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
         return result;
     }
 
