@@ -15,7 +15,10 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -72,7 +75,7 @@ public class BestPpnService {
             feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList);
         }
 
-        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && !kbart.getPublicationType().equals(PUBLICATION_TYPE.serial.toString())) {
+        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && kbart.getPublicationType().equals(PUBLICATION_TYPE.monograph.toString())) {
             feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
         }
 
@@ -118,12 +121,13 @@ public class BestPpnService {
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
             log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getDateMonographPublishedOnline() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
+            log.info(resultCallWs.toString());
         } else if (ppnElecScoredList.isEmpty() && !kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
             log.debug("Appel dat2ppn :  date_monograph_published_print : " + kbart.getDateMonographPublishedPrint() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
+            log.info(resultCallWs.toString());
         }
         if (resultCallWs != null && !resultCallWs.getPpns().isEmpty()) {
-            log.info(resultCallWs.toString());
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
                     if (ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), kbart.getTitleUrl())) {
