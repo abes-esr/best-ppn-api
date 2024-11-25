@@ -16,7 +16,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class ProviderPackage implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_PROVIDER_PACKAGE")
     private Integer idProviderPackage;
     @Column(name = "PACKAGE")
