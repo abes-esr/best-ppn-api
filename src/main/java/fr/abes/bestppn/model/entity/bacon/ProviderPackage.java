@@ -17,7 +17,8 @@ import java.util.Date;
 public class ProviderPackage implements Serializable {
     @Id
     @Column(name = "ID_PROVIDER_PACKAGE")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROVIDER_PACKAGE_SEQ")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "providerPackageSeq")
+    @SequenceGenerator(name = "providerPackageSeq", sequenceName = "PROVIDER_PACKAGE_SEQ", allocationSize = 1)
     private Integer idProviderPackage;
     @Column(name = "PACKAGE")
     private String packageName;
