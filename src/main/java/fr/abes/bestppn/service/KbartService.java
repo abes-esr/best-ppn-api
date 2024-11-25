@@ -13,6 +13,7 @@ import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -70,7 +71,7 @@ public class KbartService {
             workInProgress.get(filename).addKbartToSend(ligneFromKafka);
             //quel que soit le résultat du calcul du best ppn on met à jour le timestamp correspondant à la consommation du message
             workInProgress.get(filename).setTimestamp(Calendar.getInstance().getTimeInMillis());
-        } catch (IOException | BestPpnException | URISyntaxException ex) {
+        } catch (IOException | BestPpnException | URISyntaxException | RestClientException ex) {
             if (isForced) {
                 this.workInProgress.get(filename).addKbartToSend(ligneFromKafka);
             } else {
