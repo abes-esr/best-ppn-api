@@ -9,7 +9,7 @@
     </parent>
     <groupId>fr.abes</groupId>
     <artifactId>best-ppn-api</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
     <name>best-ppn-api</name>
     <description>Api de calcul du best ppn pour bacon</description>
