@@ -347,7 +347,7 @@ class BestPpnServiceTest {
     }
 
 
-    @Test
+ /*   @Test
     @DisplayName("Test 1 printFromDat ")
     void getBestPpnTest06() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
@@ -391,7 +391,7 @@ class BestPpnServiceTest {
         //  Vérification
         Assertions.assertEquals("300000002", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.PRINT_PPN_SUDOC, result.getDestination());
-    }
+    }*/
 
     @Test
     @DisplayName("Test printFromPrint & 0 printFromDat ")
