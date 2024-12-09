@@ -32,6 +32,7 @@ import static java.net.http.HttpResponse.BodyHandlers.ofString;
 @Service
 @Slf4j
 public class WsService {
+    private static final String ERR_ACCES = "URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.";
     @Value("${url.onlineId2Ppn}")
     private String urlOnlineId2Ppn;
 
@@ -48,19 +49,18 @@ public class WsService {
 
     private final ObjectMapper mapper;
 
-    private HttpClient httpClient;
+    private final RestTemplate restTemplate;
 
-    public WsService(ObjectMapper mapper) {
+    public WsService(ObjectMapper mapper, RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
         this.headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         this.mapper = mapper;
-        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(5000)).build();
     }
 
 
     public String postCall(String url, String requestJson) {
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-        RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters()
                 .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.postForObject(url, entity, String.class);
@@ -74,11 +74,10 @@ public class WsService {
             formedUrl.append(param);
         }
         log.debug(formedUrl.toString());
-        RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
-    public String getCall(String url, Map<String, String> params) throws RestClientException, ExecutionException, InterruptedException {
+    public String getCall(String url, Map<String, String> params) throws RestClientException {
         StringBuilder formedUrl = new StringBuilder(url);
         if (!params.isEmpty()) {
             formedUrl.append("?");
@@ -91,26 +90,18 @@ public class WsService {
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
         log.debug(formedUrl.toString());
-        HttpRequest.Builder request = HttpRequest.newBuilder().GET().uri(URI.create(formedUrl.toString()));
-        CompletableFuture<String> result = httpClient.sendAsync(request.build(), ofString()).thenApplyAsync(res -> {
-            if (res.statusCode() != 200) {
-                throw new IllegalStateException("Invalid rest response " + res);
-            } else {
-                return res.body();
-            }
-        });
-        return result.get();
+        return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
-    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
+    public ResultWsSudocDto callOnlineId2Ppn(String type, String id, @Nullable String provider) throws RestClientException {
         return getResultWsSudocDto(type, id, provider, urlOnlineId2Ppn);
     }
 
-    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException, IllegalArgumentException {
+    public ResultWsSudocDto callPrintId2Ppn(String type, String id, @Nullable String provider) throws RestClientException {
         return getResultWsSudocDto(type, id, provider, urlPrintId2Ppn);
     }
 
-    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException, IllegalArgumentException {
+    private ResultWsSudocDto getResultWsSudocDto(String type, String id, @Nullable String provider, String url) throws RestClientException {
         ResultWsSudocDto result = new ResultWsSudocDto();
         try {
             result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
@@ -118,16 +109,35 @@ public class WsService {
             if (ex.getStatusCode() == HttpStatus.BAD_REQUEST && ex.getMessage().contains("Aucune notice ne correspond à la recherche")) {
                 log.info("Aucuns ppn correspondant à l'identifiant " + id);
             } else {
-                log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
+                log.info(ERR_ACCES, url, id, provider);
                 throw ex;
             }
         } catch (RestClientException ex) {
-            log.info("URL : {} / id : {} / provider : {} : Erreur dans l'acces au webservice.", url, id, provider);
+            log.info(ERR_ACCES, url, id, provider);
             throw ex;
         } catch (JsonProcessingException ex) {
             throw new RestClientException(ex.getMessage());
         } finally {
-            result.setUrl(setUrlWithParams(provider, url, id, type));
+            result.setUrl(url + "/" + type + "/" + id + "/" + provider);
+        }
+        return result;
+    }
+
+    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws RestClientException {
+        Map<String, String> params = new HashMap<>();
+        params.put("doi", doi.toUpperCase());
+        params.put("provider", provider);
+        ResultWsSudocDto result = new ResultWsSudocDto();
+        try {
+            String resultCall = getCall(urlDoi2Ppn, params);
+            if (!resultCall.isEmpty()) {
+                result = mapper.readValue(resultCall, ResultWsSudocDto.class);
+            } else {
+                log.info("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
+            }
+            result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
+        } catch (JsonProcessingException ex) {
+            throw new RestClientException(ex.getMessage());
         }
         return result;
     }
@@ -152,30 +162,6 @@ public class WsService {
         ResultWsSudocDto result = mapper.readValue(postCall(urlDat2Ppn, mapper.writeValueAsString(searchDatWebDto)), ResultWsSudocDto.class);
         result.setUrl(urlDat2Ppn + "/" + mapper.writeValueAsString(searchDatWebDto));
         return result;
-    }
-
-    public ResultWsSudocDto callDoi2Ppn(String doi, @Nullable String provider) throws JsonProcessingException, ExecutionException, InterruptedException {
-        Map<String, String> params = new HashMap<>();
-        params.put("doi", doi.toUpperCase());
-        params.put("provider", provider);
-        ResultWsSudocDto result = new ResultWsSudocDto();
-        String resultCall = getCall(urlDoi2Ppn, params);
-        if (!resultCall.isEmpty()) {
-            result = mapper.readValue(resultCall, ResultWsSudocDto.class);
-        }
-        else {
-            log.info("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
-        }
-        result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
-        return result;
-    }
-
-    private String setUrlWithParams(String provider, String url, String id, String type) {
-        if ((provider != null && !provider.isEmpty())) {
-            return url + "/" + type + "/" + id + "/" + provider;
-        } else {
-            return url + "/" + type + "/" + id;
-        }
     }
 
 }
