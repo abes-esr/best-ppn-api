@@ -143,7 +143,7 @@ public class BestPpnService {
         }
     }
 
-    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws IOException, BestPpnException {
+    private void feedPpnListFromDoi(String doi, String provider, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList) throws BestPpnException {
         log.debug("Entrée dans doi2ppn");
         ResultWsSudocDto resultWS;
         try {
@@ -158,8 +158,7 @@ public class BestPpnService {
                     ppnPrintResultList.add(ppn.getPpn());
                 }
             }
-        } catch (ExecutionException | InterruptedException e) {
-            log.error("Erreur dans l'accès au web service doi2ppn");
+        } catch (RestClientException e) {
             throw new BestPpnException(e.getMessage());
         }
     }
