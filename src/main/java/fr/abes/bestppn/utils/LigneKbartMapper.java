@@ -31,10 +31,10 @@ public class LigneKbartMapper {
                 ligne.setDATELASTISSUEONLINE(Utils.formatDate(ligneKbartDto.getDateLastIssueOnline(), false));
                 ligne.setDATEMONOGRAPHPUBLISHEDPRINT(Utils.formatDate(ligneKbartDto.getDateMonographPublishedPrint(), true));
                 ligne.setDATEMONOGRAPHPUBLISHEDONLIN(Utils.formatDate(ligneKbartDto.getDateMonographPublishedOnline(), true));
-                ligne.setNUMFIRSTVOLONLINE((ligneKbartDto.getNumFirstVolOnline() != null) ? ligneKbartDto.getNumFirstVolOnline().toString() : "");
-                ligne.setNUMFIRSTISSUEONLINE((ligneKbartDto.getNumFirstIssueOnline() != null) ? ligneKbartDto.getNumFirstIssueOnline().toString() : "");
-                ligne.setNUMLASTVOLONLINE((ligneKbartDto.getNumLastVolOnline() != null) ? ligneKbartDto.getNumLastVolOnline().toString() : "");
-                ligne.setNUMLASTISSUEONLINE((ligneKbartDto.getNumLastIssueOnline() != null) ? ligneKbartDto.getNumLastIssueOnline().toString() : "");
+                ligne.setNUMFIRSTVOLONLINE((ligneKbartDto.getNumFirstVolOnline() != null) ? ligneKbartDto.getNumFirstVolOnline() : "");
+                ligne.setNUMFIRSTISSUEONLINE((ligneKbartDto.getNumFirstIssueOnline() != null) ? ligneKbartDto.getNumFirstIssueOnline() : "");
+                ligne.setNUMLASTVOLONLINE((ligneKbartDto.getNumLastVolOnline() != null) ? ligneKbartDto.getNumLastVolOnline() : "");
+                ligne.setNUMLASTISSUEONLINE((ligneKbartDto.getNumLastIssueOnline() != null) ? ligneKbartDto.getNumLastIssueOnline() : "");
                 ligne.setTITLEURL(ligneKbartDto.getTitleUrl());
                 ligne.setFIRSTAUTHOR(ligneKbartDto.getFirstAuthor());
                 ligne.setTITLEID(ligneKbartDto.getTitleId());
@@ -43,7 +43,7 @@ public class LigneKbartMapper {
                 ligne.setNOTES(ligneKbartDto.getNotes());
                 ligne.setPUBLISHERNAME(ligneKbartDto.getPublisherName());
                 ligne.setPUBLICATIONTYPE(ligneKbartDto.getPublicationType());
-                ligne.setMONOGRAPHVOLUME((ligneKbartDto.getMonographVolume() != null) ? ligneKbartDto.getMonographVolume().toString() : "");
+                ligne.setMONOGRAPHVOLUME((ligneKbartDto.getMonographVolume() != null) ? ligneKbartDto.getMonographVolume() : "");
                 ligne.setMONOGRAPHEDITION(ligneKbartDto.getMonographEdition());
                 ligne.setFIRSTEDITOR(ligneKbartDto.getFirstEditor());
                 ligne.setPARENTPUBLICATIONTITLEID(ligneKbartDto.getParentPublicationTitleId());
