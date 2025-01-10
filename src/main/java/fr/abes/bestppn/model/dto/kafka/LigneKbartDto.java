@@ -37,11 +37,11 @@ public class LigneKbartDto {
     @CsvBindByName(column = "num_first_vol_online")
     @CsvBindByPosition(position = 4)
     @JsonProperty("num_first_vol_online")
-    private Integer numFirstVolOnline;
+    private String numFirstVolOnline;
     @CsvBindByName(column = "num_first_issue_online")
     @CsvBindByPosition(position = 5)
     @JsonProperty("num_first_issue_online")
-    private Integer numFirstIssueOnline;
+    private String numFirstIssueOnline;
     @CsvBindByName(column = "date_last_issue_online")
     @CsvBindByPosition(position = 6)
     @JsonProperty("date_last_issue_online")
@@ -49,11 +49,11 @@ public class LigneKbartDto {
     @CsvBindByName(column = "num_last_vol_online")
     @CsvBindByPosition(position = 7)
     @JsonProperty("num_last_vol_online")
-    private Integer numLastVolOnline;
+    private String numLastVolOnline;
     @CsvBindByName(column = "num_last_issue_online")
     @CsvBindByPosition(position = 8)
     @JsonProperty("num_last_issue_online")
-    private Integer numLastIssueOnline;
+    private String numLastIssueOnline;
     @CsvBindByName(column = "title_url")
     @CsvBindByPosition(position = 9)
     @JsonProperty("title_url")
@@ -97,7 +97,7 @@ public class LigneKbartDto {
     @CsvBindByName(column = "monograph_volume")
     @CsvBindByPosition(position = 19)
     @JsonProperty("monograph_volume")
-    private Integer monographVolume;
+    private String monographVolume;
     @CsvBindByName(column = "monograph_edition")
     @CsvBindByPosition(position = 20)
     @JsonProperty("monograph_edition")
