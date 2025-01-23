@@ -36,4 +36,6 @@ WORKDIR /app/
 COPY --from=build-image /build/target/*.jar /app/best-ppn-api.jar
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENTRYPOINT ["java","-XX:MaxRAMPercentage=75","-jar","/app/best-ppn-api.jar"]
+COPY ./docker/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
