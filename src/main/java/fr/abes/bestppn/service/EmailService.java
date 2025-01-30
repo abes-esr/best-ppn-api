@@ -11,10 +11,7 @@ import fr.abes.bestppn.model.dto.PackageKbartDto;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.dto.mail.MailDto;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +21,8 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,26 +41,29 @@ public class EmailService {
     private String env;
 
 
+    @Value("${abes.pathToKbart}")
+    private String pathToKbart;
+
+    @Value("${serveur.url}")
+    private String serveurUrl;
 
     public void sendMailWithAttachment(String packageName, PackageKbartDto mailAttachment) {
         try {
             //  Création du chemin d'accès pour le fichier .csv
-            Path csvPath = Path.of("rapport_" + packageName + ".csv");
+            Path csvPath = Path.of(pathToKbart+"report/rapport_" + packageName + ".csv");
 
             //  Création du fichier
             createAttachment(mailAttachment, csvPath);
 
             //  Création du mail
-            String requestJson = mailToJSON(this.recipient, "[KBART2BACON : Rapport BestPPN]" + getTag() + "  " + packageName, "");
-
-            //  Récupération du fichier
-            File file = csvPath.toFile();
+            String requestJson = mailToJSON(
+                    this.recipient,
+                    "[KBART2BACON : Rapport BestPPN]" + getTag() + "  " + packageName,
+                    "Cliquez pour télécharger le fichier de rapport : " + serveurUrl + "report/rapport_" + packageName + ".csv"
+            );
 
             //  Envoi du message par mail
-            sendMailWithFile(requestJson, file);
-
-            //  Suppression du csv temporaire
-            Files.deleteIfExists(csvPath);
+            sendMail(requestJson);
 
             log.info("L'email a été correctement envoyé à " + recipient);
 
@@ -72,9 +73,10 @@ public class EmailService {
     }
 
     protected void createAttachment(PackageKbartDto dataLines, Path csvPath) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
+        Writer writer = null;
         try {
             //  Création du fichier
-            Writer writer = Files.newBufferedWriter(csvPath);
+            writer = Files.newBufferedWriter(csvPath);
 
             //  Création du header
             CSVWriter csvWriter = new CSVWriter(writer,
@@ -97,6 +99,15 @@ public class EmailService {
             writer.close();
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new RuntimeException(e);
+        }finally {
+            if (writer != null) { // Vérification importante pour éviter une NullPointerException
+                try {
+                    writer.close();
+                } catch (IOException closeException) {
+                    System.err.println("Erreur lors de la fermeture du writer : " + closeException.getMessage()); // Gestion de l'erreur de fermeture
+                    // Dans certains cas, il pourrait être judicieux de relancer une exception ici, selon la criticité de l'erreur.
+                }
+            }
         }
     }
 
@@ -122,36 +133,6 @@ public class EmailService {
             httpClient.execute(mail);
         } catch (IOException e) {
             log.warn("Erreur lors de l'envoi du mail. " + e);
-        }
-    }
-
-    protected void sendMailWithFile(String requestJson, File f) {
-        //  Création du l'adresse du ws d'envoi de mails
-        HttpPost uploadFile = new HttpPost(this.url + "htmlMailAttachment/");
-
-        //  Création du builder
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("mail", requestJson, ContentType.APPLICATION_JSON);
-
-        try {
-            builder.addBinaryBody(
-                    "attachment",
-                    new FileInputStream(f),
-                    ContentType.APPLICATION_OCTET_STREAM,
-                    f.getName()
-            );
-        } catch (FileNotFoundException e) {
-            log.warn("Le fichier n'a pas été trouvé. " + e.getMessage());
-        }
-
-        //  Envoi du mail
-        HttpEntity multipart = builder.build();
-        uploadFile.setEntity(multipart);
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            httpClient.execute(uploadFile);
-        } catch (IOException e) {
-            log.warn("Erreur lors de l'envoi du mail. " + e.getMessage());
         }
     }
 
