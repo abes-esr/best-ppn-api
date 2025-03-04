@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 @Service
 @Getter
@@ -75,9 +74,9 @@ public class BestPpnService {
             feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList);
         }
 
-        //if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && kbart.getPublicationType().equals(PUBLICATION_TYPE.monograph.toString())) {
-         //   feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
-        //}
+        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && kbart.getPublicationType().equals(PUBLICATION_TYPE.monograph.toString())) {
+            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
+        }
 
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, isForced);
     }
