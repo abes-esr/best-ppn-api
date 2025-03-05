@@ -7,7 +7,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.util.Timeout;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -21,9 +20,6 @@ import java.util.List;
 
 @Configuration
 public class MapperConfig {
-    @Value("${abes.kafka.concurrency.nbThread}")
-    private int nbThread;
-
     @Bean
     public XmlMapper xmlMapper() {
         JacksonXmlModule module = new JacksonXmlModule();
@@ -40,7 +36,6 @@ public class MapperConfig {
         return objectMapper;
     }
 
-    @Bean
     public MappingJackson2HttpMessageConverter jsonHttpConverter() {
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
         jsonConverter.setObjectMapper(objectMapper());

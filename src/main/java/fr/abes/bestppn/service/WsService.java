@@ -45,21 +45,19 @@ public class WsService {
     @Value("${url.doi2Ppn}")
     private String urlDoi2Ppn;
 
-    private final HttpHeaders headers;
-
     private final ObjectMapper mapper;
 
     private final RestTemplate restTemplate;
 
     public WsService(ObjectMapper mapper, RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         this.mapper = mapper;
     }
 
 
     public String postCall(String url, String requestJson) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.postForObject(url, entity, String.class);
