@@ -61,8 +61,7 @@ public class WsService {
 
     public String postCall(String url, String requestJson) {
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-        restTemplate.getMessageConverters()
-                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.postForObject(url, entity, String.class);
 
     }

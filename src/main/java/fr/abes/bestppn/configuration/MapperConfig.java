@@ -17,6 +17,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class MapperConfig {
@@ -54,7 +55,7 @@ public class MapperConfig {
                         .build())
                 .build();
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient));
-        restTemplate.setMessageConverters(Collections.singletonList(jsonHttpConverter()));
+        restTemplate.setMessageConverters(Collections.synchronizedList(List.of(jsonHttpConverter())));
         return restTemplate;
     }
 }
