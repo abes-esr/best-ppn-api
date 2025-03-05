@@ -31,6 +31,7 @@ class CheckUrlServiceTest {
     @Test
     void checkUrlInNoticeNullNotice() throws IOException, URISyntaxException {
         NoticeXml notice = new NoticeXml();
+        notice.setLeader("leader");
         Mockito.when(noticeService.getNoticeByPpn("111111111")).thenReturn(notice);
         Assertions.assertFalse(checkUrlService.checkUrlInNotice("111111111", "http://www.test.com/"));
     }
@@ -38,6 +39,7 @@ class CheckUrlServiceTest {
     @Test
     void checkUrlInNotice856() throws IOException, URISyntaxException {
         NoticeXml notice = new NoticeXml();
+        notice.setLeader("leader");
         SubField dollaru = new SubField();
         dollaru.setCode("u");
         dollaru.setValue("www.test.com");
@@ -53,6 +55,7 @@ class CheckUrlServiceTest {
     @Test
     void checkUrlInNotice858() throws IOException, URISyntaxException {
         NoticeXml notice = new NoticeXml();
+        notice.setLeader("leader");
         SubField dollaru = new SubField();
         dollaru.setCode("u");
         dollaru.setValue("www.test.com");
