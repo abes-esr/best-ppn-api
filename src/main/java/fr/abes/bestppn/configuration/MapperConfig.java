@@ -11,10 +11,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,6 +45,10 @@ public class MapperConfig {
         return jsonConverter;
     }
 
+    public HttpMessageConverter<String> stringHttpConverter() {
+        return new StringHttpMessageConverter(StandardCharsets.UTF_8);
+    }
+
     @Bean
     public RestTemplate restTemplate() {
         CloseableHttpClient httpClient = HttpClients.custom()
@@ -50,7 +57,7 @@ public class MapperConfig {
                         .build())
                 .build();
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient));
-        restTemplate.setMessageConverters(Collections.synchronizedList(List.of(jsonHttpConverter())));
+        restTemplate.setMessageConverters(Collections.synchronizedList(List.of(jsonHttpConverter(), stringHttpConverter())));
         return restTemplate;
     }
 }
