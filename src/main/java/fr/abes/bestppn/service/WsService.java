@@ -45,24 +45,20 @@ public class WsService {
     @Value("${url.doi2Ppn}")
     private String urlDoi2Ppn;
 
-    private final HttpHeaders headers;
-
     private final ObjectMapper mapper;
 
     private final RestTemplate restTemplate;
 
     public WsService(ObjectMapper mapper, RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         this.mapper = mapper;
     }
 
 
     public String postCall(String url, String requestJson) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-        restTemplate.getMessageConverters()
-                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.postForObject(url, entity, String.class);
 
     }
@@ -107,7 +103,7 @@ public class WsService {
             result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
         } catch (HttpClientErrorException ex) {
             if (ex.getStatusCode() == HttpStatus.BAD_REQUEST && ex.getMessage().contains("Aucune notice ne correspond à la recherche")) {
-                log.info("Aucuns ppn correspondant à l'identifiant " + id);
+                log.info("Aucuns ppn correspondant à l'identifiant {}", id);
             } else {
                 log.info(ERR_ACCES, url, id, provider);
                 throw ex;
@@ -133,7 +129,7 @@ public class WsService {
             if (!resultCall.isEmpty()) {
                 result = mapper.readValue(resultCall, ResultWsSudocDto.class);
             } else {
-                log.info("doi : " + doi + " / provider " + provider + " : aucun ppn ne correspond à la recherche");
+                log.info("doi : {} / provider {} : aucun ppn ne correspond à la recherche", doi, provider);
             }
             result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
         } catch (JsonProcessingException ex) {
