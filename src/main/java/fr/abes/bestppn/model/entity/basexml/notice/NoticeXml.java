@@ -83,7 +83,7 @@ public class NoticeXml {
 
     public List<Datafield> getZoneDollarUWithoutDollar5(String zoneToCheck) {
         List<Datafield> result = new ArrayList<>();
-        List<Datafield> zone856 = datafields.stream().filter(datafield -> datafield.getTag().equals(zoneToCheck)).collect(Collectors.toList());
+        List<Datafield> zone856 = datafields.stream().filter(datafield -> datafield.getTag().equals(zoneToCheck)).toList();
         zone856.forEach(zone -> {
             if (zone.getSubFields().stream().noneMatch(sousZone -> sousZone.getCode().equals("5"))) {
                 result.add(zone);
