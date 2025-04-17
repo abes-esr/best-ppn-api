@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,12 @@ public class MapperConfig {
 
     @Bean
     public RestTemplate restTemplate() {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal(50); // Nombre total de connexions
+        connectionManager.setDefaultMaxPerRoute(15); // Nombre de connexions par route
+
         CloseableHttpClient httpClient = HttpClients.custom()
+                .setConnectionManager(connectionManager)
                 .setDefaultRequestConfig(org.apache.hc.client5.http.config.RequestConfig.custom()
                         .setResponseTimeout(Timeout.ofSeconds(10))
                         .build())
