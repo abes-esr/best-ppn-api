@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 @Service
 @Getter
@@ -75,9 +74,9 @@ public class BestPpnService {
             feedPpnListFromDoi(doi, provider, ppnElecScoredList, ppnPrintResultList);
         }
 
-        //if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && kbart.getPublicationType().equals(PUBLICATION_TYPE.monograph.toString())) {
-         //   feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
-        //}
+        if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && kbart.getPublicationType().equals(PUBLICATION_TYPE.monograph.toString())) {
+            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
+        }
 
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, isForced);
     }
@@ -119,11 +118,11 @@ public class BestPpnService {
         log.debug("Entrée dans dat2ppn");
         ResultWsSudocDto resultCallWs = null;
         if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
-            log.debug("Appel dat2ppn :  date_monograph_published_online : " + kbart.getDateMonographPublishedOnline() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
+            log.debug("Appel dat2ppn :  date_monograph_published_online : {} / publication_title : {} auteur : {}", kbart.getDateMonographPublishedOnline(), kbart.getPublicationTitle(), kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_online(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
             log.info(resultCallWs.toString());
         } else if (ppnElecScoredList.isEmpty() && !kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
-            log.debug("Appel dat2ppn :  date_monograph_published_print : " + kbart.getDateMonographPublishedPrint() + " / publication_title : " + kbart.getPublicationTitle() + " auteur : " + kbart.getAuthor());
+            log.debug("Appel dat2ppn :  date_monograph_published_print : {} / publication_title : {} auteur : {}", kbart.getDateMonographPublishedPrint(), kbart.getPublicationTitle(), kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(kbart.getAnneeFromDate_monograph_published_print(), kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
             log.info(resultCallWs.toString());
         }
@@ -131,10 +130,10 @@ public class BestPpnService {
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
                     if (ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), kbart.getTitleUrl())) {
-                        log.info("ppn : " + ppn + " / score : " + scoreDat2Ppn);
+                        log.info("ppn : {} / score : {}", ppn, scoreDat2Ppn);
                         ppnElecScoredList.put(ppn.getPpn(), scoreDat2Ppn);
                     } else {
-                        log.warn("Le PPN " + ppn + " n'a pas de provider trouvé");
+                        log.warn("Le PPN {} n'a pas de provider trouvé", ppn);
                     }
                 } else if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
                     ppnPrintResultList.add(ppn.getPpn());
@@ -154,7 +153,7 @@ public class BestPpnService {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)) {
                     setScoreToPpnElect(scoreDoi2Ppn, ppnElecScoredList, nbPpnElec, ppn);
                 } else {
-                    log.info("PPN Imprimé : " + ppn);
+                    log.info("PPN Imprimé : {}", ppn);
                     ppnPrintResultList.add(ppn.getPpn());
                 }
             }
@@ -168,12 +167,12 @@ public class BestPpnService {
             int nbPpnElec = (int) resultCallWs.getPpns().stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).count();
             for (PpnWithTypeDto ppn : resultCallWs.getPpns()) {
                 if (ppn.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)) {
-                    log.info("PPN Imprimé : " + ppn);
+                    log.info("PPN Imprimé : {}", ppn);
                     ppnPrintResultList.add(ppn.getPpn());
                 } else if (ppn.getTypeDocument() != TYPE_DOCUMENT.MONOGRAPHIE || ppn.isProviderPresent() || checkUrlService.checkUrlInNotice(ppn.getPpn(), titleUrl)) {
                     setScoreToPpnElect(score, ppnElecResultList, nbPpnElec, ppn);
                 } else {
-                    log.warn("Le PPN " + ppn + " n'a pas de provider trouvé");
+                    log.warn("Le PPN {} n'a pas de provider trouvé", ppn);
                 }
             }
         }
