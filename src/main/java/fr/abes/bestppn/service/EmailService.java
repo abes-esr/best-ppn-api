@@ -59,7 +59,7 @@ public class EmailService {
             String requestJson = mailToJSON(
                     this.recipient,
                     "[KBART2BACON : Rapport BestPPN]" + getTag() + "  " + packageName,
-                    "Cliquez pour télécharger le fichier de rapport : " + serveurUrl + "report/rapport_" + packageName + ".csv"
+                    "<a href=\"" + serveurUrl + "report/rapport_" + packageName + ".csv" + "\" target=\"_blank\">Cliquez pour télécharger le fichier rapport_" + packageName + ".csv</a>"
             );
 
             //  Envoi du message par mail
