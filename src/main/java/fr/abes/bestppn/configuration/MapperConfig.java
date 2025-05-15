@@ -4,8 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.hc.client5.http.HttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +23,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +58,7 @@ public class MapperConfig {
 
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setConnectionManager(connectionManager)
+                .setRetryStrategy(new CustomRetryStrategy())
                 .setDefaultRequestConfig(org.apache.hc.client5.http.config.RequestConfig.custom()
                         .setResponseTimeout(Timeout.ofSeconds(10))
                         .build())
@@ -58,5 +66,23 @@ public class MapperConfig {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient));
         restTemplate.setMessageConverters(Collections.synchronizedList(List.of(stringHttpConverter())));
         return restTemplate;
+    }
+
+    private static class CustomRetryStrategy implements HttpRequestRetryStrategy {
+
+        @Override
+        public boolean retryRequest(HttpRequest httpRequest, IOException e, int execCount, HttpContext httpContext) {
+            return execCount <= 3;
+        }
+
+        @Override
+        public boolean retryRequest(HttpResponse httpResponse, int execCount, HttpContext httpContext) {
+            return execCount <= 3;
+        }
+
+        @Override
+        public TimeValue getRetryInterval(HttpResponse httpResponse, int i, HttpContext httpContext) {
+            return TimeValue.ofMilliseconds(10);
+        }
     }
 }
