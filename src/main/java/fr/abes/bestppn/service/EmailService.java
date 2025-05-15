@@ -51,7 +51,9 @@ public class EmailService {
         try {
             //  Création du chemin d'accès pour le fichier .csv
             Path csvPath = Path.of(pathToKbart+"report/rapport_" + packageName + ".csv");
-
+            if(!Files.exists(Path.of(pathToKbart+"report/"))){
+                Files.createDirectory(Path.of(pathToKbart+"report/"));
+            };
             //  Création du fichier
             createAttachment(mailAttachment, csvPath);
 
