@@ -80,8 +80,8 @@ public class MapperConfig {
         }
 
         @Override
-        public TimeValue getRetryInterval(HttpResponse httpResponse, int i, HttpContext httpContext) {
-            return TimeValue.ofMilliseconds(100);
+        public TimeValue getRetryInterval(HttpResponse httpResponse, int execCount, HttpContext httpContext) {
+            return TimeValue.ofMilliseconds(50L * execCount);
         }
     }
 }
