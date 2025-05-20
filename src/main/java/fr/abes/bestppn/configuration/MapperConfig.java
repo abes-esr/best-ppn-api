@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.HttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -67,16 +68,22 @@ public class MapperConfig {
         return restTemplate;
     }
 
+    @Slf4j
     private static class CustomRetryStrategy implements HttpRequestRetryStrategy {
 
         @Override
         public boolean retryRequest(HttpRequest httpRequest, IOException e, int execCount, HttpContext httpContext) {
-            return execCount <= 3;
+            if (execCount > 2) return false;
+
+            log.warn("[Retry] Tentative {} pour {}, cause : {} - {}",
+                    execCount, httpRequest.getRequestUri(),
+                    e.getClass().getSimpleName(), e.getMessage());
+            return true;
         }
 
         @Override
         public boolean retryRequest(HttpResponse httpResponse, int execCount, HttpContext httpContext) {
-            return execCount <= 3;
+            return false;
         }
 
         @Override
