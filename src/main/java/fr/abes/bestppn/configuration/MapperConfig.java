@@ -59,7 +59,7 @@ public class MapperConfig {
                 .setConnectionManager(connectionManager)
                 .setRetryStrategy(new CustomRetryStrategy())
                 .setDefaultRequestConfig(org.apache.hc.client5.http.config.RequestConfig.custom()
-                        .setResponseTimeout(Timeout.ofSeconds(10))
+                        .setResponseTimeout(Timeout.ofSeconds(5))
                         .build())
                 .build();
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient));
