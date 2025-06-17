@@ -75,7 +75,7 @@ public class BestPpnService {
         }
 
         if (ppnElecScoredList.isEmpty() && ppnPrintResultList.isEmpty() && kbart.getPublicationType().equals(PUBLICATION_TYPE.monograph.toString())) {
-            feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
+            //feedPpnListFromDat(kbart, ppnElecScoredList, ppnPrintResultList, provider);
         }
 
         return getBestPpnByScore(kbart, ppnElecScoredList, ppnPrintResultList, isForced);
