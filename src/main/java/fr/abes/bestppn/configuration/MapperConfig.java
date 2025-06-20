@@ -73,7 +73,7 @@ public class MapperConfig {
 
         @Override
         public boolean retryRequest(HttpRequest httpRequest, IOException e, int execCount, HttpContext httpContext) {
-            if (execCount > 2) return false;
+            if (execCount > 10) return false;
 
             log.warn("[Retry] Tentative {} pour {}, cause : {} - {}",
                     execCount, httpRequest.getRequestUri(),
@@ -88,7 +88,7 @@ public class MapperConfig {
 
         @Override
         public TimeValue getRetryInterval(HttpResponse httpResponse, int execCount, HttpContext httpContext) {
-            return TimeValue.ofMilliseconds(30L * execCount);
+            return TimeValue.ofSeconds(2);
         }
     }
 }
