@@ -207,7 +207,7 @@ public class BestPpnService {
                     }
 
                     default -> {
-                        String errorString = "Plusieurs ppn imprimés (" + String.join(", ", ppnPrintResultList) + ") ont été trouvés.";
+                        String errorString = "Plusieurs ppn imprimés (" + String.join("OU ", ppnPrintResultList) + ") ont été trouvés.";
                         kbart.setErrorType(errorString);
                         // vérification du forçage
                         if (isForced) {
@@ -223,7 +223,7 @@ public class BestPpnService {
                     new BestPpn(ppnElecScore.keySet().stream().findFirst().get(), DESTINATION_TOPIC.BEST_PPN_BACON, TYPE_SUPPORT.ELECTRONIQUE);
 
             default -> {
-                String listPpn = String.join(", ", ppnElecScore.keySet());
+                String listPpn = String.join("OU ", ppnElecScore.keySet());
                 String errorString = "Plusieurs ppn électroniques (" + listPpn + ") ont le même score.";
                 kbart.setErrorType(errorString);
                 // vérification du forçage
