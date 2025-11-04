@@ -100,11 +100,6 @@ public class KafkaConfig {
     public KafkaTemplate<String, LigneKbartImprime> kafkaTemplateImprime(final ProducerFactory producerFactoryLigneKbartImprimeWithTransaction) { return new KafkaTemplate<>(producerFactoryLigneKbartImprimeWithTransaction);}
 
     @Bean
-    public KafkaTemplate<String, String> kafkatemplateEndoftraitement(final ProducerFactory producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
-    }
-
-    @Bean
     public Map<String, KafkaWorkInProgress> kafkaWorkInProgress() {
         return new ConcurrentHashMap<>();
     }
