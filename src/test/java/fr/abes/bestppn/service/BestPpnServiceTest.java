@@ -10,12 +10,10 @@ import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
-import fr.abes.bestppn.utils.TYPE_DOCUMENT;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import fr.abes.bestppn.utils.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.ThreadContext;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -343,7 +341,7 @@ class BestPpnServiceTest {
 
         //  Vérification
         BestPpnException result = Assertions.assertThrows(BestPpnException.class, ()-> bestPpnService.getBestPpn(kbart, provider, false));
-        Assertions.assertEquals("Plusieurs ppn électroniques (100000001 OU 100000002) ont le même score. [ publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 ]" , result.getLocalizedMessage());
+        Assertions.assertEquals("Plusieurs ppn électroniques (100000001 OU 100000002) ont le même score. [ publication title : Titre / publication_type : serial / online_identifier : 1292-8399 / print_identifier : 2-84358-095-1 / date_monograph_published_online : DateOnline / date_monograph_published_print : DatePrint / title_url : https://www.test.fr/test ]" , result.getLocalizedMessage());
     }
 
 

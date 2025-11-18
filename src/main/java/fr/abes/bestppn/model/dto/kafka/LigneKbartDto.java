@@ -143,14 +143,31 @@ public class LigneKbartDto {
     public int hashCode() {
         return this.publicationTitle.hashCode() * this.onlineIdentifier.hashCode() * this.printIdentifier.hashCode();
     }
-
     @Override
     public String toString() {
-        if (this.publicationTitle != null)
-            return "publication title : " + this.publicationTitle + " / publication_type : " + this.publicationType +
-                (this.onlineIdentifier.isEmpty() ? "" : " / online_identifier : " + this.onlineIdentifier) +
-                (this.printIdentifier.isEmpty() ? "" : " / print_identifier : " + this.printIdentifier);
-        return "";
+        if (this.publicationTitle == null) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("publication title : ").append(this.publicationTitle);
+        sb.append(" / publication_type : ").append(this.publicationType);
+
+        appendIfNotEmpty(sb, "online_identifier", this.onlineIdentifier);
+        appendIfNotEmpty(sb, "print_identifier", this.printIdentifier);
+        appendIfNotEmpty(sb, "date_monograph_published_online", this.dateMonographPublishedOnline);
+        appendIfNotEmpty(sb, "date_monograph_published_print", this.dateMonographPublishedPrint);
+        appendIfNotEmpty(sb, "date_first_issue_online", this.dateFirstIssueOnline);
+        appendIfNotEmpty(sb, "date_last_issue_online", this.dateLastIssueOnline);
+        appendIfNotEmpty(sb, "title_url", this.titleUrl);
+
+        return sb.toString();
+    }
+
+    private void appendIfNotEmpty(StringBuilder sb, String fieldName, String value) {
+        if (value != null && !value.isEmpty()) {
+            sb.append(" / ").append(fieldName).append(" : ").append(value);
+        }
     }
 
     @JsonIgnore
