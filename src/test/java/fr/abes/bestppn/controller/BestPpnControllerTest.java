@@ -1,6 +1,5 @@
 package fr.abes.bestppn.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.bestppn.configuration.MapperConfig;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.exception.ExceptionControllerHandler;
@@ -11,13 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -35,14 +33,9 @@ public class BestPpnControllerTest {
     @Autowired
     WebApplicationContext context;
 
-    @InjectMocks
-    BestPpnController controller;
-
-    @MockBean
+    @MockitoBean
     BestPpnService service;
 
-    @Autowired
-    ObjectMapper objectMapper;
 
     MockMvc mockMvc;
 
