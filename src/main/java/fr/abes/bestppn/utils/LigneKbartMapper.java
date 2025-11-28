@@ -2,9 +2,9 @@ package fr.abes.bestppn.utils;
 
 import fr.abes.LigneKbartConnect;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
+import jakarta.annotation.PostConstruct;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,7 +15,7 @@ public class LigneKbartMapper {
         this.mapper = mapper;
     }
 
-    @Bean
+    @PostConstruct
     public void converterLigneKbartDtoLigneKbartConnect() {
         Converter<LigneKbartDto, LigneKbartConnect> myConverter = new Converter<LigneKbartDto, LigneKbartConnect>() {
             @Override

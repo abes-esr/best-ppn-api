@@ -22,15 +22,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @SpringBootTest(classes = {BestPpnService.class})
 class BestPpnServiceTest {
@@ -38,16 +37,16 @@ class BestPpnServiceTest {
     @Autowired
     BestPpnService bestPpnService;
 
-    @MockBean
+    @MockitoBean
     NoticeService noticeService;
 
-    @MockBean
+    @MockitoBean
     TopicProducer topicProducer;
 
-    @MockBean
+    @MockitoBean
     CheckUrlService checkUrlService;
 
-    @MockBean
+    @MockitoBean
     WsService service;
 
     @Value("classpath:143519379.xml")
@@ -538,7 +537,7 @@ class BestPpnServiceTest {
 
     @Test
     @DisplayName("Test with 1 elecFromDoi")
-    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException, ExecutionException, InterruptedException {
+    void getBestPpnTest09() throws IOException, BestPpnException, URISyntaxException {
         String provider = "urlProvider";
 
         //Creation d'une ligne kbart
@@ -674,7 +673,7 @@ class BestPpnServiceTest {
         map.put("1", 10);
         map.put("2", 20);
         Map<String, Integer> result = Utils.getMaxValuesFromMap(map);
-        Assertions.assertEquals(1 ,result.keySet().size());
+        Assertions.assertEquals(1 , result.size());
         Assertions.assertEquals(20 ,result.get("2"));
     }
 
@@ -685,7 +684,7 @@ class BestPpnServiceTest {
         map.put("2", 20);
         map.put("3", 20);
         Map<String, Integer> result = Utils.getMaxValuesFromMap(map);
-        Assertions.assertEquals(2 ,result.keySet().size());
+        Assertions.assertEquals(2 , result.size());
         Assertions.assertEquals(20 ,result.get("2"));
         Assertions.assertEquals(20 ,result.get("3"));
         Assertions.assertNull(result.get("1"));
