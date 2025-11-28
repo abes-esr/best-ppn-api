@@ -5,14 +5,18 @@ import fr.abes.bestppn.model.entity.basexml.NoticesBibio;
 import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.repository.basexml.NoticesBibioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NoticeService {
     private final NoticesBibioRepository noticesBibioRepository;
 
@@ -21,10 +25,17 @@ public class NoticeService {
     public NoticeXml getNoticeByPpn(String ppn) throws IOException {
         Optional<NoticesBibio> noticeOpt = this.noticesBibioRepository.findByPpn(ppn);
         if (noticeOpt.isPresent()) {
-            try {
-                return xmlMapper.readValue(noticeOpt.get().getDataXml().getCharacterStream(), NoticeXml.class);
-            } catch (SQLException ex) {
-                throw new IOException(ex);
+            Clob clob = noticeOpt.get().getDataXml();
+            try (Reader reader = clob.getCharacterStream()){
+                return xmlMapper.readValue(reader, NoticeXml.class);
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            } finally {
+                try {
+                    clob.free();
+                } catch (SQLException e) {
+                    log.error(e.getMessage());
+                }
             }
         }
         return null;
