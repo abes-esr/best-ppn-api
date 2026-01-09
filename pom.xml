@@ -174,11 +174,6 @@
         </dependency>
         <!-- BDD -->
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>21.3.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.oracle.database.xml</groupId>
             <artifactId>xdb</artifactId>
         </dependency>
