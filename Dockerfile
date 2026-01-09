@@ -20,9 +20,6 @@ RUN mvn --batch-mode \
 
 ###
 # Image pour le module API
-#FROM tomcat:9-jdk17 as api-image
-#COPY --from=build-image /build/web/target/*.war /usr/local/tomcat/webapps/ROOT.war
-#CMD [ "catalina.sh", "run" ]
 FROM ossyupiik/java:21.0.8 AS best-ppn-api-image
 WORKDIR /
 

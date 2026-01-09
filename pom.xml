@@ -69,7 +69,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <MainClass>fr.abes.sudoc.SudocWebservicesApplication</MainClass>
+                                    <MainClass>fr.abes.sudoc.BestPpnApplication</MainClass>
                                     <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                     <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                                     <addClasspath>false</addClasspath>
@@ -293,7 +293,7 @@
 
     <!-- Pour que maven se charge de générer les releases -->
     <build>
-        <finalName>${warName}</finalName>
+        <finalName>${jarName}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
