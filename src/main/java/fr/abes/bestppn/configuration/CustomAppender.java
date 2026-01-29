@@ -20,23 +20,28 @@ public class CustomAppender extends AbstractAppender {
     private Map<Long, List<String>> logMessages = new ConcurrentHashMap<>();
 
     protected CustomAppender(String name, Filter filter) {
-        super(name, filter,null);
+        super(name, filter, null);
     }
 
     @Override
     public void append(LogEvent event) {
         // Récupérer le message de log et l'ajouter à la liste
-        if (event.getSource().getClassName().contains("BestPpnService")) {
-            if (event.getLevel().isMoreSpecificThan(Level.INFO)) {
-                String message = event.getMessage().getFormattedMessage();
-                Long threadId = event.getThreadId();
-                if (this.logMessages.containsKey(threadId)) {
-                    logMessages.get(threadId).add(message);
-                } else {
-                    List<String> listMessage = new ArrayList<>();
-                    listMessage.add(message);
-                    logMessages.put(threadId, listMessage);
-                }
+        StackTraceElement source = event.getSource();
+        if (
+                (source != null
+                        && source.getClassName().contains("BestPpnService")
+                        || event.getLoggerName().contains("BestPpnService")
+                )
+                        && event.getLevel().isMoreSpecificThan(Level.INFO)
+        ) {
+            String message = event.getMessage().getFormattedMessage();
+            Long threadId = event.getThreadId();
+            if (this.logMessages.containsKey(threadId)) {
+                logMessages.get(threadId).add(message);
+            } else {
+                List<String> listMessage = new ArrayList<>();
+                listMessage.add(message);
+                logMessages.put(threadId, listMessage);
             }
         }
     }
