@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Plugin(name = "CustomAppender", category = "core", elementType = Appender.ELEMENT_TYPE)
-public class CustomAppender extends AbstractAppender {
+@Plugin(name = "CustomWsAppender", category = "core", elementType = Appender.ELEMENT_TYPE)
+public class CustomWsAppender extends AbstractAppender {
     private Map<Long, List<String>> logMessages = new ConcurrentHashMap<>();
 
-    protected CustomAppender(String name, Filter filter) {
+    protected CustomWsAppender(String name, Filter filter) {
         super(name, filter, null);
     }
 
@@ -53,10 +53,10 @@ public class CustomAppender extends AbstractAppender {
 
     // Méthode statique pour créer l'instance de l'appender via le fichier de configuration
     @PluginFactory
-    public static CustomAppender createAppender(
+    public static CustomWsAppender createAppender(
             @PluginAttribute("name") String name,
             @PluginElement("Filter") Filter filter) {
-        return new CustomAppender(name, filter);
+        return new CustomWsAppender(name, filter);
     }
 
     public void resetLogMessages() {

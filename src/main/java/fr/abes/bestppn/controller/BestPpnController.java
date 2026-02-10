@@ -1,6 +1,6 @@
 package fr.abes.bestppn.controller;
 
-import fr.abes.bestppn.configuration.CustomAppender;
+import fr.abes.bestppn.configuration.CustomWsAppender;
 import fr.abes.bestppn.exception.BestPpnException;
 import fr.abes.bestppn.model.BestPpn;
 import fr.abes.bestppn.model.dto.BestPpnDto;
@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +67,7 @@ public class BestPpnController {
             BestPpnDto result = new BestPpnDto(bestPpn);
             LoggerContext context = (LoggerContext) LogManager.getContext(false);
             Configuration config = context.getConfiguration();
-            CustomAppender customAppender = config.getAppender("CustomAppender");
+            CustomWsAppender customAppender = config.getAppender("CustomWsAppender");
             if (isSendLog) result.setLogs(customAppender.getLogMessages(Thread.currentThread().getId()));
             customAppender.resetLogMessages();
             return result;

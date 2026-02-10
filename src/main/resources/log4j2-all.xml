@@ -13,7 +13,7 @@
             <Property name="bootstrap.servers">${kafkaServer}</Property>
             <LevelRangeFilter minLevel="ERROR" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </Kafka>
-        <CustomAppender name="CustomAppender" />
+        <CustomWsAppender name="CustomWsAppender" />
         <!-- CONSOLE -->
         <Console name="Console">
             <PatternLayout
@@ -24,7 +24,7 @@
         <Logger name="fr.abes.bestppn" level="info" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="kafkaLogAppender"/>
-            <AppenderRef ref="CustomAppender" />
+            <AppenderRef ref="CustomWsAppender" />
         </Logger>
         <Root level="info">
             <AppenderRef ref="Console"/>
