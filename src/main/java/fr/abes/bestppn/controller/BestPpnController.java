@@ -67,9 +67,9 @@ public class BestPpnController {
             BestPpnDto result = new BestPpnDto(bestPpn);
             LoggerContext context = (LoggerContext) LogManager.getContext(false);
             Configuration config = context.getConfiguration();
-            CustomWsAppender customAppender = config.getAppender("CustomWsAppender");
-            if (isSendLog) result.setLogs(customAppender.getLogMessages(Thread.currentThread().getId()));
-            customAppender.resetLogMessages();
+            CustomWsAppender customWsAppender = config.getAppender("CustomWsAppender");
+            if (isSendLog) result.setLogs(customWsAppender.getLogMessages(Thread.currentThread().getId()));
+            customWsAppender.resetLogMessages();
             return result;
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Une url dans le champ title_url du kbart n'est pas correcte");

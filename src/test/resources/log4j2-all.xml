@@ -8,13 +8,13 @@
             <PatternLayout
                     pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{black,yellow}: %msg%n%throwable" />
         </Console>
-        <CustomAppender name="CustomAppender" />
+        <CustomWsAppender name="CustomWsAppender" />
     </Appenders>
 
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="CustomAppender" />
+            <AppenderRef ref="CustomWsAppender" />
         </Root>
     </Loggers>
 
