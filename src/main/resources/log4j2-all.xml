@@ -3,22 +3,24 @@
 <Configuration>
     <Properties>
         <Property name="kafkaServer">${env:ABES_KAFKA_BOOTSTRAP_SERVERS}</Property>
-
     </Properties>
     <Appenders>
         <!-- KAFKA -->
         <!--    Les levels d'erreurs pris en compte sont INFO, WARN et ERROR    -->
-        <Kafka name="kafkaLogAppender" topic="bacon.logs.toload" key="${ctx:package}">
+        <Kafka name="kafkaLogAppender" topic="bacon.logs.toload" key="${ctx:package}" syncSend="false">
             <JSONLayout />
             <Property name="bootstrap.servers">${kafkaServer}</Property>
             <LevelRangeFilter minLevel="ERROR" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </Kafka>
         <CustomWsAppender name="CustomWsAppender" />
-        <!-- CONSOLE -->
-        <Console name="Console">
+        <!-- CONSOLE (async via wrapper pour ne pas bloquer le thread applicatif sur I/O console) -->
+        <Console name="ConsoleAppender">
             <PatternLayout
                     pattern="%style{%d{ISO8601}}{white} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{black,yellow}: %msg%n%throwable" />
         </Console>
+        <Async name="Console">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Async>
     </Appenders>
     <Loggers>
         <Logger name="fr.abes.bestppn" level="info" additivity="false">
