@@ -2,7 +2,7 @@
 <!-- Doc : http://logging.apache.org/log4j/2.x/manual/appenders.html#CustomDeleteOnRollover -->
 <Configuration>
     <Properties>
-        <Property name="kafkaServer">${env:ABES_KAFKA_BOOTSTRAP_SERVERS}</Property>
+        <Property name="kafkaServer">${spring:abes.kafka.bootstrap-servers}</Property>
     </Properties>
     <Appenders>
         <!-- KAFKA -->
