@@ -20,12 +20,12 @@ public class ExecutionTimeAspect {
         long endTime = System.currentTimeMillis();
         double executionTime = (double) (endTime - startTime) / 1000;
 
-        log.debug("------------------------------------------------------");
-        log.debug("Classe : " + joinPoint.getSignature().getDeclaringTypeName());
-        log.debug("Méthode : " + joinPoint.getSignature().getName());
-        log.debug("Paramètres : " + Arrays.toString(joinPoint.getArgs()));
-        log.debug("Temps d'exécution : " + executionTime + " secondes");
-        log.debug("------------------------------------------------------");
+        log.debug(TECHINCAL, "------------------------------------------------------");
+        log.debug(TECHINCAL, "Classe : " + joinPoint.getSignature().getDeclaringTypeName());
+        log.debug(TECHINCAL, "Méthode : " + joinPoint.getSignature().getName());
+        log.debug(TECHINCAL, "Paramètres : " + Arrays.toString(joinPoint.getArgs()));
+        log.debug(TECHINCAL, "Temps d'exécution : " + executionTime + " secondes");
+        log.debug(TECHINCAL, "------------------------------------------------------");
 
         return result;
     }
