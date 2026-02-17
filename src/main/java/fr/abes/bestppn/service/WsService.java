@@ -10,24 +10,17 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
-import static java.net.http.HttpResponse.BodyHandlers.ofString;
+import static fr.abes.bestppn.utils.LogMarkers.FUNCTIONAL;
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
 
 @Service
 @Slf4j
@@ -69,7 +62,7 @@ public class WsService {
             formedUrl.append("/");
             formedUrl.append(param);
         }
-        log.debug(formedUrl.toString());
+        log.debug(TECHNICAL, formedUrl.toString());
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
@@ -85,7 +78,7 @@ public class WsService {
             }
             formedUrl.deleteCharAt(formedUrl.length() - 1);
         }
-        log.debug(formedUrl.toString());
+        log.debug(TECHNICAL, formedUrl.toString());
         return restTemplate.getForObject(formedUrl.toString(), String.class);
     }
 
@@ -103,13 +96,13 @@ public class WsService {
             result = mapper.readValue((provider != null && !provider.isEmpty()) ? getRestCall(url, type, id, provider) : getRestCall(url, type, id), ResultWsSudocDto.class);
         } catch (HttpClientErrorException ex) {
             if (ex.getStatusCode() == HttpStatus.BAD_REQUEST && ex.getMessage().contains("Aucune notice ne correspond à la recherche")) {
-                log.info("Aucuns ppn correspondant à l'identifiant {}", id);
+                log.info(FUNCTIONAL, "Aucuns ppn correspondant à l'identifiant {}", id);
             } else {
-                log.info(ERR_ACCES, url, id, provider);
+                log.info(FUNCTIONAL, ERR_ACCES, url, id, provider);
                 throw ex;
             }
         } catch (RestClientException ex) {
-            log.info(ERR_ACCES, url, id, provider);
+            log.info(FUNCTIONAL, ERR_ACCES, url, id, provider);
             throw ex;
         } catch (JsonProcessingException ex) {
             throw new RestClientException(ex.getMessage());
@@ -129,7 +122,7 @@ public class WsService {
             if (!resultCall.isEmpty()) {
                 result = mapper.readValue(resultCall, ResultWsSudocDto.class);
             } else {
-                log.info("doi : {} / provider {} : aucun ppn ne correspond à la recherche", doi, provider);
+                log.info(FUNCTIONAL, "doi : {} / provider {} : aucun ppn ne correspond à la recherche", doi, provider);
             }
             result.setUrl(urlDoi2Ppn + "?provider=" + provider + "&doi=" + doi);
         } catch (JsonProcessingException ex) {

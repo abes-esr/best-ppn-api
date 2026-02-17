@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import static fr.abes.bestppn.utils.LogMarkers.FUNCTIONAL;
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @Service
 @Slf4j
 public class CheckUrlService {
@@ -21,9 +24,9 @@ public class CheckUrlService {
     }
 
     public boolean checkUrlInNotice(String ppn, String titleUrl) throws IOException, URISyntaxException {
-        log.debug("entrée dans checkUrlInNotice " + titleUrl);
+        log.debug(TECHNICAL, "entrée dans checkUrlInNotice " + titleUrl);
         if (titleUrl == null || titleUrl.contains("doi.org")) {
-            log.debug("titleUrl null ou contient doi.org");
+            log.debug(TECHNICAL, "titleUrl null ou contient doi.org");
             return true;
         }
         String domain = Utils.extractDomainFromUrl(titleUrl);
@@ -34,7 +37,7 @@ public class CheckUrlService {
             for (Datafield zone : zones856) {
                 for (SubField sousZone : zone.getSubFields().stream().filter(sousZone -> sousZone.getCode().equals("u")).toList()) {
                     if (sousZone.getValue().contains(domain)) {
-                        log.debug("Url trouvée dans 856");
+                        log.debug(TECHNICAL, "Url trouvée dans 856");
                         return true;
                     }
                 }
@@ -43,15 +46,15 @@ public class CheckUrlService {
             for (Datafield zone : zone859) {
                 for (SubField sousZone : zone.getSubFields().stream().filter(sousZone -> sousZone.getCode().equals("u")).toList()) {
                     if (sousZone.getValue().contains(domain)) {
-                        log.debug("Url trouvée dans 859");
+                        log.debug(TECHNICAL, "Url trouvée dans 859");
                         return true;
                     }
                 }
             }
-            log.warn("Pas de correspondance trouvée dans la notice avec l'url du provider.");
+            log.warn(FUNCTIONAL, "Pas de correspondance trouvée dans la notice avec l'url du provider.");
             return false;
         }
-        log.warn("Notice {} introuvable ou supprimée", ppn);
+        log.warn(FUNCTIONAL, "Notice {} introuvable ou supprimée", ppn);
         return false;
     }
 }
