@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
@@ -26,7 +28,7 @@ public class ExceptionControllerHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         String error = "Erreur dans les paramètres de la requête";
-        log.debug(ex.getLocalizedMessage());
+        log.debug(TECHNICAL, ex.getLocalizedMessage());
         return buildResponseEntity(new ApiReturnError(HttpStatus.BAD_REQUEST, error, ex));
     }
 
@@ -34,7 +36,7 @@ public class ExceptionControllerHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BestPpnException.class)
     protected ResponseEntity<Object> handleBestPpnException(BestPpnException ex) {
         String error = "Erreur dans le calcul de best ppn, intervention humaine requise";
-        log.debug(ex.getLocalizedMessage());
+        log.debug(TECHNICAL, ex.getLocalizedMessage());
         return buildResponseEntity(new ApiReturnError(HttpStatus.BAD_REQUEST, error, ex));
     }
 }

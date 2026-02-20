@@ -2,7 +2,10 @@ package fr.abes.bestppn.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.abes.bestppn.exception.*;
+import fr.abes.bestppn.exception.BestPpnException;
+import fr.abes.bestppn.exception.IllegalDateException;
+import fr.abes.bestppn.exception.IllegalPackageException;
+import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.service.EmailService;
 import fr.abes.bestppn.service.KbartService;
@@ -21,6 +24,9 @@ import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import static fr.abes.bestppn.utils.LogMarkers.FUNCTIONAL;
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
 
 @Slf4j
 @Service
@@ -58,7 +64,7 @@ public class TopicConsumer {
         //si on a pas reçu de message depuis plus de maxDelayBetweenMessage
         if (this.workInProgress.containsKey(filename) && (this.workInProgress.get(filename).getTimestamp() + maxDelayBetweenMessage < now)) {
             workInProgress.remove(filename);
-            log.debug("détection de l'ancien lancement de fichier " + filename );
+            log.debug(TECHNICAL, "détection de l'ancien lancement de fichier " + filename );
         }
         if (!this.workInProgress.containsKey(filename)) {
             //nouveau fichier trouvé dans le topic, on initialise les variables partagées
@@ -69,7 +75,7 @@ public class TopicConsumer {
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
             String providerName = Utils.extractProvider(filename);
             try {
-                log.debug("Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
+                log.debug(TECHNICAL, "Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
                 int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
                 ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
                 service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
@@ -82,7 +88,7 @@ public class TopicConsumer {
                 if (!workInProgress.get(filename).isForced()) {
                     workInProgress.get(filename).setIsOnError(true);
                 }
-                log.error(e.getMessage());
+                log.error(FUNCTIONAL, e.getMessage());
                 ligneKbartDto.setErrorType(e.getMessage());
                 workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
             } finally {
@@ -91,9 +97,9 @@ public class TopicConsumer {
                 workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
                 int nbLignesTotal = ligneKbartDto.getNbLinesTotal();
                 int nbCurrentLine = workInProgress.get(filename).getCurrentLine().getAcquire();
-                log.debug("Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
+                log.debug(TECHNICAL, "Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
                 if (nbLignesTotal == nbCurrentLine) {
-                    log.debug("Commit du fichier {}", filename);
+                    log.debug(TECHNICAL, "Commit du fichier {}", filename);
                     workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
                     handleFichier(filename);
                 }
@@ -112,20 +118,20 @@ public class TopicConsumer {
                 String providerName = Utils.extractProvider(filename);
                 service.commitDatas(providerName, filename);
                 //quel que soit le résultat du traitement, on envoie le rapport par mail
-                log.info("Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
+                log.info(FUNCTIONAL, "Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
                 logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
             }
             emailService.sendMailWithAttachment(filename, workInProgress.get(filename).getMailAttachment());
         } catch (ExecutionException | InterruptedException | IOException e) {
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } catch (IllegalPackageException | IllegalDateException e) {
-            log.error("Le nom du fichier " + filename + " n'est pas correct. " + e);
+            log.error(FUNCTIONAL, "Le nom du fichier " + filename + " n'est pas correct. " + e);
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } catch (IllegalProviderException e) {
-            log.error(e.getMessage());
+            log.error(FUNCTIONAL, e.getMessage());
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            log.info("Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getKbartToSend().size());
+            log.info(FUNCTIONAL, "Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getKbartToSend().size());
             workInProgress.remove(filename);
         }
     }
