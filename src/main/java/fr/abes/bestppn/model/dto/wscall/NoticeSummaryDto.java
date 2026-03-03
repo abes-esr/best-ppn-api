@@ -9,27 +9,30 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PpnWithTypeDto {
+public class NoticeSummaryDto {
     private String ppn;
     private TYPE_SUPPORT typeSupport;
 
     private TYPE_DOCUMENT typeDocument;
     private Boolean providerPresent = false;
+    boolean isFoundByRebond = false;
 
 
-    public PpnWithTypeDto(String ppn, TYPE_SUPPORT typeSupport, TYPE_DOCUMENT typeDocument) {
+
+    public NoticeSummaryDto(String ppn) {
+        this.ppn = ppn;
+    }
+
+    public NoticeSummaryDto(String ppn, TYPE_SUPPORT typeSupport, TYPE_DOCUMENT typeDocument, Boolean providerPresent) {
         this.ppn = ppn;
         this.typeSupport = typeSupport;
         this.typeDocument = typeDocument;
+        this.providerPresent = providerPresent;
     }
 
-    public PpnWithTypeDto(String ppn, TYPE_SUPPORT typeSupport) {
+    public NoticeSummaryDto(String ppn, TYPE_SUPPORT typeSupport) {
         this.ppn = ppn;
         this.typeSupport = typeSupport;
-    }
-
-    public PpnWithTypeDto(String ppn) {
-        this.ppn = ppn;
     }
 
     public boolean isProviderPresent() {

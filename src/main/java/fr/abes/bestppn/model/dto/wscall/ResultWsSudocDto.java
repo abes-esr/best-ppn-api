@@ -13,50 +13,58 @@ import java.util.List;
 @NoArgsConstructor
 public class ResultWsSudocDto {
 
-    private List<PpnWithTypeDto> ppns = new ArrayList<>();
+    private List<NoticeSummaryDto> ppns = new ArrayList<>();
 
     private List<String> erreurs = new ArrayList<>();
 
     private String url;
 
-    public ResultWsSudocDto getPpnWithTypeElectronique() {
+    public ResultWsSudocDto getNoticeElectronique() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<PpnWithTypeDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE)).toList());
+        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE) && noticeSummaryDto.isFoundByRebond()).toList());
         result.setPpns(ppnsSorted);
         result.setErreurs(this.erreurs);
         return result;
     }
 
-    public ResultWsSudocDto getPpnWithTypeImprime() {
+    public ResultWsSudocDto getNoticeElectroniqueNotByRebound() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<PpnWithTypeDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)).toList());
+        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE) && !noticeSummaryDto.isFoundByRebond()).toList());
         result.setPpns(ppnsSorted);
         result.setErreurs(this.erreurs);
         return result;
     }
 
-    public ResultWsSudocDto getPpnWithTypeAutre() {
+    public ResultWsSudocDto getNoticeImprime() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<PpnWithTypeDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.AUTRE)).toList());
+        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.IMPRIME)).toList());
         result.setPpns(ppnsSorted);
         result.setErreurs(this.erreurs);
         return result;
     }
 
-    public ResultWsSudocDto changePpnWithTypeAutreToTypeElectronique() {
+    public ResultWsSudocDto getNoticeAutre() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<PpnWithTypeDto> ppnsRacines = new ArrayList<>();
-        this.ppns.stream().filter(ppnWithTypeDto -> ppnWithTypeDto.getTypeSupport().equals(TYPE_SUPPORT.AUTRE)).forEach(ppnWithTypeDto -> ppnsRacines.add(new PpnWithTypeDto(ppnWithTypeDto.getPpn(), TYPE_SUPPORT.ELECTRONIQUE, ppnWithTypeDto.getTypeDocument(), ppnWithTypeDto.getProviderPresent())));
+        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.AUTRE)).toList());
+        result.setPpns(ppnsSorted);
+        result.setErreurs(this.erreurs);
+        return result;
+    }
+
+    public ResultWsSudocDto changeNoticeAutreToElectronique() {
+        ResultWsSudocDto result = new ResultWsSudocDto();
+        List<NoticeSummaryDto> ppnsRacines = new ArrayList<>();
+        this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.AUTRE)).forEach(noticeSummaryDto -> ppnsRacines.add(new NoticeSummaryDto(noticeSummaryDto.getPpn(), TYPE_SUPPORT.ELECTRONIQUE, noticeSummaryDto.getTypeDocument(), noticeSummaryDto.getProviderPresent())));
         result.setPpns(ppnsRacines);
         return result;
     }
 
     public ResultWsSudocDto getPpnRacineWithErrorType() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<PpnWithTypeDto> ppnsRacines = new ArrayList<>();
+        List<NoticeSummaryDto> ppnsRacines = new ArrayList<>();
         this.erreurs.stream().filter(message -> message.startsWith("Le PPN ") && message.endsWith(" n'est pas une ressource imprimée"))
                 .forEach(
-                        message -> ppnsRacines.add(new PpnWithTypeDto(message.substring(7, 16), TYPE_SUPPORT.ELECTRONIQUE))
+                        message -> ppnsRacines.add(new NoticeSummaryDto(message.substring(7, 16), TYPE_SUPPORT.ELECTRONIQUE))
                 );
         result.setPpns(ppnsRacines);
         result.setErreurs(this.erreurs);
