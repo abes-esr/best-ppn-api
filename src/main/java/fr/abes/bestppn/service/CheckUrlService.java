@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import static fr.abes.bestppn.utils.LogMarkers.FUNCTIONAL;
 import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
@@ -32,29 +33,28 @@ public class CheckUrlService {
         String domain = Utils.extractDomainFromUrl(titleUrl);
         //récupération notice dans la base pour analyse
         NoticeXml notice = noticeService.getNoticeByPpn(ppn);
-        if (notice != null && !notice.isDeleted()) {
-            List<Datafield> zones856 = notice.getZoneDollarUWithoutDollar5("856");
-            for (Datafield zone : zones856) {
-                for (SubField sousZone : zone.getSubFields().stream().filter(sousZone -> sousZone.getCode().equals("u")).toList()) {
-                    if (sousZone.getValue().contains(domain)) {
-                        log.debug(TECHNICAL, "Url trouvée dans 856");
-                        return true;
-                    }
-                }
-            }
-            List<Datafield> zone859 = notice.getZoneDollarUWithoutDollar5("859");
-            for (Datafield zone : zone859) {
-                for (SubField sousZone : zone.getSubFields().stream().filter(sousZone -> sousZone.getCode().equals("u")).toList()) {
-                    if (sousZone.getValue().contains(domain)) {
-                        log.debug(TECHNICAL, "Url trouvée dans 859");
-                        return true;
-                    }
-                }
-            }
-            log.warn(FUNCTIONAL, "Pas de correspondance trouvée dans la notice avec l'url du provider.");
+        if (notice == null || notice.isDeleted()) {
+            log.warn(FUNCTIONAL, "Notice {} introuvable ou supprimée", ppn);
             return false;
         }
-        log.warn(FUNCTIONAL, "Notice {} introuvable ou supprimée", ppn);
+
+        Map<String, List<Datafield>> zones856And859 = Map.of(
+                "856", notice.getZoneDollarUWithoutDollar5("856"),
+                "859", notice.getZoneDollarUWithoutDollar5("859")
+        );
+
+        for (Map.Entry<String, List<Datafield>> zones : zones856And859.entrySet()) {
+            boolean found = zones.getValue().stream()
+                    .flatMap(zone -> zone.getSubFields().stream())
+                    .filter(sousZone -> sousZone.getCode().equals("u"))
+                    .anyMatch(sousZone -> sousZone.getValue().contains(domain));
+
+            if (found) {
+                log.debug(TECHNICAL, "Url trouvée dans {}", zones.getKey());
+                return true;
+            }
+        }
+        log.warn(FUNCTIONAL, "Pas de correspondance trouvée dans la notice avec l'url du provider.");
         return false;
     }
 }
