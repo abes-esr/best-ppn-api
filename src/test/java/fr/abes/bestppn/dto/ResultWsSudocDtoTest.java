@@ -1,6 +1,6 @@
 package fr.abes.bestppn.dto;
 
-import fr.abes.bestppn.model.dto.wscall.PpnWithTypeDto;
+import fr.abes.bestppn.model.dto.wscall.NoticeSummaryDto;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import org.junit.jupiter.api.Assertions;
@@ -11,13 +11,15 @@ import java.util.List;
 
 class ResultWsSudocDtoTest {
 
+
+
     @Test
     void getppnWithTypeElectronique() {
-        PpnWithTypeDto ppn1 = new PpnWithTypeDto("000000000", TYPE_SUPPORT.ELECTRONIQUE);
-        PpnWithTypeDto ppn2 = new PpnWithTypeDto("111111111", TYPE_SUPPORT.ELECTRONIQUE);
-        PpnWithTypeDto ppn3 = new PpnWithTypeDto("222222222", TYPE_SUPPORT.ELECTRONIQUE);
-        PpnWithTypeDto ppn4 = new PpnWithTypeDto("333333333", TYPE_SUPPORT.IMPRIME);
-        List<PpnWithTypeDto> ppnsList = new ArrayList<>();
+        NoticeSummaryDto ppn1 = new NoticeSummaryDto("000000000", TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppn2 = new NoticeSummaryDto("111111111", TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppn3 = new NoticeSummaryDto("222222222", TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppn4 = new NoticeSummaryDto("333333333", TYPE_SUPPORT.IMPRIME);
+        List<NoticeSummaryDto> ppnsList = new ArrayList<>();
         ppnsList.add(ppn1);
         ppnsList.add(ppn2);
         ppnsList.add(ppn3);
@@ -29,12 +31,7 @@ class ResultWsSudocDtoTest {
         result.setPpns(ppnsList);
         result.setErreurs(erreurs);
 
-        ResultWsSudocDto resultWithTypeElectronique = result.getPpnWithTypeElectronique();
-        Assertions.assertEquals(3, resultWithTypeElectronique.getPpns().size());
-        Assertions.assertEquals(2, resultWithTypeElectronique.getErreurs().size());
-
-        ResultWsSudocDto resultWithTypeImprime = result.getPpnWithTypeImprime();
-        Assertions.assertEquals(1, resultWithTypeImprime.getPpns().size());
-        Assertions.assertEquals(2, resultWithTypeImprime.getErreurs().size());
+        Assertions.assertEquals(4, result.getPpns().size());
+        Assertions.assertEquals(2, result.getErreurs().size());
     }
 }
