@@ -21,7 +21,7 @@ public class ResultWsSudocDto {
 
     public ResultWsSudocDto getNoticeElectronique() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE) && noticeSummaryDto.isFoundByRebond()).toList());
+        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE) && noticeSummaryDto.isFoundByRebound()).toList());
         result.setPpns(ppnsSorted);
         result.setErreurs(this.erreurs);
         return result;
@@ -29,7 +29,7 @@ public class ResultWsSudocDto {
 
     public ResultWsSudocDto getNoticeElectroniqueNotByRebound() {
         ResultWsSudocDto result = new ResultWsSudocDto();
-        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE) && !noticeSummaryDto.isFoundByRebond()).toList());
+        List<NoticeSummaryDto> ppnsSorted = new ArrayList<>(this.ppns.stream().filter(noticeSummaryDto -> noticeSummaryDto.getTypeSupport().equals(TYPE_SUPPORT.ELECTRONIQUE) && !noticeSummaryDto.isFoundByRebound()).toList());
         result.setPpns(ppnsSorted);
         result.setErreurs(this.erreurs);
         return result;

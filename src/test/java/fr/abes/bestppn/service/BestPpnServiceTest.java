@@ -209,7 +209,7 @@ class BestPpnServiceTest {
         noticeElecFromPrint.setPpn("200000001");
         noticeElecFromPrint.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
         noticeElecFromPrint.setProviderPresent(false);
-        noticeElecFromPrint.setFoundByRebond(true);
+        noticeElecFromPrint.setFoundByRebound(true);
 
         //  Create a List of NoticeSummaryDto from Print
         List<NoticeSummaryDto> noticesListPrint = new ArrayList<>();

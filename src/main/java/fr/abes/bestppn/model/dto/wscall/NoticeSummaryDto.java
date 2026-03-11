@@ -15,7 +15,7 @@ public class NoticeSummaryDto {
 
     private TYPE_DOCUMENT typeDocument;
     private Boolean providerPresent = false;
-    boolean isFoundByRebond = false;
+    boolean isFoundByRebound = false;
 
 
 
