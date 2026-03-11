@@ -80,13 +80,9 @@ class BestPpnServiceTest {
     void getBestPpnTest01() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto();
-        ppnWithType1.setPpn("100000001");
-        ppnWithType1.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType1.setProviderPresent(false);
-        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto();
-        ppnWithType2.setPpn("100000002");
-        ppnWithType2.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto("100000002", TYPE_SUPPORT.IMPRIME);
         ppnWithType2.setProviderPresent(false);
         //  Create a List of PpnWithListDto for elec
         List<NoticeSummaryDto> noticeSummaryDto = new ArrayList<>();
@@ -132,13 +128,9 @@ class BestPpnServiceTest {
     void getBestPpnTest01_WithProviderInNoticeIsPresent() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto();
-        ppnWithType1.setPpn("100000001");
-        ppnWithType1.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType1.setProviderPresent(true);
-        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto();
-        ppnWithType2.setPpn("100000002");
-        ppnWithType2.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto("100000002", TYPE_SUPPORT.IMPRIME);
         ppnWithType2.setProviderPresent(true);
         //  Create a List of PpnWithListDto for elec
         List<NoticeSummaryDto> noticeSummaryDto = new ArrayList<>();
@@ -183,16 +175,12 @@ class BestPpnServiceTest {
     void getBestPpnTest02() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create NoticeSummaryDto ELEC from Online 1
-        NoticeSummaryDto noticeElecFromOnline2 = new NoticeSummaryDto();
-        noticeElecFromOnline2.setPpn("100000001");
-        noticeElecFromOnline2.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto noticeElecFromOnline2 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         noticeElecFromOnline2.setProviderPresent(false);
 
 
         //  Create NoticeSummaryDto PRINT from Online 2
-        NoticeSummaryDto noticePrintFromOnline2 = new NoticeSummaryDto();
-        noticePrintFromOnline2.setPpn("100000002");
-        noticePrintFromOnline2.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto noticePrintFromOnline2 = new NoticeSummaryDto("100000002", TYPE_SUPPORT.IMPRIME);
         noticePrintFromOnline2.setProviderPresent(false);
 
         //  Create a List of NoticeSummaryDto from Online
@@ -205,9 +193,7 @@ class BestPpnServiceTest {
         resultElec.setPpns(noticesListOnline);
 
         //  Create NoticeSummaryDto ELEC from Print
-        NoticeSummaryDto noticeElecFromPrint = new NoticeSummaryDto();
-        noticeElecFromPrint.setPpn("200000001");
-        noticeElecFromPrint.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto noticeElecFromPrint = new NoticeSummaryDto("200000001", TYPE_SUPPORT.ELECTRONIQUE);
         noticeElecFromPrint.setProviderPresent(false);
         noticeElecFromPrint.setFoundByRebound(true);
 
@@ -249,13 +235,9 @@ class BestPpnServiceTest {
     void getBestPpnTest03() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto();
-        ppnWithType1.setPpn("100000001");
-        ppnWithType1.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType1.setProviderPresent(false);
-        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto();
-        ppnWithType2.setPpn("100000002");
-        ppnWithType2.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto("100000002", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType2.setProviderPresent(false);
         //  Create a List of PpnWithListDto for elec
         List<NoticeSummaryDto> noticeSummaryDto = new ArrayList<>();
@@ -266,9 +248,7 @@ class BestPpnServiceTest {
         resultElec.setPpns(noticeSummaryDto);
 
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType3 = new NoticeSummaryDto();
-        ppnWithType3.setPpn("100000001");
-        ppnWithType3.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType3 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType3.setProviderPresent(false);
         //  Create a List of PpnWithListDto for print
         List<NoticeSummaryDto> ppnWithTypePrintDto = new ArrayList<>();
@@ -307,13 +287,9 @@ class BestPpnServiceTest {
     void getBestPpnTest04() throws IOException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto();
-        ppnWithType1.setPpn("100000001");
-        ppnWithType1.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType1.setProviderPresent(false);
-        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto();
-        ppnWithType2.setPpn("100000002");
-        ppnWithType2.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto("100000002", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType2.setProviderPresent(false);
         //  Create a List of PpnWithListDto for elec
         List<NoticeSummaryDto> noticeSummaryDto = new ArrayList<>();
@@ -445,13 +421,9 @@ class BestPpnServiceTest {
     void getBestPpnTest07() throws IOException, BestPpnException, URISyntaxException {
         String provider = "";
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto();
-        ppnWithType1.setPpn("100000001");
-        ppnWithType1.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType1 = new NoticeSummaryDto("100000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType1.setProviderPresent(false);
-        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto();
-        ppnWithType2.setPpn("100000002");
-        ppnWithType2.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto ppnWithType2 = new NoticeSummaryDto("100000002", TYPE_SUPPORT.IMPRIME);
         ppnWithType2.setProviderPresent(false);
         //  Create a List of PpnWithListDto for elec
         List<NoticeSummaryDto> noticeSummaryDto = new ArrayList<>();
@@ -502,13 +474,9 @@ class BestPpnServiceTest {
         resultElec.setPpns(noticeSummaryDto);
 
         //  Create PpnWithTypeDto for elec
-        NoticeSummaryDto ppnWithType3 = new NoticeSummaryDto();
-        ppnWithType3.setPpn("200000001");
-        ppnWithType3.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType3 = new NoticeSummaryDto("200000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType3.setProviderPresent(false);
-        NoticeSummaryDto ppnWithType4 = new NoticeSummaryDto();
-        ppnWithType4.setPpn("200000002");
-        ppnWithType4.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto ppnWithType4 = new NoticeSummaryDto("200000002", TYPE_SUPPORT.IMPRIME);
         ppnWithType4.setProviderPresent(false);
         //  Create a List of PpnWithListDto for print
         List<NoticeSummaryDto> ppnWithTypePrintDto = new ArrayList<>();
@@ -571,15 +539,11 @@ class BestPpnServiceTest {
         ResultWsSudocDto resultDoi = new ResultWsSudocDto();
         List<NoticeSummaryDto> noticeSummaryDto = new ArrayList<>();
         // Creation ppn electronique pour alimenter ResultDoi2PpnWebDto
-        NoticeSummaryDto ppnWithType3 = new NoticeSummaryDto();
-        ppnWithType3.setPpn("123456789");
-        ppnWithType3.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnWithType3 = new NoticeSummaryDto("123456789", TYPE_SUPPORT.ELECTRONIQUE);
         ppnWithType3.setProviderPresent(true);
         noticeSummaryDto.add(ppnWithType3);
         // Creation ppn imprimé pour alimenter ResultDoi2PpnWebDto
-        NoticeSummaryDto ppnWithType4 = new NoticeSummaryDto();
-        ppnWithType4.setPpn("234567891");
-        ppnWithType4.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto ppnWithType4 = new NoticeSummaryDto("234567891", TYPE_SUPPORT.IMPRIME);
         noticeSummaryDto.add(ppnWithType4);
         //Insertion dans la liste de résultat de ResultDoi2PpnWebDto
         resultDoi.setPpns(noticeSummaryDto);
@@ -590,9 +554,7 @@ class BestPpnServiceTest {
         ResultWsSudocDto resultElec = new ResultWsSudocDto();
         List<NoticeSummaryDto> noticeSummaryDto2 = new ArrayList<>();
         resultElec.setPpns(noticeSummaryDto2);
-        NoticeSummaryDto ppnElectro = new NoticeSummaryDto();
-        ppnElectro.setPpn("200000001");
-        ppnElectro.setTypeSupport(TYPE_SUPPORT.ELECTRONIQUE);
+        NoticeSummaryDto ppnElectro = new NoticeSummaryDto("200000001", TYPE_SUPPORT.ELECTRONIQUE);
         ppnElectro.setProviderPresent(true);
         noticeSummaryDto2.add(ppnElectro);
         resultElec.setPpns(noticeSummaryDto2);
@@ -603,9 +565,7 @@ class BestPpnServiceTest {
         ResultWsSudocDto resultPrint = new ResultWsSudocDto();
         List<NoticeSummaryDto> noticeSummaryDto3 = new ArrayList<>();
         resultPrint.setPpns(noticeSummaryDto3);
-        NoticeSummaryDto ppnPrint = new NoticeSummaryDto();
-        ppnPrint.setPpn("200000002");
-        ppnPrint.setTypeSupport(TYPE_SUPPORT.IMPRIME);
+        NoticeSummaryDto ppnPrint = new NoticeSummaryDto("200000002", TYPE_SUPPORT.IMPRIME);
         noticeSummaryDto3.add(ppnPrint);
         resultPrint.setPpns(noticeSummaryDto3);
         Mockito.when(service.callPrintId2Ppn(kbart.getPublicationType(), kbart.getPrintIdentifier(), provider)).thenReturn(resultPrint);
