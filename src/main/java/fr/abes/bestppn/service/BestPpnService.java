@@ -193,7 +193,7 @@ public class BestPpnService {
             ppnElecScoredList.put(ppn.getPpn(), (score / nbPpnElec));
         }
         log.info(FUNCTIONAL, "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
-        log.debug( "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
+        log.debug(TECHNICAL, "PPN Electronique : " + ppn + " / score : " + ppnElecScoredList.get(ppn.getPpn()));
     }
 
     public BestPpn getBestPpnByScore(LigneKbartDto kbart, Map<String, Integer> ppnElecResultList, Set<String> ppnPrintResultList, boolean isForced) throws BestPpnException {
