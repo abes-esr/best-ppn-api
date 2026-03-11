@@ -206,7 +206,7 @@ public class BestPpnService {
                     }
 
                     case 1 -> {
-                        String printPpn = ppnPrintResultList.stream().toList().get(0);
+                        String printPpn = ppnPrintResultList.stream().toList().getFirst();
                         kbart.setErrorType("Ppn imprimé trouvé : " + printPpn);
                         log.debug(TECHNICAL, kbart.getErrorType());
                         yield new BestPpn(printPpn, DESTINATION_TOPIC.PRINT_PPN_SUDOC, TYPE_SUPPORT.IMPRIME);
