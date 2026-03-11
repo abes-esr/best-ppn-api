@@ -55,6 +55,7 @@ public class CheckUrlService {
             }
         }
         log.warn(FUNCTIONAL, "Pas de correspondance trouvée dans la notice avec l'url du provider.");
+        log.warn(FUNCTIONAL, "Le PPN {} n'a pas de provider trouvé", ppn);
         return false;
     }
 }

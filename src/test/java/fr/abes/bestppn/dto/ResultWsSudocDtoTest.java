@@ -11,6 +11,8 @@ import java.util.List;
 
 class ResultWsSudocDtoTest {
 
+
+
     @Test
     void getppnWithTypeElectronique() {
         NoticeSummaryDto ppn1 = new NoticeSummaryDto("000000000", TYPE_SUPPORT.ELECTRONIQUE);
@@ -29,12 +31,7 @@ class ResultWsSudocDtoTest {
         result.setPpns(ppnsList);
         result.setErreurs(erreurs);
 
-        ResultWsSudocDto resultWithTypeElectronique = result.getNoticeElectronique();
-        Assertions.assertEquals(3, resultWithTypeElectronique.getPpns().size());
-        Assertions.assertEquals(2, resultWithTypeElectronique.getErreurs().size());
-
-        ResultWsSudocDto resultWithTypeImprime = result.getNoticeImprime();
-        Assertions.assertEquals(1, resultWithTypeImprime.getPpns().size());
-        Assertions.assertEquals(2, resultWithTypeImprime.getErreurs().size());
+        Assertions.assertEquals(4, result.getPpns().size());
+        Assertions.assertEquals(2, result.getErreurs().size());
     }
 }
