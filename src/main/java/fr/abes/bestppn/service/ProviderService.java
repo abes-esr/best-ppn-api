@@ -2,7 +2,6 @@ package fr.abes.bestppn.service;
 
 import fr.abes.bestppn.exception.IllegalDateException;
 import fr.abes.bestppn.exception.IllegalPackageException;
-import fr.abes.bestppn.exception.IllegalProviderException;
 import fr.abes.bestppn.model.entity.bacon.Provider;
 import fr.abes.bestppn.model.entity.bacon.ProviderPackage;
 import fr.abes.bestppn.repository.bacon.LigneKbartRepository;
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
+
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
 
 @Service
 @Slf4j
@@ -37,7 +38,7 @@ public class ProviderService {
         Date packageDate = Utils.extractDate(filename);
         Optional<ProviderPackage> providerPackageOpt = providerPackageRepository.findByPackageNameAndDatePAndProviderIdtProvider(packageName, packageDate, provider.getIdtProvider());
         if (providerPackageOpt.isPresent()) {
-            log.info("clear row package : " + providerPackageOpt.get());
+            log.info(TECHNICAL, "clear row package : " + providerPackageOpt.get());
             ligneKbartRepository.deleteAllByIdProviderPackage(providerPackageOpt.get().getIdProviderPackage());
             return providerPackageOpt.get();
         } else {

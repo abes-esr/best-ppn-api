@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -109,7 +111,7 @@ public class TopicProducer {
                     try {
                         logEnvoi(result.get(), record);
                     } catch (InterruptedException | ExecutionException e) {
-                        log.warn("erreur de récupération du résultat de l'envoi");
+                        log.warn(TECHNICAL, "erreur de récupération du résultat de l'envoi");
                     }
                 });
             });
@@ -132,7 +134,7 @@ public class TopicProducer {
             index++;
         }
         if (!ligneKbartImprimes.isEmpty())
-            log.debug("message envoyé vers {}", topicNoticeImprimee);
+            log.debug(TECHNICAL, "message envoyé vers {}", topicNoticeImprimee);
     }
 
 
@@ -155,7 +157,7 @@ public class TopicProducer {
         }
         sendNoticeExNihilo(lignesToSend, topicKbartPpnToCreate, filename);
         if (!ppnFromKbartToCreate.isEmpty())
-            log.debug("message envoyé vers {}", topicKbartPpnToCreate);
+            log.debug(TECHNICAL, "message envoyé vers {}", topicKbartPpnToCreate);
     }
 
     /**
@@ -202,7 +204,7 @@ public class TopicProducer {
 
     private void logEnvoi(SendResult<String, ?> result, ProducerRecord<String, ?> record) {
         final RecordMetadata metadata = result.getRecordMetadata();
-        log.debug(String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d, headers=%s)",
+        log.debug(TECHNICAL, String.format("Sent record(key=%s value=%s) meta(topic=%s, partition=%d, offset=%d, headers=%s)",
                 record.key(), record.value(), metadata.topic(), metadata.partition(), metadata.offset(), Stream.of(result.getProducerRecord().headers().toArray()).map(h -> h.key() + ":" + Arrays.toString(h.value())).collect(Collectors.joining(";"))));
     }
 

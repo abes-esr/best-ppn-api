@@ -28,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @Configuration
 public class MapperConfig {
     @Bean
@@ -75,7 +77,7 @@ public class MapperConfig {
         public boolean retryRequest(HttpRequest httpRequest, IOException e, int execCount, HttpContext httpContext) {
             if (execCount > 1) return false;
 
-            log.warn("[Retry] Tentative {} pour {}, cause : {} - {}",
+            log.warn(TECHNICAL, "[Retry] Tentative {} pour {}, cause : {} - {}",
                     execCount, httpRequest.getRequestUri(),
                     e.getClass().getSimpleName(), e.getMessage());
             return true;

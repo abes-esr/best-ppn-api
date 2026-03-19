@@ -7,6 +7,8 @@ import org.aspectj.lang.annotation.Aspect;
 
 import java.util.Arrays;
 
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @Aspect
 @Slf4j
 public class ExecutionTimeAspect {
@@ -20,12 +22,12 @@ public class ExecutionTimeAspect {
         long endTime = System.currentTimeMillis();
         double executionTime = (double) (endTime - startTime) / 1000;
 
-        log.debug("------------------------------------------------------");
-        log.debug("Classe : " + joinPoint.getSignature().getDeclaringTypeName());
-        log.debug("Méthode : " + joinPoint.getSignature().getName());
-        log.debug("Paramètres : " + Arrays.toString(joinPoint.getArgs()));
-        log.debug("Temps d'exécution : " + executionTime + " secondes");
-        log.debug("------------------------------------------------------");
+        log.debug(TECHNICAL, "------------------------------------------------------");
+        log.debug(TECHNICAL, "Classe : " + joinPoint.getSignature().getDeclaringTypeName());
+        log.debug(TECHNICAL, "Méthode : " + joinPoint.getSignature().getName());
+        log.debug(TECHNICAL, "Paramètres : " + Arrays.toString(joinPoint.getArgs()));
+        log.debug(TECHNICAL, "Temps d'exécution : " + executionTime + " secondes");
+        log.debug(TECHNICAL, "------------------------------------------------------");
 
         return result;
     }

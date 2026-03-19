@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @Slf4j
 @Service
 public class LogFileService {
@@ -43,6 +45,6 @@ public class LogFileService {
 
         //  Déplacement du fichier
         Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        log.info("Fichier de log transféré dans le dossier temporaire.");
+        log.debug(TECHNICAL, "Fichier de log {} transféré dans le dossier temporaire.", source.getFileName());
     }
 }

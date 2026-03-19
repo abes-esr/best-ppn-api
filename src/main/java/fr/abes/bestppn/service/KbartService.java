@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import static fr.abes.bestppn.utils.LogMarkers.FUNCTIONAL;
+
 @Service
 @Slf4j
 public class KbartService {
@@ -43,11 +45,11 @@ public class KbartService {
     }
 
     public void processConsumerRecord(LigneKbartDto ligneFromKafka, String providerName, boolean isForced, Boolean isBypassed, String filename) throws IOException, BestPpnException, URISyntaxException {
-        log.info("Début calcul BestPpn pour la ligne " + ligneFromKafka);
+        log.info(FUNCTIONAL, "Début calcul BestPpn pour la ligne " + ligneFromKafka);
         try {
             if (!isBypassed) {
                 if (ligneFromKafka.isBestPpnEmpty()) {
-                    log.info(ligneFromKafka.toString());
+                    log.info(FUNCTIONAL, ligneFromKafka.toString());
                     BestPpn bestPpn = service.getBestPpn(ligneFromKafka, providerName, isForced);
                     switch (Objects.requireNonNull(bestPpn.getDestination())) {
                         case BEST_PPN_BACON -> ligneFromKafka.setBestPpn(bestPpn.getPpn());
@@ -65,7 +67,7 @@ public class KbartService {
                         }
                     }
                 } else {
-                    log.info("Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
+                    log.info(FUNCTIONAL, "Bestppn déjà existant sur la ligne : " + ligneFromKafka + ",PPN : " + ligneFromKafka.getBestPpn());
                 }
             }
             workInProgress.get(filename).addKbartToSend(ligneFromKafka);

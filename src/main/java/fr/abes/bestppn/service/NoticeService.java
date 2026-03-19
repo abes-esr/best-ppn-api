@@ -15,6 +15,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,12 +37,12 @@ public class NoticeService {
                     .lines()
                     .collect(Collectors.joining("\n"));
         } catch (SQLException e) {
-            log.error(e.getMessage());
+            log.error(TECHNICAL, e.getMessage());
         } finally {
             try {
                 clob.free();
             } catch (SQLException e) {
-                log.error(e.getMessage());
+                log.error(TECHNICAL, e.getMessage());
             }
         }
         return(xmlString != null) ? xmlMapper.readValue(xmlString, NoticeXml.class) : null;
