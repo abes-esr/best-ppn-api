@@ -8,12 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
 
@@ -31,20 +30,18 @@ public class NoticeService {
             return null;
         }
         Clob clob = noticeOpt.get().getDataXml();
-        String xmlString = null;
-        try (BufferedReader reader = new BufferedReader(clob.getCharacterStream())) {
-            xmlString = reader
-                    .lines()
-                    .collect(Collectors.joining("\n"));
+
+        try (Reader reader = clob.getCharacterStream()) {
+            return xmlMapper.readValue(reader, NoticeXml.class);
         } catch (SQLException e) {
-            log.error(TECHNICAL, e.getMessage());
+            log.error(TECHNICAL, e.getMessage(), e);
+            return null;
         } finally {
             try {
                 clob.free();
             } catch (SQLException e) {
-                log.error(TECHNICAL, e.getMessage());
+                log.error(TECHNICAL, e.getMessage(), e);
             }
         }
-        return(xmlString != null) ? xmlMapper.readValue(xmlString, NoticeXml.class) : null;
     }
 }
