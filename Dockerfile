@@ -30,6 +30,14 @@ RUN rm -f /best-ppn-api-distribution.tar.gz
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+ADD https://repo.harica.gr/certs/HARICA-TLS-ECC-Root-2021.pem /tmp/harica-ecc-root.pem
+RUN keytool -importcert -noprompt -trustcacerts \
+    -alias harica-tls-ecc-root-2021 \
+    -file /tmp/harica-ecc-root.pem \
+    -keystore "$JAVA_HOME/lib/security/cacerts" \
+    -storepass changeit \
+    && rm -f /tmp/harica-ecc-root.pem
+
 CMD ["java", "-cp", "/best-ppn-api/lib/*", "fr.abes.bestppn.BestPpnApplication"]
 
 
