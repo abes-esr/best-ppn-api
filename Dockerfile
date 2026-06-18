@@ -32,7 +32,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # ---- Add certificats HARICA (https://www.eduroam.fr/certificat-harica) ----
 RUN mkdir -p /tmp/certs
-COPY ./docker/*.cer /tmp/certs/
+COPY ./docker/*.crt /tmp/certs/
 RUN for cert in /tmp/certs/*; do \
     alias=$(basename $cert | cut -d. -f1); \
     keytool -importcert -noprompt \
