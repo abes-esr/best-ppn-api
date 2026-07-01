@@ -1,7 +1,6 @@
 package fr.abes.bestppn.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import fr.abes.bestppn.model.entity.basexml.NoticesBibio;
 import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.repository.basexml.NoticesBibioRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.sql.Clob;
-import java.sql.SQLException;
 import java.util.Optional;
-
-import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
 
 @Service
 @RequiredArgsConstructor
@@ -24,24 +18,21 @@ public class NoticeService {
 
     private final XmlMapper xmlMapper;
 
+    /**
+     * Récupère une notice bibliographique à partir de son PPN et la désérialise en objet XML.
+     * Afin d'éviter la fuite de mémoire liée aux streams LOB d'Oracle et d'éviter de saturer
+     * le Persistence Context de la session Hibernate avec des entités gérées au cours du traitement de masse,
+     * on extrait directement le XML sous forme de String.
+     *
+     * @param ppn Identifiant de la notice
+     * @return L'objet NoticeXml mappé ou null si la notice n'existe pas ou est vide
+     * @throws IOException Si une erreur de lecture/parsing XML survient
+     */
     public NoticeXml getNoticeByPpn(String ppn) throws IOException {
-        Optional<NoticesBibio> noticeOpt = this.noticesBibioRepository.findByPpn(ppn);
-        if (noticeOpt.isEmpty()) {
+        Optional<String> xmlOpt = this.noticesBibioRepository.findDataXmlByPpn(ppn);
+        if (xmlOpt.isEmpty() || xmlOpt.get().isEmpty()) {
             return null;
         }
-        Clob clob = noticeOpt.get().getDataXml();
-
-        try (Reader reader = clob.getCharacterStream()) {
-            return xmlMapper.readValue(reader, NoticeXml.class);
-        } catch (SQLException e) {
-            log.error(TECHNICAL, e.getMessage(), e);
-            return null;
-        } finally {
-            try {
-                clob.free();
-            } catch (SQLException e) {
-                log.error(TECHNICAL, e.getMessage(), e);
-            }
-        }
+        return xmlMapper.readValue(xmlOpt.get(), NoticeXml.class);
     }
 }
