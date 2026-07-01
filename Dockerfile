@@ -12,10 +12,10 @@ RUN mvn -f /build/best-ppn-api/pom.xml verify --fail-never
 COPY ./   /build/
 
 RUN mvn --batch-mode \
-        -Dmaven.test.skip=true \
-        -Duser.timezone=Europe/Paris \
-        -Duser.language=fr \
-        package -Passembly
+    -Dmaven.test.skip=true \
+    -Duser.timezone=Europe/Paris \
+    -Duser.language=fr \
+    package -Passembly
 
 
 ###
@@ -43,8 +43,8 @@ RUN for cert in /tmp/certs/*; do \
     done && \
     rm -rf /tmp/certs
 
-CMD ["java", "-cp", "/best-ppn-api/lib/*", "fr.abes.bestppn.BestPpnApplication"]
+# Téléchargement d'une version fixe de l'agent OpenTelemetry pour la reproductibilité 
 
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.3.0/opentelemetry-javaagent.jar /opentelemetry.jar 
 
-
-
+ENTRYPOINT ["java", "-javaagent:/opentelemetry.jar", "-cp", "/best-ppn-api/lib/*", "fr.abes.bestppn.BestPpnApplication"] 
