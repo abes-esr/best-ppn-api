@@ -11,9 +11,6 @@ import fr.abes.bestppn.model.dto.PackageKbartDto;
 import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.dto.mail.MailDto;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -78,20 +75,15 @@ public class EmailService {
     }
 
     protected void createAttachment(PackageKbartDto dataLines, Path csvPath) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
-        Writer writer = null;
-        try {
-            //  Création du fichier
-            writer = Files.newBufferedWriter(csvPath);
-
+        try (Writer writer = Files.newBufferedWriter(csvPath);
+                CSVWriter csvWriter = new CSVWriter(writer,
+                CSVWriter.DEFAULT_SEPARATOR,
+                CSVWriter.NO_QUOTE_CHARACTER,
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                CSVWriter.DEFAULT_LINE_END)){
             //  Création du header
-            CSVWriter csvWriter = new CSVWriter(writer,
-                    CSVWriter.DEFAULT_SEPARATOR,
-                    CSVWriter.NO_QUOTE_CHARACTER,
-                    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                    CSVWriter.DEFAULT_LINE_END);
             String[] header = { "publication_title", "print_identifier", "online_identifier", "date_first_issue_online", "num_first_vol_online", "num_first_issue_online", "date_last_issue_online", "num_last_vol_online", "num_last_issue_online", "title_url", "first_author", "title_id", "embargo_info", "coverage_depth", "notes", "publisher_name", "publication_type", "date_monograph_published_print", "date_monograph_published_online", "monograph_volume", "monograph_edition", "first_editor", "parent_publication_title_id", "preceding_publication_title_id", "access_type", "bestPpn", "errorType" };
             csvWriter.writeNext(header);
-
 
             //  Création du beanToCsvBuilder avec le writer de type LigneKbartDto.class
             StatefulBeanToCsvBuilder<LigneKbartDto> builder = new StatefulBeanToCsvBuilder<>(writer);
@@ -100,19 +92,8 @@ public class EmailService {
             //  Peuple le fichier csv avec les données
             beanWriter.write(dataLines.getKbartDtos());
 
-            //  Ferme le Writer
-            writer.close();
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             throw new RuntimeException(e);
-        }finally {
-            if (writer != null) { // Vérification importante pour éviter une NullPointerException
-                try {
-                    writer.close();
-                } catch (IOException closeException) {
-                    System.err.println("Erreur lors de la fermeture du writer : " + closeException.getMessage()); // Gestion de l'erreur de fermeture
-                    // Dans certains cas, il pourrait être judicieux de relancer une exception ici, selon la criticité de l'erreur.
-                }
-            }
         }
     }
 
