@@ -61,11 +61,17 @@ public class TopicConsumer {
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
         String filename = extractFilenameFromKey(ligneKbart.key());
         long now = Calendar.getInstance().getTimeInMillis();
-        //si on a pas reçu de message depuis plus de maxDelayBetweenMessage
-        if (this.workInProgress.containsKey(filename) && (this.workInProgress.get(filename).getTimestamp() + maxDelayBetweenMessage < now)) {
-            workInProgress.remove(filename);
-            log.debug(TECHNICAL, "détection de l'ancien lancement de fichier " + filename );
-        }
+        
+        // Nettoyage de tous les traitements obsolètes (fichiers commencés mais jamais terminés)
+        // afin de libérer de la mémoire Heap et d'éviter les fuites de mémoire (OOM).
+        this.workInProgress.entrySet().removeIf(entry -> {
+            boolean isExpired = entry.getValue().getTimestamp() + maxDelayBetweenMessage < now;
+            if (isExpired) {
+                log.debug(TECHNICAL, "détection et suppression de l'ancien lancement de fichier obsolète " + entry.getKey());
+            }
+            return isExpired;
+        });
+
         if (!this.workInProgress.containsKey(filename)) {
             //nouveau fichier trouvé dans le topic, on initialise les variables partagées
             workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
@@ -105,10 +111,15 @@ public class TopicConsumer {
                 }
             }
         } catch (IllegalProviderException | JsonProcessingException e) {
-            workInProgress.get(filename).setIsOnError(true);
-            log.warn(e.getMessage());
-            workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
-            workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
+            if (workInProgress.containsKey(filename)) {
+                workInProgress.get(filename).setIsOnError(true);
+                log.warn(e.getMessage());
+                workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
+                workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
+                // Incrémente le compteur de lignes traitées pour éviter de bloquer le traitement du fichier
+                // et libérer l'espace mémoire associé si c'était le dernier message.
+                workInProgress.get(filename).incrementCurrentLine();
+            }
         }
     }
 
