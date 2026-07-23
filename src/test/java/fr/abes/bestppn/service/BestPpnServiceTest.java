@@ -9,6 +9,7 @@ import fr.abes.bestppn.model.dto.kafka.LigneKbartDto;
 import fr.abes.bestppn.model.dto.wscall.NoticeSummaryDto;
 import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
+import fr.abes.bestppn.model.tiebreak.TieBreakDecision;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import fr.abes.bestppn.utils.Utils;
@@ -49,6 +50,9 @@ class BestPpnServiceTest {
     @MockitoBean
     WsService service;
 
+    @MockitoBean
+    BestPpnTieBreakerService tieBreakerService;
+
     @Value("classpath:143519379.xml")
     private Resource xmlFileNoticePrint;
 
@@ -72,6 +76,12 @@ class BestPpnServiceTest {
         this.noticePrint = mapper.readValue(
                 IOUtils.toString(new FileInputStream(xmlFileNoticePrint.getFile()), StandardCharsets.UTF_8),
                 NoticeXml.class);
+        Mockito.when(tieBreakerService.resolve(
+                        Mockito.any(),
+                        Mockito.anyString(),
+                        Mockito.anyMap()))
+                .thenReturn(TieBreakDecision.unresolved(
+                        Map.of(), "clés identiques"));
     }
 
     private LigneKbartDto createSerialKbart(String titleUrl) {
@@ -355,7 +365,8 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000001", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
+        BestPpn result = bestPpnService.getBestPpnByScore(
+                kbart, "", ppnElecResultList, ppnPrintResultList, false);
         Assertions.assertEquals("100000001", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -369,7 +380,8 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, false);
+        BestPpn result = bestPpnService.getBestPpnByScore(
+                kbart, "", ppnElecResultList, ppnPrintResultList, false);
         Assertions.assertEquals("100000002", result.getPpn());
         Assertions.assertEquals(DESTINATION_TOPIC.BEST_PPN_BACON, result.getDestination());
     }
@@ -383,7 +395,8 @@ class BestPpnServiceTest {
         ppnElecResultList.put("100000002", 10);
         Set<String> ppnPrintResultList = new HashSet<>();
 
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        BestPpn result = bestPpnService.getBestPpnByScore(
+                kbart, "", ppnElecResultList, ppnPrintResultList, true);
         Assertions.assertEquals("", result.getPpn());
     }
 
@@ -398,7 +411,8 @@ class BestPpnServiceTest {
         ppnPrintResultList.add("100000001");
         ppnPrintResultList.add("100000002");
 
-        BestPpn result = bestPpnService.getBestPpnByScore(kbart, ppnElecResultList, ppnPrintResultList, true);
+        BestPpn result = bestPpnService.getBestPpnByScore(
+                kbart, "", ppnElecResultList, ppnPrintResultList, true);
         Assertions.assertEquals("", result.getPpn());
     }
 
