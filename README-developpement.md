@@ -104,6 +104,42 @@ Vous pouvez utiliser la même procédure pour générer en local les autres imag
 Cette commande suppose que vous disposez d'un environnement Docker en local : cf la [FAQ dans la poldev](https://github.com/abes-esr/abes-politique-developpement/blob/main/10-FAQ.md#configuration-dun-environnement-docker-sous-windows-10).
 
 ## Schema registry et gestion des versions de schéma
+### Sources Java générées
+
+Les fichiers `src/main/resources/avro/*.avsc` sont les sources de vérité.
+Pendant la phase `generate-sources`, `avro-maven-plugin` génère et remplace
+les classes suivantes, qui restent suivies par Git :
+
+- `src/main/java/fr/abes/LigneKbartConnect.java`
+- `src/main/java/fr/abes/LigneKbartImprime.java`
+
+Ces classes portent la mention `DO NOT EDIT DIRECTLY` et ne doivent pas être
+nettoyées ou réordonnées manuellement, y compris lorsqu'un import paraît
+inutile. Après toute modification d'un schéma ou de la version du
+générateur, exécuter :
+
+```bash
+mvn generate-sources
+git diff -- src/main/resources/avro src/main/java/fr/abes/LigneKbartConnect.java src/main/java/fr/abes/LigneKbartImprime.java
+```
+
+Le schéma et l'intégralité des sources Java régénérées doivent être commités
+ensemble. Une seconde exécution de `mvn generate-sources` doit ensuite
+laisser le worktree propre.
+
+> [!NOTE]
+> **Conservation et retour arrière — maintenance du 23 juillet 2026**
+>
+> L'état précédant la resynchronisation est conservé dans Git au commit
+> `628dcd4`. Cette maintenance ne modifie aucun fichier `.avsc` ni aucune
+> version publiée dans le Schema Registry.
+>
+> En cas de retour arrière, annuler la PR ou son commit complet. Ne restaurez
+> jamais une seule classe générée et ne modifiez pas le Schema Registry :
+> les schémas et leurs classes Java doivent toujours provenir d'un même état
+> Git. Après restauration, exécuter `mvn generate-sources` et contrôler le
+> diff avant tout redéploiement.
+
 ### Schema registry
 Pour pouvoir utiliser le schema registry, il est nécessaire de l'installer avec Kafka. Voir le projet Github [bacon-kafka-docker](https://github.com/abes-esr/bacon-kafka-docker)
 
