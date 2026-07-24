@@ -11,6 +11,7 @@ import fr.abes.bestppn.model.dto.wscall.ResultWsSudocDto;
 import fr.abes.bestppn.model.entity.basexml.notice.NoticeXml;
 import fr.abes.bestppn.model.tiebreak.TieBreakDecision;
 import fr.abes.bestppn.utils.DESTINATION_TOPIC;
+import fr.abes.bestppn.utils.PUBLICATION_TYPE;
 import fr.abes.bestppn.utils.TYPE_SUPPORT;
 import fr.abes.bestppn.utils.Utils;
 import org.apache.commons.io.IOUtils;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,6 +97,147 @@ class BestPpnServiceTest {
         kbart.setDateMonographPublishedPrint("DatePrint");
         kbart.setTitleUrl(titleUrl);
         return kbart;
+    }
+
+    private LigneKbartDto createMonographKbart(
+            String onlinePublicationDate,
+            String printPublicationDate) {
+        LigneKbartDto kbart = new LigneKbartDto();
+        kbart.setOnlineIdentifier("");
+        kbart.setPrintIdentifier("");
+        kbart.setPublicationType(PUBLICATION_TYPE.MONOGRAPH.toString());
+        kbart.setDateMonographPublishedOnline(onlinePublicationDate);
+        kbart.setDateMonographPublishedPrint(printPublicationDate);
+        kbart.setPublicationTitle("Titre");
+        kbart.setFirstAuthor("Auteur");
+        kbart.setTitleId("");
+        kbart.setTitleUrl("");
+        return kbart;
+    }
+
+    private ResultWsSudocDto createDatResult(String ppn) {
+        ResultWsSudocDto result = new ResultWsSudocDto();
+        result.setPpns(List.of(
+                new NoticeSummaryDto(
+                        ppn,
+                        TYPE_SUPPORT.ELECTRONIQUE,
+                        null,
+                        true)));
+        return result;
+    }
+
+    @Test
+    @DisplayName("dat2ppn utilise la date en ligne lorsqu'elle est seule")
+    void dat2PpnUsesOnlineYearWhenItIsTheOnlyPublicationDate()
+            throws IOException, BestPpnException, URISyntaxException {
+        String provider = "PROVIDER";
+        LigneKbartDto kbart = createMonographKbart("2024-06-15", null);
+        Mockito.when(service.callDat2Ppn(
+                        "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider))
+                .thenReturn(new ResultWsSudocDto());
+
+        bestPpnService.getBestPpn(kbart, provider, false);
+
+        Mockito.verify(service).callDat2Ppn(
+                "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+    }
+
+    @Test
+    @DisplayName("dat2ppn utilise la date imprimée lorsqu'elle est seule")
+    void dat2PpnUsesPrintYearWhenItIsTheOnlyPublicationDate()
+            throws IOException, BestPpnException, URISyntaxException {
+        String provider = "PROVIDER";
+        LigneKbartDto kbart = createMonographKbart(null, "2023-01-10");
+        Mockito.when(service.callDat2Ppn(
+                        "2023", kbart.getAuthor(), kbart.getPublicationTitle(), provider))
+                .thenReturn(new ResultWsSudocDto());
+
+        bestPpnService.getBestPpn(kbart, provider, false);
+
+        Mockito.verify(service).callDat2Ppn(
+                "2023", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+    }
+
+    @Test
+    @DisplayName("dat2ppn n'interroge qu'une fois deux dates de la même année")
+    void dat2PpnSearchesOnlyOnceWhenPublicationYearsAreIdentical()
+            throws IOException, BestPpnException, URISyntaxException {
+        String provider = "PROVIDER";
+        LigneKbartDto kbart =
+                createMonographKbart("2024-06-15", "2024-01-10");
+        Mockito.when(service.callDat2Ppn(
+                        "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider))
+                .thenReturn(new ResultWsSudocDto());
+
+        bestPpnService.getBestPpn(kbart, provider, false);
+
+        Mockito.verify(service, Mockito.times(1)).callDat2Ppn(
+                "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+    }
+
+    @Test
+    @DisplayName("dat2ppn s'arrête lorsque la date en ligne renvoie un PPN")
+    void dat2PpnStopsWhenOnlineYearReturnsAPpn()
+            throws IOException, BestPpnException, URISyntaxException {
+        String provider = "PROVIDER";
+        LigneKbartDto kbart =
+                createMonographKbart("2024-06-15", "2023-01-10");
+        Mockito.when(service.callDat2Ppn(
+                        "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider))
+                .thenReturn(createDatResult("200000001"));
+
+        BestPpn result = bestPpnService.getBestPpn(kbart, provider, false);
+
+        Mockito.verify(service).callDat2Ppn(
+                "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+        Mockito.verify(service, Mockito.never()).callDat2Ppn(
+                "2023", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+        Assertions.assertEquals("200000001", result.getPpn());
+    }
+
+    @Test
+    @DisplayName("dat2ppn essaie la date imprimée lorsque la date en ligne ne renvoie aucun PPN")
+    void dat2PpnUsesPrintYearWhenOnlineYearReturnsNoPpn()
+            throws IOException, BestPpnException, URISyntaxException {
+        String provider = "PROVIDER";
+        LigneKbartDto kbart =
+                createMonographKbart("2024-06-15", "2023-01-10");
+
+        Mockito.when(service.callDat2Ppn(
+                        "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider))
+                .thenReturn(new ResultWsSudocDto());
+        Mockito.when(service.callDat2Ppn(
+                        "2023", kbart.getAuthor(), kbart.getPublicationTitle(), provider))
+                .thenReturn(createDatResult("200000002"));
+
+        BestPpn result = bestPpnService.getBestPpn(kbart, provider, false);
+
+        InOrder inOrder = Mockito.inOrder(service);
+        inOrder.verify(service).callDat2Ppn(
+                "2024", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+        inOrder.verify(service).callDat2Ppn(
+                "2023", kbart.getAuthor(), kbart.getPublicationTitle(), provider);
+        Assertions.assertEquals("200000002", result.getPpn());
+    }
+
+    @Test
+    @DisplayName("dat2ppn n'est pas appelé lorsqu'aucune date n'est exploitable")
+    void dat2PpnIsNotCalledWhenNoPublicationDateIsUsable()
+            throws IOException, BestPpnException, URISyntaxException {
+        String provider = "PROVIDER";
+        LigneKbartDto kbart = createMonographKbart(null, null);
+
+        BestPpn result = bestPpnService.getBestPpn(kbart, provider, false);
+
+        Mockito.verify(service, Mockito.never()).callDat2Ppn(
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any());
+        Assertions.assertNull(result.getPpn());
+        Assertions.assertEquals(
+                DESTINATION_TOPIC.NO_PPN_FOUND_SUDOC,
+                result.getDestination());
     }
 
     @Test
