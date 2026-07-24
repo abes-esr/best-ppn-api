@@ -229,6 +229,11 @@ public class BestPpnService {
      * Recherche des monographies par année, auteur, titre et fournisseur
      * lorsque les autres stratégies n'ont retourné aucun candidat.
      *
+     * <p>L'année de publication en ligne est interrogée en priorité. Si elle
+     * ne retourne aucun PPN, l'année de publication imprimée est ensuite
+     * interrogée lorsqu'elle est renseignée et différente. Une même année
+     * n'est jamais recherchée deux fois.</p>
+     *
      * @param kbart ligne KBART fournissant les critères bibliographiques
      * @param ppnElecScoredList scores électroniques à compléter
      * @param ppnPrintResultList PPN imprimés à compléter
@@ -239,17 +244,22 @@ public class BestPpnService {
     private void feedPpnListFromDat(LigneKbartDto kbart, Map<String, Integer> ppnElecScoredList, Set<String> ppnPrintResultList, String providerName) throws IOException, URISyntaxException {
         log.debug(TECHNICAL, "Entrée dans dat2ppn");
         ResultWsSudocDto resultCallWs = new ResultWsSudocDto();
-        String dateParameter = "";
-        if (!kbart.getAnneeFromDate_monograph_published_online().isEmpty()) {
-            log.debug(TECHNICAL, "Appel dat2ppn :  date_monograph_published_online : {} / publication_title : {} auteur : {}", kbart.getDateMonographPublishedOnline(), kbart.getPublicationTitle(), kbart.getAuthor());
-            dateParameter = kbart.getAnneeFromDate_monograph_published_online();
-        } else if (!kbart.getAnneeFromDate_monograph_published_print().isEmpty()) {
-            log.debug(TECHNICAL, "Appel dat2ppn :  date_monograph_published_print : {} / publication_title : {} auteur : {}", kbart.getDateMonographPublishedPrint(), kbart.getPublicationTitle(), kbart.getAuthor());
-            dateParameter = kbart.getAnneeFromDate_monograph_published_print();
+        String onlineYear = kbart.getAnneeFromDate_monograph_published_online();
+        String printYear = kbart.getAnneeFromDate_monograph_published_print();
+        List<String> dateParameters = new ArrayList<>();
+        if (onlineYear != null && !onlineYear.isBlank()) {
+            dateParameters.add(onlineYear);
         }
-        if (!dateParameter.isEmpty()) {
+        if (printYear != null && !printYear.isBlank() && !printYear.equals(onlineYear)) {
+            dateParameters.add(printYear);
+        }
+        for (String dateParameter : dateParameters) {
+            log.debug(TECHNICAL, "Appel dat2ppn : année : {} / publication_title : {} auteur : {}", dateParameter, kbart.getPublicationTitle(), kbart.getAuthor());
             resultCallWs = service.callDat2Ppn(dateParameter, kbart.getAuthor(), kbart.getPublicationTitle(), providerName);
             log.info(FUNCTIONAL, resultCallWs.toString());
+            if (!resultCallWs.getPpns().isEmpty()) {
+                break;
+            }
         }
 
         List<NoticeSummaryDto> noticeElectronique = DtoHandlerService.getNoticeElectronique(resultCallWs);

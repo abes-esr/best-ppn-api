@@ -52,7 +52,10 @@ Cette recherche de ppn(s) fait appel à des web services de l'API sudoc-api ([li
 1. via le `OnlineIdentifier` s'il est présent
 2. via le `PrintIndentifier` s'il est présent
 3. via le `TitleUrl` s'il est présent
-4. via le `DAT` (Date-Auteur-Titre) si les trois recherches précédentes n'ont données aucun résultat
+4. via le `DAT` (Date-Auteur-Titre) si les trois recherches précédentes n'ont donné aucun résultat :
+   - avec l'année de `date_monograph_published_online` en priorité ;
+   - si cet appel ne renvoie aucun PPN, avec l'année de `date_monograph_published_print`, lorsqu'elle est renseignée et différente de la première ;
+   - une même année n'est jamais interrogée deux fois et aucune requête `dat2ppn` n'est émise sans année exploitable.
 En fonction du web service utilisé, du type de support et du nombre de ppn, un score est attribué à chaque ppn.
 
 Après la recherche de ppn(s) terminée, la sélection du best ppn est réalisée via la méthode `getBestPpnByScore()`. Cette méthode détermine également le topic de destination.
