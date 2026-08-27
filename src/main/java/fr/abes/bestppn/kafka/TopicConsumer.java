@@ -17,8 +17,8 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestClientException;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Calendar;
@@ -60,17 +60,6 @@ public class TopicConsumer {
     @KafkaListener(topics = {"${topic.name.source.kbart}"}, groupId = "${topic.groupid.source.kbart}", containerFactory = "kafkaKbartListenerContainerFactory", concurrency = "${abes.kafka.concurrency.nbThread}")
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
         String filename = extractFilenameFromKey(ligneKbart.key());
-        long now = Calendar.getInstance().getTimeInMillis();
-        
-        // Nettoyage de tous les traitements obsolètes (fichiers commencés mais jamais terminés)
-        // afin de libérer de la mémoire Heap et d'éviter les fuites de mémoire (OOM).
-        this.workInProgress.entrySet().removeIf(entry -> {
-            boolean isExpired = entry.getValue().getTimestamp() + maxDelayBetweenMessage < now;
-            if (isExpired) {
-                log.debug(TECHNICAL, "détection et suppression de l'ancien lancement de fichier obsolète " + entry.getKey());
-            }
-            return isExpired;
-        });
 
         if (!this.workInProgress.containsKey(filename)) {
             //nouveau fichier trouvé dans le topic, on initialise les variables partagées
@@ -149,5 +138,21 @@ public class TopicConsumer {
 
     private String extractFilenameFromKey (String key) {
         return key.substring(0, key.lastIndexOf('_'));
+    }
+
+    /**
+     * Nettoyage actif périodique des traitements obsolètes pour libérer la Heap.
+     */
+    @Scheduled(fixedDelay = 60000)
+    public void cleanExpiredWorkInProgress() {
+        log.debug(TECHNICAL, "Lancement du nettoyage des traitements obsoletes");
+        long now = Calendar.getInstance().getTimeInMillis();
+        this.workInProgress.entrySet().removeIf(entry -> {
+            boolean isExpired = entry.getValue().getTimestamp() + maxDelayBetweenMessage < now;
+            if (isExpired) {
+                log.debug(TECHNICAL, "Détection et suppression active de l'ancien lancement de fichier obsolète " + entry.getKey());
+            }
+            return isExpired;
+        });
     }
 }
