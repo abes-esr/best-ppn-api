@@ -61,67 +61,96 @@ public class TopicConsumer {
     public void kbartFromkafkaListener(ConsumerRecord<String, String> ligneKbart) {
         String filename = extractFilenameFromKey(ligneKbart.key());
 
-        if (!this.workInProgress.containsKey(filename)) {
-            //nouveau fichier trouvé dans le topic, on initialise les variables partagées
-            workInProgress.put(filename, new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
-        }
+        // Initialisation atomique thread-safe pour éviter les écrasements d'instance par des threads concurrents
+        KafkaWorkInProgress currentWork = this.workInProgress.computeIfAbsent(filename,
+                k -> new KafkaWorkInProgress(ligneKbart.key().contains("_FORCE"), ligneKbart.key().contains("_BYPASS")));
+
         try {
-            //traitement de chaque ligne kbart
+            // Traitement de chaque ligne kbart
             LigneKbartDto ligneKbartDto = mapper.readValue(ligneKbart.value(), LigneKbartDto.class);
+            int nbLignesTotal = ligneKbartDto.getNbLinesTotal();
+            currentWork.setTotalLines(nbLignesTotal);
             String providerName = Utils.extractProvider(filename);
             try {
                 log.debug(TECHNICAL, "Partition;" + ligneKbart.partition() + ";offset;" + ligneKbart.offset() + ";fichier;" + filename + ";" + Thread.currentThread().getName());
                 int origineNbCurrentLine = ligneKbartDto.getNbCurrentLines();
-                ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  //Ajoute le nom de fichier dans le contexte du thread pour log4j
-                service.processConsumerRecord(ligneKbartDto, providerName, workInProgress.get(filename).isForced(), workInProgress.get(filename).isBypassed(), filename);
+                ThreadContext.put("package", (filename + ";" + origineNbCurrentLine));  // Ajoute le nom de fichier dans le contexte du thread pour log4j
+                service.processConsumerRecord(ligneKbartDto, providerName, currentWork.isForced(), currentWork.isBypassed(), filename);
             } catch (IOException | URISyntaxException | RestClientException e) {
-                //erreurs non bloquantes, on n'arrête pas le programme
+                // Erreurs non bloquantes, on n'arrête pas le programme
                 log.warn(e.getMessage());
                 ligneKbartDto.setErrorType(e.getMessage());
-                workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
+                currentWork.addNbLinesWithInputDataErrorsInExecutionReport();
             } catch (BestPpnException e) {
-                if (!workInProgress.get(filename).isForced()) {
-                    workInProgress.get(filename).setIsOnError(true);
+                if (!currentWork.isForced()) {
+                    currentWork.setIsOnError(true);
                 }
                 log.error(FUNCTIONAL, e.getMessage());
                 ligneKbartDto.setErrorType(e.getMessage());
-                workInProgress.get(filename).addNbLinesWithErrorsInExecutionReport();
+                currentWork.addNbLinesWithErrorsInExecutionReport();
             } finally {
                 if (ligneKbartDto.getBestPpn() != null && !ligneKbartDto.getBestPpn().isEmpty())
-                    workInProgress.get(filename).addNbBestPpnFindedInExecutionReport();
-                workInProgress.get(filename).addLineKbartToMailAttachment(ligneKbartDto);
-                int nbLignesTotal = ligneKbartDto.getNbLinesTotal();
-                int nbCurrentLine = workInProgress.get(filename).getCurrentLine().getAcquire();
-                log.debug(TECHNICAL, "Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
-                if (nbLignesTotal == nbCurrentLine) {
-                    log.debug(TECHNICAL, "Commit du fichier {}", filename);
-                    workInProgress.get(filename).setNbtotalLinesInExecutionReport(nbLignesTotal);
-                    handleFichier(filename);
-                }
+                    currentWork.addNbBestPpnFindedInExecutionReport();
+                currentWork.addLineKbartToMailAttachment(ligneKbartDto);
+                // Vérifie si le fichier est complet et déclenche le commit de façon atomique
+                checkFileCompletion(filename, currentWork);
             }
         } catch (IllegalProviderException | JsonProcessingException e) {
-            if (workInProgress.containsKey(filename)) {
-                workInProgress.get(filename).setIsOnError(true);
-                log.warn(e.getMessage());
-                workInProgress.get(filename).addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
-                workInProgress.get(filename).addNbLinesWithInputDataErrorsInExecutionReport();
-                // Incrémente le compteur de lignes traitées pour éviter de bloquer le traitement du fichier
-                // et libérer l'espace mémoire associé si c'était le dernier message.
-                workInProgress.get(filename).incrementCurrentLine();
+            currentWork.setIsOnError(true);
+            log.warn(e.getMessage());
+            currentWork.addLineKbartToMailAttachementWithErrorMessage(new LigneKbartDto(), e.getMessage());
+            currentWork.addNbLinesWithInputDataErrorsInExecutionReport();
+            // Incrémente le compteur de lignes traitées pour éviter de bloquer le traitement du fichier
+            // et libérer l'espace mémoire associé si c'était le dernier message.
+            currentWork.incrementCurrentLine();
+            // Vérifie également la fin de fichier en cas d'erreur de parsing pour ne pas bloquer le lot en mémoire
+            checkFileCompletion(filename, currentWork);
+        }
+    }
+
+    /**
+     * Vérifie si l'ensemble des lignes attendues pour un fichier ont été traitées,
+     * et déclenche le commit de façon atomique (un seul thread exécute handleFichier).
+     * Utilise >= pour se prémunir d'un dépassement causé par des messages dupliqués Kafka.
+     *
+     * @param filename nom du fichier en cours
+     * @param workInProgressForFile contexte de traitement du fichier
+     * @param nbLignesTotal nombre total de lignes attendues
+     */
+    private void checkFileCompletion(String filename, KafkaWorkInProgress workInProgressForFile) {
+        int nbLignesTotal = workInProgressForFile.getTotalLines();
+        int nbCurrentLine = workInProgressForFile.getCurrentLine().get();
+        log.debug(TECHNICAL, "Ligne en cours : {} NbLignesTotal : {}", nbCurrentLine, nbLignesTotal);
+        if (nbLignesTotal > 0 && nbCurrentLine >= nbLignesTotal) {
+            // compareAndSet garantit qu'un seul thread effectuera le commit et la fermeture du fichier
+            if (workInProgressForFile.getIsCommitting().compareAndSet(false, true)) {
+                log.debug(TECHNICAL, "Commit du fichier {}", filename);
+                workInProgressForFile.setNbtotalLinesInExecutionReport(nbLignesTotal);
+                handleFichier(filename);
             }
         }
     }
 
+    /**
+     * Finalise le traitement du fichier : commit des données, envoi du mail récapitulatif
+     * et purge explicite des structures en mémoire pour libérer la Heap JVM.
+     *
+     * @param filename nom du fichier à finaliser
+     */
     private void handleFichier(String filename) {
+        KafkaWorkInProgress currentWork = workInProgress.get(filename);
+        if (currentWork == null) {
+            return;
+        }
         try {
-            if (!workInProgress.get(filename).isOnError()) {
+            if (!currentWork.isOnError()) {
                 String providerName = Utils.extractProvider(filename);
                 service.commitDatas(providerName, filename);
-                //quel que soit le résultat du traitement, on envoie le rapport par mail
-                log.info(FUNCTIONAL, "Nombre de best ppn trouvé : " + workInProgress.get(filename).getExecutionReport().getNbBestPpnFind() + "/" + workInProgress.get(filename).getExecutionReport().getNbtotalLines());
-                logFileService.createExecutionReport(filename, workInProgress.get(filename).getExecutionReport(), workInProgress.get(filename).isForced());
+                // Quel que soit le résultat du traitement, on envoie le rapport par mail
+                log.info(FUNCTIONAL, "Nombre de best ppn trouvé : " + currentWork.getExecutionReport().getNbBestPpnFind() + "/" + currentWork.getExecutionReport().getNbtotalLines());
+                logFileService.createExecutionReport(filename, currentWork.getExecutionReport(), currentWork.isForced());
             }
-            emailService.sendMailWithAttachment(filename, workInProgress.get(filename).getMailAttachment());
+            emailService.sendMailWithAttachment(filename, currentWork.getMailAttachment());
         } catch (ExecutionException | InterruptedException | IOException e) {
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } catch (IllegalPackageException | IllegalDateException e) {
@@ -131,26 +160,38 @@ public class TopicConsumer {
             log.error(FUNCTIONAL, e.getMessage());
             emailService.sendProductionErrorEmail(filename, e.getMessage());
         } finally {
-            log.info(FUNCTIONAL, "Traitement terminé pour fichier " + filename + " / nb lignes " + workInProgress.get(filename).getKbartToSend().size());
+            log.info(FUNCTIONAL, "Traitement terminé pour fichier " + filename + " / nb lignes " + currentWork.getKbartToSend().size());
+            // Nettoyage explicite des collections pour libérer immédiatement la mémoire vive (Heap)
+            currentWork.clear();
             workInProgress.remove(filename);
         }
     }
 
+    /**
+     * Extrait le nom du fichier à partir de la clé du message Kafka.
+     *
+     * @param key clé du message Kafka
+     * @return nom du fichier extrait
+     */
     private String extractFilenameFromKey (String key) {
         return key.substring(0, key.lastIndexOf('_'));
     }
 
     /**
      * Nettoyage actif périodique des traitements obsolètes pour libérer la Heap.
+     * Si un fichier dépasse le délai max sans être finalisé, il est purgé avec un log d'erreur détaillé.
      */
     @Scheduled(fixedDelay = 60000)
     public void cleanExpiredWorkInProgress() {
         log.debug(TECHNICAL, "Lancement du nettoyage des traitements obsoletes");
         long now = Calendar.getInstance().getTimeInMillis();
         this.workInProgress.entrySet().removeIf(entry -> {
-            boolean isExpired = entry.getValue().getTimestamp() + maxDelayBetweenMessage < now;
+            KafkaWorkInProgress work = entry.getValue();
+            boolean isExpired = work.getTimestamp() + maxDelayBetweenMessage < now;
             if (isExpired) {
-                log.debug(TECHNICAL, "Détection et suppression active de l'ancien lancement de fichier obsolète " + entry.getKey());
+                log.error(TECHNICAL, "Fichier orphelin / obsolète détecté et purgé pour libérer la mémoire : {} (Lignes traitées : {} / Total attendu : {})",
+                        entry.getKey(), work.getCurrentLine().get(), work.getTotalLines());
+                work.clear();
             }
             return isExpired;
         });
