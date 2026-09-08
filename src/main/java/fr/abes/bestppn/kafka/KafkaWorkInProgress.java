@@ -35,6 +35,10 @@ public class KafkaWorkInProgress {
 
     private final AtomicInteger currentLine;
 
+    private final AtomicBoolean isCommitting;
+
+    private final AtomicInteger totalLines;
+
     private final List<LigneKbartDto> kbartToSend;
 
     private final List<LigneKbartImprime> ppnToCreate;
@@ -50,6 +54,8 @@ public class KafkaWorkInProgress {
         this.mailAttachment = new PackageKbartDto();
         this.isOnError = new AtomicBoolean(false);
         this.currentLine = new AtomicInteger(0);
+        this.isCommitting = new AtomicBoolean(false);
+        this.totalLines = new AtomicInteger(0);
         this.kbartToSend = Collections.synchronizedList(new ArrayList<>());
         this.ppnToCreate = Collections.synchronizedList(new ArrayList<>());
         this.ppnFromKbartToCreate = Collections.synchronizedList(new ArrayList<>());
@@ -65,7 +71,26 @@ public class KafkaWorkInProgress {
     }
 
     public void setNbtotalLinesInExecutionReport(int nbtotalLines) {
+        this.totalLines.set(nbtotalLines);
         this.executionReport.setNbtotalLines(nbtotalLines);
+    }
+
+    /**
+     * Définit le nombre total de lignes attendu pour le fichier.
+     *
+     * @param total nombre total de lignes
+     */
+    public void setTotalLines(int total) {
+        this.totalLines.set(total);
+    }
+
+    /**
+     * Récupère le nombre total de lignes attendu pour le fichier.
+     *
+     * @return nombre total de lignes
+     */
+    public int getTotalLines() {
+        return this.totalLines.get();
     }
 
     public void addNbBestPpnFindedInExecutionReport() {
@@ -104,5 +129,17 @@ public class KafkaWorkInProgress {
 
     public synchronized void incrementCurrentLine() {
         this.currentLine.incrementAndGet();
+    }
+
+    /**
+     * Nettoie les listes en mémoire pour libérer la heap du Garbage Collector.
+     */
+    public void clear() {
+        this.kbartToSend.clear();
+        this.ppnToCreate.clear();
+        this.ppnFromKbartToCreate.clear();
+        if (this.mailAttachment != null && this.mailAttachment.getKbartDtos() != null) {
+            this.mailAttachment.getKbartDtos().clear();
+        }
     }
 }
