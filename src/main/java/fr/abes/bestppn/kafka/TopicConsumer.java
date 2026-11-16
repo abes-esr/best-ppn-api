@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+
+import static fr.abes.bestppn.service.LogFileService.LoadResult;
 
 import static fr.abes.bestppn.utils.LogMarkers.FUNCTIONAL;
 import static fr.abes.bestppn.utils.LogMarkers.TECHNICAL;
@@ -142,28 +143,54 @@ public class TopicConsumer {
         if (currentWork == null) {
             return;
         }
+        boolean interrupted = false;
         try {
-            if (!currentWork.isOnError()) {
-                String providerName = Utils.extractProvider(filename);
-                service.commitDatas(providerName, filename);
-                // Quel que soit le résultat du traitement, on envoie le rapport par mail
-                log.info(FUNCTIONAL, "Nombre de best ppn trouvé : " + currentWork.getExecutionReport().getNbBestPpnFind() + "/" + currentWork.getExecutionReport().getNbtotalLines());
-                logFileService.createExecutionReport(filename, currentWork.getExecutionReport(), currentWork.isForced());
+            LoadResult result = LoadResult.REJECTED;
+            Throwable failure = null;
+            try {
+                if (!currentWork.isOnError()) {
+                    String providerName = Utils.extractProvider(filename);
+                    service.commitDatas(providerName, filename);
+                    result = LoadResult.SUCCESS;
+                    log.info(FUNCTIONAL, "Nombre de best ppn trouvé : " + currentWork.getExecutionReport().getNbBestPpnFind() + "/" + currentWork.getExecutionReport().getNbtotalLines());
+                }
+            } catch (IllegalPackageException | IllegalDateException | Exception e) {
+                // Ces deux exceptions métier héritent de Throwable, pas d'Exception.
+                result = LoadResult.FAILED;
+                failure = e;
+                interrupted = e instanceof InterruptedException;
+                log.error(TECHNICAL, "Échec de finalisation du fichier {}", filename, e);
             }
-            emailService.sendMailWithAttachment(filename, currentWork.getMailAttachment());
-        } catch (ExecutionException | InterruptedException | IOException e) {
-            emailService.sendProductionErrorEmail(filename, e.getMessage());
-        } catch (IllegalPackageException | IllegalDateException e) {
-            log.error(FUNCTIONAL, "Le nom du fichier " + filename + " n'est pas correct. " + e);
-            emailService.sendProductionErrorEmail(filename, e.getMessage());
-        } catch (IllegalProviderException e) {
-            log.error(FUNCTIONAL, e.getMessage());
-            emailService.sendProductionErrorEmail(filename, e.getMessage());
+
+            try {
+                logFileService.createExecutionReport(filename, currentWork.getExecutionReport(), currentWork.isForced(), result);
+            } catch (IOException | RuntimeException e) {
+                log.error(TECHNICAL, "Impossible de publier la synthèse du fichier {}", filename, e);
+                if (failure == null) {
+                    failure = e;
+                } else {
+                    failure.addSuppressed(e);
+                }
+            }
+
+            // La notification ne modifie jamais le résultat du commit déjà publié.
+            try {
+                if (failure == null) {
+                    emailService.sendMailWithAttachment(filename, currentWork.getMailAttachment());
+                } else {
+                    emailService.sendProductionErrorEmail(filename, failure.getMessage());
+                }
+            } catch (RuntimeException e) {
+                log.error(TECHNICAL, "Échec de notification du fichier {}", filename, e);
+            }
         } finally {
             log.info(FUNCTIONAL, "Traitement terminé pour fichier " + filename + " / nb lignes " + currentWork.getKbartToSend().size());
             // Nettoyage explicite des collections pour libérer immédiatement la mémoire vive (Heap)
             currentWork.clear();
             workInProgress.remove(filename);
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
